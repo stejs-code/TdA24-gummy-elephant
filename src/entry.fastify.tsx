@@ -26,6 +26,10 @@ const PORT = parseInt(process.env.PORT ?? "3000");
 const HOST = process.env.HOST ?? "0.0.0.0";
 
 const start = async () => {
+  await new Promise((resolve) => setTimeout(resolve, 500))
+  // @ts-ignore
+  await import("../meilisearch.config")
+
   // Create the fastify server
   // https://fastify.dev/docs/latest/Guides/Getting-Started/
   const fastify = Fastify({
@@ -35,7 +39,7 @@ const start = async () => {
   // Enable compression
   // https://github.com/fastify/fastify-compress
   // IMPORTANT NOTE: THIS MUST BE REGISTERED BEFORE THE fastify-qwik PLUGIN
-  // await fastify.register(import('@fastify/compress'))
+  await fastify.register(import('@fastify/compress'))
 
   // Handle Qwik City using a plugin
   await fastify.register(FastifyQwik, { distDir, buildDir });
