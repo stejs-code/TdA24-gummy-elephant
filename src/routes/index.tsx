@@ -10,5 +10,5 @@ export default component$(() => {
 });
 
 export const head: DocumentHead = {
-  title: "Hello TdA",
+  title: "Hello TdA, gummy elehant UUHHHH",
 };
