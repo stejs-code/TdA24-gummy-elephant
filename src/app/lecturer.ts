@@ -1,6 +1,7 @@
 import {z} from "zod";
-import {Index, MeiliSearch} from "meilisearch";
-import {Tag, TagType, tagZod} from "~/app/tag";
+import type {Index, MeiliSearch} from "meilisearch";
+import type { TagType} from "~/app/tag";
+import {Tag, tagZod} from "~/app/tag";
 
 
 

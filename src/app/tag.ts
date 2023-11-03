@@ -1,5 +1,5 @@
 import {z} from "zod";
-import {Index, MeiliSearch, SearchParams} from "meilisearch";
+import type {Index, MeiliSearch, SearchParams} from "meilisearch";
 import * as crypto from "crypto";
 
 

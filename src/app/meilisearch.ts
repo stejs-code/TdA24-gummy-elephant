@@ -1,6 +1,6 @@
 import {MeiliSearch} from "meilisearch";
 import {isBrowser} from "@builder.io/qwik/build";
-import {EnvGetter} from "@builder.io/qwik-city/middleware/request-handler";
+import type {EnvGetter} from "@builder.io/qwik-city/middleware/request-handler";
 
 
 export function getMeilisearch(env:EnvGetter) {
