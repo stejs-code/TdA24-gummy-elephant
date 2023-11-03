@@ -1,16 +1,15 @@
 import {component$} from "@builder.io/qwik";
 import type {DocumentHead} from "@builder.io/qwik-city";
-import {DotGrid} from "~/components/DotGrid/dotgrid";
+import {Profile} from "~/components/lecturer/profile";
 
 export default component$(() => {
     return (
         <>
             <div class={"w-full max-w-2xl mx-auto"}>
-                <h1>Testik</h1>
-
-                <DotGrid amount={20} size={280} radius={2} fill={"#74C7D3"}/>
+                <Profile
+                    imageUrl={"https://tourdeapp.cz/storage/images/2023_02_25/412ff296a291f021bbb6de10e8d0b94863fa89308843b/big.png.webp"}
+                    alt={"Mgr. Petra Swil Plachá MBA"}/>
             </div>
-
         </>
     );
 });
