@@ -1,6 +1,6 @@
 import {z} from "zod";
-import {Index, MeiliSearch, SearchParams} from "meilisearch";
-import {Tag, TagType, tagZod} from "~/app/tag";
+import {Index, MeiliSearch} from "meilisearch";
+import {Tag, tagZod} from "~/app/tag";
 
 
 
@@ -105,7 +105,5 @@ export class Lecturer {
             return {success: false}
         }
     }
-
-
 
 }
