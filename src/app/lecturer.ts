@@ -106,17 +106,6 @@ export class Lecturer {
         }
     }
 
-    async search(query: string, options?: SearchParams){
-        try {
-            const response = await this.index.search(query, options)
-
-            return {success: true, data: response}
-        }catch (e) {
-            console.log(e)
-
-            return {success: false}
-        }
-    }
 
 
 }
