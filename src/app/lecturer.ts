@@ -1,5 +1,5 @@
 import {z} from "zod";
-import {Index, MeiliSearch} from "meilisearch";
+import {Index, MeiliSearch, SearchParams} from "meilisearch";
 import {Tag, TagType, tagZod} from "~/app/tag";
 
 
@@ -52,37 +52,11 @@ export class Lecturer {
     async create(lecturer: z.infer<typeof createParam>) {
         try {
             const uuid = crypto.randomUUID()
-            const foundTagsNames:string[] = []
-            const enhancedTags:TagType[] = []
+            const enhancedTags = lecturer.tags ? await this.tag.createMissingTags(lecturer.tags.map(i => i.name)) : undefined;
+            const data = enhancedTags ? {uuid: uuid, ...lecturer, tags: enhancedTags} : {uuid: uuid, ...lecturer};
 
-            if (lecturer.tags) {
-
-                const response = await this.tag.search("", {
-                    filter: [lecturer.tags.map(i => `name = "${i.name}"`)],
-                    limit: 200
-                })
-
-                if (response.data){
-                    foundTagsNames.push(...response.data.hits.map(i=>i.name))
-                }
-
-                for (const tag of lecturer.tags) {
-
-                    if (!foundTagsNames.includes(tag.name)){
-                        const response = await this.tag.create({name: tag.name})
-                        if(response.success) enhancedTags.push(response.data)
-                    }
-                }
-            }
-
-
-
-            await this.index.addDocuments([lecturerZod.parse({
-                ...lecturer,
-                tags: enhancedTags,
-                uuid: uuid
-            })])
-            return {success: true, data: {uuid: uuid, ...lecturer, tags: enhancedTags}}
+            this.index.addDocuments([lecturerZod.parse(data)]);
+            return { success: true, data: data};
         }catch(e){
             console.log(e)
             return {success: false}
@@ -91,8 +65,8 @@ export class Lecturer {
 
     async delete(id: string){
         try {
-            await this.index.deleteDocument(id);
-            return {success: true}
+            (await this.index.deleteDocument(id));
+            return {success: true, data: (await this.index.deleteDocument(id))}
         }catch (e) {
             console.log(e)
             return {success: false}
@@ -101,7 +75,7 @@ export class Lecturer {
 
     async get(id: string){
         try {
-            const result = (await this.index.search(id)).hits[0];
+            const result = (await this.index.getDocument(id))
             return {success: true, data: result}
         }catch (e) {
             console.log(e)
@@ -111,12 +85,38 @@ export class Lecturer {
 
     async update(lecturer: z.TypeOf<typeof updatedLectureZod>){
         try {
-            await this.index.updateDocuments([updatedLectureZod.parse(lecturer)])
-            return {success: true}
+            const enhancedTags = lecturer.tags ? await this.tag.createMissingTags(lecturer.tags.map(i => i.name)) : undefined;
+            const data = enhancedTags ? {...lecturer, tags: enhancedTags} : {...lecturer};
+
+            await this.index.updateDocuments([updatedLectureZod.parse(data)])
+            return {success: true, data: data}
         } catch (e) {
             console.log(e)
             return {success: false}
         }
     }
+
+    async list(){
+        try {
+
+            return {success: true, data: (await this.index.search("", {limit: 1000})).hits}
+        } catch (e) {
+            console.log(e)
+            return {success: false}
+        }
+    }
+
+    async search(query: string, options?: SearchParams){
+        try {
+            const response = await this.index.search(query, options)
+
+            return {success: true, data: response}
+        }catch (e) {
+            console.log(e)
+
+            return {success: false}
+        }
+    }
+
 
 }

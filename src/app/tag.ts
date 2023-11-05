@@ -1,5 +1,5 @@
 import {z} from "zod";
-import {Index, MeiliSearch, SearchParams} from "meilisearch";
+import type {Index, MeiliSearch, SearchParams} from "meilisearch";
 import * as crypto from "crypto";
 
 
@@ -34,7 +34,7 @@ export class Tag{
 
     async get(id: string){
         try {
-            const result = (await this.index.search(id)).hits[0];
+            const result = (await this.index.getDocument(id))
 
             return {success: true, data: result}
         }catch (e) {
@@ -64,5 +64,33 @@ export class Tag{
 
             return {success: false}
         }
+    }
+
+    async createMissingTags(tags: string[]){
+        const foundTagsNames:string[] = []
+        const enhancedTags:TagType[] = []
+
+        const response = await this.search("", {
+            filter: [tags.map(i => `name = "${i}"`)],
+            limit: 200
+        })
+
+        if (response.data){
+            foundTagsNames.push(...response.data.hits.map(i => i.name))
+        }
+
+        for (const tag of tags) {
+            if (!foundTagsNames.includes(tag)){
+                const response = await this.create({name: tag})
+                if(response.success) enhancedTags.push(response.data)
+            }else{
+                const response = await this.search("", {filter: `name = "${tag}"`})
+                if(response.data) {
+                    enhancedTags.push({name: tag, uuid: response.data.hits[0].uuid})
+                }
+
+            }
+        }
+        return enhancedTags
     }
 }
