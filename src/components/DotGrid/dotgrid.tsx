@@ -8,6 +8,9 @@ export interface DotGridProps {
     fill: string
 }
 
+/**
+ * @deprecated
+ */
 export const DotGrid = component$<DotGridProps>(({width, height, radius, amount, fill}) => {
     const gap = (width - 3 * radius) / (amount - 1)
     const rows = amount
