@@ -1,0 +1,326 @@
+{
+  "openapi": "3.0.2",
+  "info": {
+    "title": "TdA24 Nominační kolo API",
+    "version": "1.0",
+    "description": "Definice API pro Nominační kolo TdA24."
+  },
+  "servers": [
+    {
+      "url": "{protocol}://{vase_subdomena}.tda.rajnoha.eu/",
+      "variables": {
+        "protocol": {
+          "default": "https",
+          "enum": [
+            "http",
+            "https"
+          ]
+        }
+      }
+    }
+  ],
+  "paths": {
+    "/lecturers": {
+      "post": {
+        "summary": "Vytvoří nový záznam lektora",
+        "description": "Nápověda: Vede na jednoduchý INSERT statement do DB",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Lecturer"
+                }
+              }
+            },
+            "description": "Záznam lektora úspěšně vytvořen (rovněž vytvořeny nové tagy, pokud ještě neexistovaly)."
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "description": "Data lektora k zanesení do jeho záznamu.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Lecturer"
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "Získání všech záznamů všech lektorů",
+        "description": "Nápověda: SELECT *",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Lecturer"
+                  },
+                  "nullable": false,
+                  "minItems": 0
+                }
+              }
+            },
+            "description": "Všechny záznamy lektorů"
+          }
+        }
+      }
+    },
+    "/lecturers/{uuid}": {
+      "parameters": [
+        {
+          "in": "path",
+          "name": "uuid",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "get": {
+        "summary": "Dle ID najde lektora a vrátí jeho údaje.",
+        "description": "Nápověda: Jedná se o jednoduchý dotaz na DB, nalézt řádek, který odpovídá danému PK. Pokud žádný nebude nalezen, vrátí 404.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Lecturer"
+                }
+              }
+            },
+            "description": "Nalezený záznam"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "put": {
+        "summary": "Dle ID upraví záznam daného lektora.",
+        "description": "Nápověda: Pokud existuje pole v DB, ale neexistuje v těle požadavku, zůstane jeho hodnota v DB nezměněna.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Lecturer"
+                }
+              }
+            },
+            "description": "Upravený záznam lektora"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Lecturer"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "description": "Nápověda: Opět jednoduchý DELETE statement do DB, pokud entita s daným PK existuje. Pokud ne, opět vrátit 404.",
+        "summary": "Dle ID odstraní záznam lektora",
+        "responses": {
+          "204": {
+            "description": "Záznam byl úspěšně smazán"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "responses": {
+      "NotFound": {
+        "description": "Daný zdroj nebyl nalezen.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "Error": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "example": "404"
+          },
+          "message": {
+            "type": "string",
+            "example": "User not found"
+          }
+        },
+        "required": [
+          "code",
+          "message"
+        ]
+      },
+      "Tag": {
+        "type": "object",
+        "properties": {
+          "uuid": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Token uuid",
+            "readOnly": true,
+            "example": "c20b98dd-f37e-4fa7-aac1-73300abf086e"
+          },
+          "name": {
+            "type": "string",
+            "description": "Název tagu",
+            "example": "Marketing"
+          }
+        },
+        "required": [
+          "uuid",
+          "name"
+        ]
+      },
+      "Contact_info": {
+        "type": "object",
+        "properties": {
+          "telephone_numbers": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "telno",
+              "description": "Telefonní čísla",
+              "example": "+123 777 338 111"
+            },
+            "uniqueItems": true,
+            "minItems": 1
+          },
+          "emails": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "description": "E-mailová adresa",
+              "format": "e-mail",
+              "example": "user@example.com"
+            },
+            "uniqueItems": true,
+            "minItems": 1
+          }
+        },
+        "required": [
+          "telephone_numbers",
+          "emails"
+        ]
+      },
+      "Lecturer": {
+        "type": "object",
+        "properties": {
+          "uuid": {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID lektora",
+            "readOnly": true,
+            "nullable": false,
+            "example": "67fda282-2bca-41ef-9caf-039cc5c8dd69"
+          },
+          "title_before": {
+            "type": "string",
+            "description": "Titul před jménem",
+            "nullable": true,
+            "example": "Mgr."
+          },
+          "first_name": {
+            "type": "string",
+            "description": "Křestní jméno",
+            "nullable": false,
+            "example": "Petra"
+          },
+          "middle_name": {
+            "type": "string",
+            "description": "Střední jména",
+            "nullable": true,
+            "example": "Swil"
+          },
+          "last_name": {
+            "type": "string",
+            "description": "Příjmení",
+            "nullable": false,
+            "example": "Plachá"
+          },
+          "title_after": {
+            "type": "string",
+            "description": "Titul za jménem",
+            "nullable": true,
+            "example": "MBA"
+          },
+          "picture_url": {
+            "type": "string",
+            "format": "url",
+            "description": "URL obrázku",
+            "nullable": true,
+            "example": "https://picsum.photos/200"
+          },
+          "location": {
+            "type": "string",
+            "format": "address",
+            "description": "Lokalita, kde daný lektor působí",
+            "nullable": true,
+            "example": "Brno"
+          },
+          "claim": {
+            "type": "string",
+            "description": "Osobní citát",
+            "nullable": true,
+            "example": "Bez dobré prezentace je i nejlepší myšlenka k ničemu."
+          },
+          "bio": {
+            "type": "string",
+            "description": "Životopis lektora",
+            "nullable": true,
+            "example": "<b>Formátovaný text</b> s <i>bezpečnými</i> tagy."
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Tag"
+            },
+            "uniqueItems": true,
+            "description": "Seznam tagů daného lektora",
+            "nullable": false,
+            "minItems": 0
+          },
+          "price_per_hour": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Cena (v celých korunách) za hodinu práce",
+            "exclusiveMinimum": false,
+            "nullable": true,
+            "example": 720
+          },
+          "contact": {
+            "$ref": "#/components/schemas/Contact_info"
+          }
+        },
+        "required": [
+          "first_name",
+          "last_name"
+        ]
+      }
+    }
+  }
+}

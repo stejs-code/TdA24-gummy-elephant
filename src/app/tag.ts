@@ -8,6 +8,7 @@ export const tagZod = z.object({
     uuid: z.string(),
     name: z.string()
 })
+
 export type TagType = z.infer<typeof tagZod>
 
 export type ResponseType<T> = Promise<{success: true, data: T}| {success: false}>
@@ -24,7 +25,10 @@ export class Tag{
     async create(tag: Omit<TagType, "uuid">): ResponseType<TagType>{
         try{
             const uuid = crypto.randomUUID()
-            await this.index.addDocuments([tagZod.parse({name: tag.name, uuid: uuid})])
+            await this.meilisearch.tasks.waitForTask((await this.index.addDocuments([tagZod.parse({
+                name: tag.name,
+                uuid: uuid
+            })])).taskUid)
             return {success: true, data: {uuid: uuid, name: tag.name}}
         }catch (e){
             console.log(e)
