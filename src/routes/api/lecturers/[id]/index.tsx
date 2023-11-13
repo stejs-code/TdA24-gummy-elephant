@@ -1,4 +1,4 @@
-import {RequestHandler} from "@builder.io/qwik-city";
+import type {RequestHandler} from "@builder.io/qwik-city";
 import {Lecturer} from "~/app/lecturer";
 import {getMeilisearch} from "~/app/meilisearch";
 
