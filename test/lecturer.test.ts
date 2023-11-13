@@ -101,5 +101,23 @@ describe("lecturer", () => {
         }
     });
 
+    it('create should fail (dangerous html)', async () => {
+        const response = await fetch(url + "/api/lecturers", {
+            method: "POST",
+            body: JSON.stringify({
+                first_name: validRequestBody.first_name,
+                last_name: validRequestBody.last_name,
+                bio: "<script>alert('bonjour')</script>"
+            })
+        })
+
+        const parse = errorZod.safeParse(await response.json())
+        expect(parse.success).toBe(true)
+
+        if (parse.success) {
+            expect(parse.data.message.includes("bio")).toBe(true)
+        }
+    });
+
 
 })
