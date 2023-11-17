@@ -1,13 +1,16 @@
 import {component$, Slot} from "@builder.io/qwik";
-import Logo from '~/media/logo.svg?jsx';
 import {IconParkElephant} from "~/components/icons/elephant";
+import {Image} from "@unpic/qwik";
 
 export default component$(() => {
     return <>
         <nav class={"p-10 w-full"}>
-            <Logo
-                style={{width: '80px'}}
-                class={"md:bg-white"}
+            <Image
+                class={"pointer-events-none"}
+                src={"/images/logo.svg"}
+                width={80}
+                height={53}
+                alt={"Teacher Digital Agency Logo"}
             />
         </nav>
 
