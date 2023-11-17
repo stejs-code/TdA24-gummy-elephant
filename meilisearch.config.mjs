@@ -15,9 +15,21 @@ try {
 }
 
 
-
 client.index("lecturers").updateSettings({
-    filterableAttributes: ["id", "name"]
+    filterableAttributes: ["name"]
+})
+
+try {
+    client.createIndex("tags", {
+        primaryKey: "uuid"
+    })
+} catch (e) {
+    /* EMPTY */
+}
+
+
+client.index("tags").updateSettings({
+    filterableAttributes: ["name"]
 })
 
 console.log("Meilisearch successfully configured!")
