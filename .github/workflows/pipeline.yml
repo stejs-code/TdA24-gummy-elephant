@@ -35,3 +35,4 @@ jobs:
           url: https://odevzdavani.tourdeapp.cz/api/image/
           method: "POST"
           headers: ${{ secrets.RESTART_COOKIE }}
+          timeout: 30000
