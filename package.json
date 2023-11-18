@@ -16,7 +16,7 @@
     "build.types": "tsc --incremental --noEmit",
     "deploy": "echo 'Run \"npm run qwik add\" to install a server adapter'",
     "dev": "vite --mode ssr",
-    "dev.meilisearch": "source .env; docker run -d -it --name tda-meilisearch -e MEILI_MASTER_KEY=\"$MEILISEARCH_MASTER_KEY\" -p 7700:7700 -e MEILI_ENV='development' -v $(pwd)/tmp/meili_data:/meili_data getmeili/meilisearch:v1.4",
+    "dev.meilisearch": "source .env; docker run -it --rm --name tda-meilisearch -e MEILI_MASTER_KEY=\"$MEILISEARCH_MASTER_KEY\" -p 7700:7700 -e MEILI_ENV='development' -e MEILI_IMPORT_DUMP=\"/meili_data/dumps/seed_data.dump\" -e MEILI_IGNORE_DUMP_IF_DB_EXISTS=\"true\" -v $(pwd)/tmp/meili_data:/meili_data -v $(pwd)/seed_data.dump:/meili_data/dumps/seed_data.dump getmeili/meilisearch:v1.4",
     "dev.debug": "node --inspect-brk ./node_modules/vite/bin/vite.js --mode ssr --force",
     "fmt": "prettier --write .",
     "fmt.check": "prettier --check .",

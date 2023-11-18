@@ -7,14 +7,15 @@
  * - https://qwik.builder.io/docs/deployments/node/
  *
  */
-import { type PlatformNode } from "@builder.io/qwik-city/middleware/node";
+import {type PlatformNode} from "@builder.io/qwik-city/middleware/node";
 import Fastify from "fastify";
-import { join } from "node:path";
-import { fileURLToPath } from "node:url";
+import {join} from "node:path";
+import {fileURLToPath} from "node:url";
 import FastifyQwik from "./plugins/fastify-qwik";
 
 declare global {
-  interface QwikCityPlatform extends PlatformNode {}
+    interface QwikCityPlatform extends PlatformNode {
+    }
 }
 
 // Directories where the static assets are located
@@ -26,26 +27,26 @@ const PORT = parseInt(process.env.PORT ?? "3000");
 const HOST = process.env.HOST ?? "0.0.0.0";
 
 const start = async () => {
-  await new Promise((resolve) => setTimeout(resolve, 500))
-  // @ts-ignore
-  await import("../meilisearch.config")
+    await new Promise((resolve) => setTimeout(resolve, 500))
+    // @ts-ignore
+    await import("../meilisearch.config")
 
-  // Create the fastify server
-  // https://fastify.dev/docs/latest/Guides/Getting-Started/
-  const fastify = Fastify({
-    logger: true,
-  });
+    // Create the fastify server
+    // https://fastify.dev/docs/latest/Guides/Getting-Started/
+    const fastify = Fastify({
+        logger: true,
+    });
 
-  // Enable compression
-  // https://github.com/fastify/fastify-compress
-  // IMPORTANT NOTE: THIS MUST BE REGISTERED BEFORE THE fastify-qwik PLUGIN
-  await fastify.register(import('@fastify/compress'))
+    // Enable compression
+    // https://github.com/fastify/fastify-compress
+    // IMPORTANT NOTE: THIS MUST BE REGISTERED BEFORE THE fastify-qwik PLUGIN
+    await fastify.register(import('@fastify/compress'))
 
-  // Handle Qwik City using a plugin
-  await fastify.register(FastifyQwik, { distDir, buildDir });
+    // Handle Qwik City using a plugin
+    await fastify.register(FastifyQwik, {distDir, buildDir});
 
-  // Start the fastify server
-  await fastify.listen({ port: PORT, host: HOST });
+    // Start the fastify server
+    await fastify.listen({port: PORT, host: HOST});
 };
 
 start();

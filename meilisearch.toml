@@ -49,7 +49,7 @@ dump_dir = "dumps/"
 
 # Imports the dump file located at the specified path. Path must point to a .dump file.
 # https://www.meilisearch.com/docs/learn/configuration/instance_options#import-dump
-# import_dump = "./path/to/my/file.dump"
+import_dump = "./seed_data.dump"
 
 # Prevents Meilisearch from throwing an error when `import_dump` does not point to a valid dump file.
 # https://www.meilisearch.com/docs/learn/configuration/instance_options#ignore-missing-dump
