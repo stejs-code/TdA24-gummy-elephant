@@ -28,3 +28,10 @@ jobs:
           team_secret: ${{ secrets.TEAM_SECRET }}
           image_name: tda-generic
           image_path: /tmp/tda-generic.tar
+
+      - name: Restart TdA app
+        uses: indiesdev/curl@v1.1
+        with:
+          url: https://odevzdavani.tourdeapp.cz/api/image/
+          method: "POST"
+          headers: ${{ secrets.RESTART_COOKIE }}
