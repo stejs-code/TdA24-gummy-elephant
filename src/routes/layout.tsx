@@ -4,7 +4,7 @@ import {Image} from "@unpic/qwik";
 
 export default component$(() => {
     return <>
-        <nav class={"p-10 w-full"}>
+        <nav class={"p-8 w-full"}>
             <Image
                 class={"pointer-events-none"}
                 src={"/images/logo.svg"}
