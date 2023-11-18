@@ -7,7 +7,7 @@ import run from "vite-plugin-run";
 export default defineConfig(() => {
     return {
         plugins: [
-            qwikCity(),
+            qwikCity({trailingSlash: false}),
             qwikVite(),
             tsconfigPaths(),
             run({
@@ -25,6 +25,7 @@ export default defineConfig(() => {
             }),
         ],
         preview: {
+            host: "0.0.0.0",
             headers: {
                 "Cache-Control": "public, max-age=600",
             },

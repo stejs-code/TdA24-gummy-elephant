@@ -5,6 +5,7 @@ import type { FastifyPluginAsync } from "fastify";
 import fastifyPlugin from "fastify-plugin";
 
 import render from "../entry.ssr";
+import {join} from "node:path";
 
 export interface FastifyQwikOptions {
   distDir: string;
@@ -28,10 +29,19 @@ const qwikPlugin: FastifyPluginAsync<FastifyQwikOptions> = async (
   });
 
   fastify.register(fastifyStatic, {
+    prefix: "/images",
+    root: join(distDir, "images"),
+    redirect: false,
+    maxAge: "1m",
+    decorateReply: false,
+  });
+
+  fastify.register(fastifyStatic, {
     root: distDir,
     redirect: false,
     decorateReply: false,
   });
+
 
   fastify.setNotFoundHandler(async (request, response) => {
     await router(request.raw, response.raw, (err) => fastify.log.error(err));

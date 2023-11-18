@@ -2,8 +2,7 @@ name: Build and push to TdA
 
 on:
   push:
-    branches:
-      - master
+    branches: [ main ]
 
 jobs:
   build:
