@@ -31,3 +31,8 @@ export const lecturerZod = z.object({
 export const updatedLectureZod = lecturerZod.partial()
 
 export type LecturerType = z.infer<typeof lecturerZod>
+
+export function zodErrorToString(zodError: z.ZodError) {
+    zodError.toString()
+
+}

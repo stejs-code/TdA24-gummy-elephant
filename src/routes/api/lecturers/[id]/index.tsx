@@ -6,7 +6,7 @@ import {getMeilisearch} from "~/app/meilisearch";
 export const onGet:RequestHandler = async ({env, json, params}) =>{
     const response = (await new Lecturer(getMeilisearch(env)).get(params.id))
     if (response.success){
-        json(200, response)
+        json(200, response.data)
     }else {
         json(404, {"code": 404, message: "User not found"})
     }
