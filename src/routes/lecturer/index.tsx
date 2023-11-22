@@ -72,7 +72,8 @@ export default component$(() => {
                         {document.value.tags.map((tag, i) => (
                             // <Badge key={i} content={tag.name}/>
                             // <li class={"mr-4 mb-0.5"} key={i}>#{tag.name}</li>
-                            <li class={"mr-2 text-slate-800 mb-2 px-4 text-sm py-1 bg-slate-100 rounded-lg"} key={i}>#{tag.name}</li>
+                            <li class={"mr-2 text-slate-800 mb-2 px-4 text-sm py-1 bg-slate-100 rounded-lg"}
+                                key={i}>#{tag.name}</li>
                         ))}
                     </ul>
                 </div>

@@ -7,9 +7,9 @@ export default extendConfig(baseConfig, () => {
     build: {
       ssr: true,
       rollupOptions: {
-        input: ["src/entry.fastify.tsx", "@qwik-city-plan"],
+        input: ["src/entry.express.tsx", "@qwik-city-plan"],
       },
     },
-    plugins: [nodeServerAdapter({ name: "fastify" })],
+    plugins: [nodeServerAdapter({ name: "express" })],
   };
 });
