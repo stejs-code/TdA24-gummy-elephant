@@ -32,3 +32,4 @@ server
 tailwind.config.js
 meilisearch.config.mjs
 postcss.config.js
+test
