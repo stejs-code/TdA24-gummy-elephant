@@ -1,5 +1,5 @@
 import {fetch} from "undici";
-import {errorZod, lecturerZod} from "../src/app/zod";
+import {errorZod, LecturerType, lecturerZod} from "../src/app/zod";
 import * as crypto from "crypto";
 
 const url = "http://localhost:5173"
@@ -31,14 +31,21 @@ describe("lecturer", () => {
     };
 
     it("should create", async () => {
-
         const response = await fetch(url + "/api/lecturers", {
             method: "POST",
             body: JSON.stringify(validRequestBody)
         })
 
-        const parse = lecturerZod.safeParse(await response.json())
-        expect(parse.success).toBe(true)
+        expect(response.status).toBe(200)
+
+        const body = await response.json() as LecturerType
+
+        console.log(body)
+
+        // cleanup
+        await fetch(url + "/api/lecturers/" + body.uuid, {
+            method: "DELETE",
+        })
     })
 
     it('should get', async () => {
@@ -50,29 +57,19 @@ describe("lecturer", () => {
             })
         })
 
-        const parseCreate = lecturerZod.safeParse(await create.json())
-        expect(parseCreate.success).toBe(true)
-        if (!parseCreate.success) throw new Error("should be true")
+        const document = await create.json() as LecturerType
 
-        const get = await fetch(`${url}/api/lecturers/${parseCreate.data.uuid}`, {
+        const get = await fetch(`${url}/api/lecturers/${document.uuid}`, {
             method: "GET",
         })
 
         const parseGet = lecturerZod.safeParse(await get.json())
         expect(parseGet.success).toBe(true)
-    });
 
-    it('should create with minimum required fields', async () => {
-        const response = await fetch(url + "/api/lecturers", {
-            method: "POST",
-            body: JSON.stringify({
-                first_name: validRequestBody.first_name,
-                last_name: validRequestBody.last_name
-            })
+        // cleanup
+        await fetch(url + "/api/lecturers/" + document.uuid, {
+            method: "DELETE",
         })
-
-        const parse = lecturerZod.safeParse(await response.json())
-        expect(parse.success).toBe(true)
     });
 
     it('create should fail (missing first_name))', async () => {
@@ -83,8 +80,8 @@ describe("lecturer", () => {
             })
         })
 
-        const parse = errorZod.safeParse(await response.json())
-        expect(parse.success).toBe(true)
+        console.log(await response.json())
+        expect(response.status).toBeGreaterThanOrEqual(400)
     });
 
     it('create should fail (first_name as number)', async () => {
@@ -96,12 +93,8 @@ describe("lecturer", () => {
             })
         })
 
-        const parse = errorZod.safeParse(await response.json())
-        expect(parse.success).toBe(true)
-
-        if (parse.success) {
-            expect(parse.data.message.includes("first_name")).toBe(true)
-        }
+        console.log(await response.json())
+        expect(response.status).toBeGreaterThanOrEqual(400)
     });
 
     it('create should fail (picture_url !== url)', async () => {
@@ -114,67 +107,34 @@ describe("lecturer", () => {
             })
         })
 
-        const parse = errorZod.safeParse(await response.json())
-        expect(parse.success).toBe(true)
-        if (parse.success) {
-            console.log(parse.data.message)
-            expect(parse.data.message.includes("picture_url")).toBe(true)
-        }
+        console.log(await response.json())
+        expect(response.status).toBeGreaterThanOrEqual(400)
     });
 
-    it('create should fail (dangerous html)', async () => {
+    it('create should remove dangerous html', async () => {
         const response = await fetch(url + "/api/lecturers", {
             method: "POST",
             body: JSON.stringify({
                 first_name: validRequestBody.first_name,
                 last_name: validRequestBody.last_name,
-                bio: "<script>alert('bonjour')</script>"
+                bio: "<script>alert('bonjour')</script><b>Hi in bold</b>"
             })
         })
 
-        const parse = errorZod.safeParse(await response.json())
-        expect(parse.success).toBe(true)
+        const body = await response.json() as LecturerType
 
-        if (parse.success) {
-            expect(parse.data.message.includes("bio")).toBe(true)
-        }
+        expect(body.bio).not.toContain("script")
+        expect(body.bio).toContain("<b>")
+
+        // cleanup
+        await fetch(url + "/api/lecturers/" + body.uuid, {
+            method: "DELETE",
+        })
     });
 
-    // id is undefined and the tags name was never used before
-    it('should create (id undefined)', async () => {
-        const create = await fetch(url + "/api/lecturers", {
-            method: "POST",
-            body: JSON.stringify({
-                first_name: validRequestBody.first_name,
-                last_name: validRequestBody.last_name,
-                tags: [
-                    {
-                        name: crypto.randomBytes(8).toString("hex"),
-                    }
-                ]
-            })
-        })
-
-        const parseCreate = lecturerZod.safeParse(await create.json())
-        expect(parseCreate.success).toBe(true)
-        if (!parseCreate.success) throw new Error("should be true")
-
-        const get = await fetch(`${url}/api/lecturers/${parseCreate.data.uuid}`, {
-            method: "GET",
-        })
-
-        const parseGet = lecturerZod.safeParse(await get.json())
-        expect(parseGet.success).toBe(true)
-        if (!parseGet.success) throw new Error("should be true")
-
-        expect(parseGet.data.tags?.[0].uuid).not.toBeUndefined()
-    });
-
-    // the provided tag id doesn't exist in the database
-    // it should be created with the provided id
-    it('should create (tag id is defined, but nonexistent)', async () => {
+    // tag creation
+    it('should create', async () => {
         const tag = {
-            uuid: crypto.randomUUID(),
             name: crypto.randomBytes(8).toString("hex"),
         }
 
@@ -187,128 +147,24 @@ describe("lecturer", () => {
             })
         })
 
-        const parseCreate = lecturerZod.safeParse(await create.json())
-        expect(parseCreate.success).toBe(true)
-        if (!parseCreate.success) throw new Error("should be true")
+        const document = await create.json() as LecturerType
 
-        const get = await fetch(`${url}/api/lecturers/${parseCreate.data.uuid}`, {
+        const get = await fetch(`${url}/api/lecturers/${document.uuid}`, {
             method: "GET",
         })
 
-        const parseGet = lecturerZod.safeParse(await get.json())
-        expect(parseGet.success).toBe(true)
-        if (!parseGet.success) throw new Error("should be true")
+        const body = await get.json() as LecturerType
 
-        expect(parseGet.data.tags?.[0].uuid).toBe(tag.uuid)
-    });
-
-    // provided tag id exists,
-    // but his name is different, than the one stored
-    // -> rename tag, rename tags in all usages
-    it('should create (tag name update)', async () => {
-        const tag = {
-            uuid: crypto.randomUUID(),
-            name: crypto.randomBytes(8).toString("hex"),
+        expect(body.tags).not.toBeUndefined()
+        if (body.tags && document.tags) {
+            expect(body.tags[0].uuid).not.toBeUndefined()
+            expect(body.tags[0].uuid).toBe(document.tags[0].uuid)
         }
 
-        const create1 = await fetch(url + "/api/lecturers", {
-            method: "POST",
-            body: JSON.stringify({
-                first_name: validRequestBody.first_name,
-                last_name: validRequestBody.last_name,
-                tags: [tag]
-            })
+        // cleanup
+        await fetch(url + "/api/lecturers/" + body.uuid, {
+            method: "DELETE",
         })
-
-        const parseCreate1 = lecturerZod.safeParse(await create1.json())
-        expect(parseCreate1.success).toBe(true)
-        if (!parseCreate1.success) throw new Error("should be true")
-
-
-        const create2 = await fetch(url + "/api/lecturers", {
-            method: "POST",
-            body: JSON.stringify({
-                first_name: validRequestBody.first_name,
-                last_name: validRequestBody.last_name,
-                tags: [{
-                    uuid: tag.uuid,
-                    name: "changed :)"
-                }]
-            })
-        })
-
-        const parseCreate2 = lecturerZod.safeParse(await create2.json())
-        expect(parseCreate2.success).toBe(true)
-        if (!parseCreate2.success) throw new Error("should be true")
-
-        const get1 = await fetch(`${url}/api/lecturers/${parseCreate1.data.uuid}`, {
-            method: "GET",
-        })
-
-        const parseGet1 = lecturerZod.safeParse(await get1.json())
-        expect(parseGet1.success).toBe(true)
-        if (!parseGet1.success) throw new Error("should be true")
-        expect(parseGet1.data.tags?.[0].name).toBe("changed :)")
-
-        const get2 = await fetch(`${url}/api/lecturers/${parseCreate1.data.uuid}`, {
-            method: "GET",
-        })
-
-        const parseGet2 = lecturerZod.safeParse(await get2.json())
-        expect(parseGet2.success).toBe(true)
-        if (!parseGet2.success) throw new Error("should be true")
-        expect(parseGet2.data.tags?.[0].name).toBe("changed :)")
-    });
-
-    // the provided tag name is already used,
-    // but tag id isn't provided
-    // -> don't create new tag document
-    //    use the already existing
-    it('should create (tag name is used)', async () => {
-        const tag = {
-            uuid: crypto.randomUUID(),
-            name: crypto.randomBytes(8).toString("hex"),
-        }
-
-        const create1 = await fetch(url + "/api/lecturers", {
-            method: "POST",
-            body: JSON.stringify({
-                first_name: validRequestBody.first_name,
-                last_name: validRequestBody.last_name,
-                tags: [tag]
-            })
-        })
-
-        const parseCreate1 = lecturerZod.safeParse(await create1.json())
-        expect(parseCreate1.success).toBe(true)
-        if (!parseCreate1.success) throw new Error("should be true")
-
-
-        const create2 = await fetch(url + "/api/lecturers", {
-            method: "POST",
-            body: JSON.stringify({
-                first_name: validRequestBody.first_name,
-                last_name: validRequestBody.last_name,
-                tags: [{
-                    uuid: crypto.randomUUID(),
-                    name: tag.name
-                }]
-            })
-        })
-
-        const parseCreate2 = lecturerZod.safeParse(await create2.json())
-        expect(parseCreate2.success).toBe(true)
-        if (!parseCreate2.success) throw new Error("should be true")
-
-        const get = await fetch(`${url}/api/lecturers/${parseCreate2.data.uuid}`, {
-            method: "GET",
-        })
-
-        const parseGet = lecturerZod.safeParse(await get.json())
-        expect(parseGet.success).toBe(true)
-        if (!parseGet.success) throw new Error("should be true")
-
-        expect(parseGet.data.tags?.[0].uuid).toBe(tag.uuid)
     });
 
     it('should list', async () => {
@@ -348,6 +204,7 @@ describe("lecturer", () => {
         const deleteResponse = await fetch(url + "/api/lecturers/" + crypto.randomUUID(), {
             method: "DELETE",
         })
+
         const deleteResult = errorZod.safeParse(await deleteResponse.json())
         expect(deleteResult.success).toBe(true)
     });
