@@ -33,7 +33,7 @@ export class Tag {
                 return new ApiError(400, `parse error: ${zodErrorToString(e)}`)
             }
 
-            console.error("Error while deleting tag", data, e)
+            console.error("Error while creating tag", data, e)
 
             return ApiError.internal()
         }
