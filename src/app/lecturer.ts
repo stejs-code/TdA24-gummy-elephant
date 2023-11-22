@@ -1,15 +1,11 @@
 import {z} from "zod";
-import {Index, MeiliSearch} from "meilisearch";
-import {Tag, tagZod} from "~/app/tag";
-import {LecturerType, lecturerZod, updatedLectureZod} from "~/app/zod";
-
-export const createParam = lecturerZod.merge(z.object({
-    tags: z.array(tagZod.omit({
-        uuid: true
-    })).optional()
-})).omit({
-    uuid: true
-})
+import type {Index, MeiliSearch, SearchParams, SearchResponse} from "meilisearch";
+import { MeiliSearchApiError} from "meilisearch";
+import {Tag} from "~/app/tag";
+import type { LecturerType, TagType} from "~/app/zod";
+import {createBody, lecturerZod, updateLectureBodyZod, zodErrorToString} from "~/app/zod";
+import {ApiError} from "~/app/apiError";
+import sanitizeHtml from 'sanitize-html';
 
 export class Lecturer {
     index: Index<LecturerType>
@@ -22,63 +18,140 @@ export class Lecturer {
         this.tag = new Tag(meilisearch)
     }
 
-
-    async create(lecturer: z.infer<typeof createParam>) {
+    async search(query: string, options?: SearchParams): Promise<SearchResponse<LecturerType> | ApiError> {
         try {
-            const uuid = crypto.randomUUID()
-            const enhancedTags = lecturer.tags ? await this.tag.createMissingTags(lecturer.tags.map(i => i.name)) : undefined;
-            const data = enhancedTags ? {uuid: uuid, ...lecturer, tags: enhancedTags} : {uuid: uuid, ...lecturer};
+            return await this.index.search(query, options)
 
-            await this.meilisearch.tasks.waitForTask((await this.index.addDocuments([lecturerZod.parse(data)])).taskUid)
-
-            return {success: true, data: data};
         } catch (e) {
-            console.log(e)
-            return {success: false}
+            console.error("Error while searching lecturer", options, e)
+
+            return ApiError.internal()
         }
     }
 
-    async delete(id: string) {
+    async create(rawData: z.infer<typeof createBody>): Promise<LecturerType | ApiError> {
         try {
-            (await this.index.deleteDocument(id));
-            return {success: true, data: (await this.index.deleteDocument(id))}
+            const data = createBody.parse(rawData)
+
+            const lecturer: LecturerType = {
+                ...data,
+                tags: [],
+                uuid: crypto.randomUUID()
+            }
+
+            if (data.bio) lecturer.bio = sanitizeHtml(data.bio)
+
+            if (data.tags) lecturer.tags = await this.processTags(data.tags)
+
+            await this.meilisearch.tasks.waitForTask((await this.index.addDocuments([lecturer])).taskUid)
+
+            return lecturer
+
         } catch (e) {
-            console.log(e)
-            return {success: false}
+            if (e instanceof z.ZodError) {
+                return new ApiError(400, `parse error: ${zodErrorToString(e)}`)
+            }
+
+            console.error("Error while creating user", rawData, e)
+
+            return ApiError.internal()
         }
     }
 
-    async get(id: string) {
+    async delete(uuid: string): Promise<ApiError | { success: true }> {
         try {
-            const result = (await this.index.getDocument(id))
-            return {success: true, data: result}
+            const lecturer = await this.get(uuid)
+
+            if (lecturer instanceof ApiError) return lecturer
+
+            await this.meilisearch.tasks.waitForTask((await this.index.deleteDocument(uuid)).taskUid)
+
+            return {success: true}
         } catch (e) {
-            console.log(e)
-            return {success: false}
+            console.error("Error while deleting lecturer", uuid, e)
+            return ApiError.internal()
         }
     }
 
-    async update(lecturer: z.TypeOf<typeof updatedLectureZod>) {
+    async get(uuid: string): Promise<ApiError | LecturerType> {
         try {
-            const enhancedTags = lecturer.tags ? await this.tag.createMissingTags(lecturer.tags.map(i => i.name)) : undefined;
-            const data = enhancedTags ? {...lecturer, tags: enhancedTags} : {...lecturer};
+            return await this.index.getDocument(uuid)
 
-            await this.index.updateDocuments([updatedLectureZod.parse(data)])
-            return {success: true, data: data}
         } catch (e) {
-            console.log(e)
-            return {success: false}
+            if (e instanceof MeiliSearchApiError) {
+                return new ApiError(404, "not found")
+            }
+
+            console.error("Error while getting lecturer", uuid, e)
+
+            return ApiError.internal()
+        }
+    }
+
+    async update(uuid: string, rawData: z.TypeOf<typeof updateLectureBodyZod>): Promise<ApiError | LecturerType> {
+        try {
+            const data = updateLectureBodyZod.parse(rawData)
+
+            const previousLecturer = await this.get(uuid)
+
+            if (previousLecturer instanceof ApiError) return previousLecturer
+
+            const lecturer: LecturerType = {
+                ...previousLecturer,
+                ...data,
+                tags: []
+            }
+
+            if (data.tags) lecturer.tags = await this.processTags(data.tags)
+
+            await this.index.updateDocuments([lecturer])
+
+            return lecturer
+        } catch (e) {
+            console.error("Error while updating lecturer", uuid, rawData, e)
+
+            return ApiError.internal()
         }
     }
 
     async list() {
         try {
-
-            return {success: true, data: (await this.index.search("", {limit: 1000})).hits}
+            return (await this.index.search("", {
+                sort: [
+                    "last_name:desc",
+                    "first_name:desc",
+                    "uuid:desc"
+                ],
+                limit: 1000
+            })).hits.map(i => lecturerZod.parse(i))
         } catch (e) {
-            console.log(e)
-            return {success: false}
+            console.error("Error while listing lecturers", e)
+            return ApiError.internal()
         }
+    }
+
+    async updateBulk(lecturers: LecturerType[]): Promise<ApiError | { success: true }> {
+        try {
+            await this.meilisearch.tasks.waitForTasks((await this.index.updateDocumentsInBatches(lecturers, 20)).map(i => i.taskUid))
+
+            return {
+                success: true
+            }
+        } catch (e) {
+            console.error("Error while bulk updating lecturers")
+
+            return ApiError.internal()
+        }
+    }
+
+    private async processTags(tags: Omit<TagType, "uuid">[]): Promise<TagType[]> {
+        // assure unique values
+        const uniqueTags = [...new Set(tags.map(i => i.name))].map(i => ({name: i}))
+
+        // create unregistered tags
+        return (await Promise.all(uniqueTags
+            .map(i => this.tag.assureTagExistence(i))))
+            .filter((i): i is TagType => !(i instanceof ApiError));
     }
 
 }

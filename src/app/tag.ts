@@ -3,127 +3,149 @@ import type {Index, MeiliSearch, SearchParams, SearchResponse} from "meilisearch
 import * as crypto from "crypto";
 import {ApiError} from "~/app/apiError";
 import {MeiliSearchApiError} from "meilisearch";
+import type { TagType} from "~/app/zod";
+import { tagZod, zodErrorToString} from "~/app/zod";
 
 
-
-export const tagZod = z.object({
-    uuid: z.string(),
-    name: z.string()
-})
-
-export type TagType = z.infer<typeof tagZod>
-
-export type ResponseType<T> = Promise<{success: true, data: T}| {success: false}>
-
-export class Tag{
-    index: Index<TagType>
+export class Tag {
+    private index: Index<TagType>
 
     constructor(
         private meilisearch: MeiliSearch
-    ){
+    ) {
         this.index = meilisearch.index<TagType>("tags")
     }
 
     async create(data: Omit<TagType, "uuid">): Promise<ApiError | TagType> {
         try {
-            const uuid = crypto.randomUUID()
 
-            const document = tagZod.safeParse({
-                name: data.name,
-                uuid: uuid
-            })
-
-            if (document.success) {
-                await this.meilisearch.tasks.waitForTask((await this.index.addDocuments([])).taskUid)
-
-                return document.data
+            const tag = {
+                ...tagZod.omit({uuid: true}).parse(data),
+                uuid: crypto.randomUUID()
             }
 
-            return new ApiError(400, `parse error: ${document.error.toString()}`)
+            await this.meilisearch.tasks.waitForTask((await this.index.addDocuments([tag])).taskUid)
+
+            return tag
 
         } catch (e) {
-            console.error(e)
+            if (e instanceof z.ZodError) {
+                return new ApiError(400, `parse error: ${zodErrorToString(e)}`)
+            }
 
-            return new ApiError(500, "internal server error happened")
+            console.error("Error while deleting tag", data, e)
+
+            return ApiError.internal()
         }
     }
 
-    async get(id: string): Promise<TagType | ApiError>{
+    async get(uuid: string): Promise<TagType | ApiError> {
         try {
-            const result = tagZod.safeParse(await this.index.getDocument(id))
-
-            if (result.success) {
-                return result.data
-            }
-
-            return new ApiError(500, "tag has invalid value")
-        }catch (e) {
+            return await this.index.getDocument(uuid)
+        } catch (e) {
             if (e instanceof MeiliSearchApiError) {
                 return new ApiError(404, "not found")
             }
 
-            console.error(e)
+            console.error("Error while getting tag", uuid, e)
 
-            return new ApiError(500, "internal server error happened")
+            return ApiError.internal()
         }
     }
 
     async list(): Promise<TagType[] | ApiError> {
         try {
-            const response = await this.index.search("", {limit: 1000, sort: ["last_name:desc", "first_name:desc", "uuid:desc"]});
-            const result = response.hits.map((i) => {
-                const result = tagZod.safeParse(i)
-                if (result.success) return result.data
-            })
+            const response = await this.index.search("", {
+                limit: 1000,
+                sort: ["name:desc"]
+            });
 
-
-            if (result.includes(undefined)) console.error("one of the tags has invalid value")
-
-            return result.filter(i => i) as TagType[]
+            return response.hits.map((i) => ({name: i.name, uuid: i.uuid}))
 
         } catch (e) {
-            console.error(e)
+            console.error("Error while listing tag", e)
 
-            return new ApiError(500, "internal error")
+            return ApiError.internal()
         }
     }
 
-    async search(query: string, options?: SearchParams): Promise<SearchResponse<TagType> | ApiError>{
+    async search(query: string, options?: SearchParams): Promise<SearchResponse<TagType> | ApiError> {
         try {
             return await this.index.search(query, options)
 
         } catch (e) {
-            console.error(e)
+            console.error("Error while searching tag", options, e)
 
-            return new ApiError(500, "internal error")
+            return ApiError.internal()
         }
     }
 
-    async createMissingTags(tags: string[]) {
-    //     const foundTagsNames: string[] = []
-    //     const enhancedTags: TagType[] = []
-    //
-    //     const response = await this.search("", {
-    //         filter: [tags.map(i => `name = "${i}"`)],
-    //         limit: 200
-    //     })
-    //
-    //     if (response.data){
-    //         foundTagsNames.push(...response.data.hits.map(i => i.name))
-    //     }
-    //
-    //     for (const tag of tags) {
-    //         if (!foundTagsNames.includes(tag)){
-    //             const response = await this.create({name: tag})
-    //             if(response.success) enhancedTags.push(response.data)
-    //         }else{
-    //             const response = await this.search("", {filter: `name = "${tag}"`})
-    //             if(response.data) {
-    //                 enhancedTags.push({name: tag, uuid: response.data.hits[0].uuid})
-    //             }
-    //
-    //         }
-    //     }
-    //     return enhancedTags
+    async update(uuid: string, rawData: Omit<TagType, "uuid">): Promise<ApiError | TagType> {
+        try {
+            const previousTag = await this.get(uuid)
+
+            if (previousTag instanceof ApiError) return previousTag
+
+            const data = tagZod.omit({uuid: true}).parse(rawData)
+
+            const tag = {
+                uuid,
+                ...data
+            };
+
+            await Promise.allSettled([
+                (async ()=>{
+                    await this.meilisearch.tasks.waitForTask((await this.index.updateDocuments([tag])).taskUid)
+                })(),
+                this.onUpdate(tag)
+            ])
+
+            return tag
+        } catch (e) {
+            console.error("Error while updating tag", uuid, rawData, e)
+
+            return ApiError.internal()
+        }
+    }
+
+    async delete(uuid: string): Promise<ApiError | { success: true }> {
+        try {
+            const getResponse = await this.get(uuid)
+            if (getResponse instanceof ApiError) return getResponse
+
+            await this.meilisearch.tasks.waitForTask((await this.index.deleteDocument(uuid)).taskUid)
+
+            return {success: true}
+        } catch (e) {
+            console.error("Error while deleting tag", uuid, e)
+
+            return ApiError.internal()
+        }
+    }
+
+    async assureTagExistence(tag: Omit<TagType, "uuid">): Promise<ApiError | TagType> {
+        const searchResults = await this.search("", {filter: [`name = "${tag.name}"`]})
+
+        if (!(searchResults instanceof ApiError) && searchResults.hits.length > 0) return searchResults.hits[0]
+
+        return await this.create(tag)
+    }
+
+    private async onUpdate(tag: TagType) {
+        const lecturer = new (await import("~/app/lecturer")).Lecturer(this.meilisearch)
+
+        const lecturers = await lecturer.search("", {
+            filter: [`tags.uuid = ${tag.uuid}`],
+            limit: 1000
+        })
+
+        if (lecturers instanceof ApiError) return lecturers
+
+        const newLecturers = lecturers.hits.map(lecturer => ({
+            ...lecturer,
+            tags: lecturer.tags?.map(i => (i.uuid === tag.uuid) ? tag : i)
+        }))
+
+        await lecturer.updateBulk(newLecturers)
     }
 }

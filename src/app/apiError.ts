@@ -1,4 +1,4 @@
-import {AbortMessage} from "@builder.io/qwik-city/middleware/request-handler";
+import type {AbortMessage} from "@builder.io/qwik-city/middleware/request-handler";
 
 export class ApiError extends Error {
     constructor(
@@ -14,5 +14,9 @@ export class ApiError extends Error {
             code: this.code,
             message: this.message
         })
+    }
+
+    static internal() {
+        return new ApiError(500, "internal server error happened")
     }
 }

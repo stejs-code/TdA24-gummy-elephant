@@ -1,26 +1,35 @@
 import type {RequestHandler} from "@builder.io/qwik-city";
-import {createParam, Lecturer} from "~/app/lecturer";
 import {getMeilisearch} from "~/app/meilisearch";
-import {z} from "zod";
+import {ApiError} from "~/app/apiError";
+import {Lecturer} from "~/app/lecturer";
+import {handleRequestHandlingError} from "~/app/utils";
 
 export const onGet: RequestHandler = async ({env, json}) => {
-    json(200, (await new Lecturer(getMeilisearch(env)).list()).data)
+    try {
+        const LecturerResource = new Lecturer(getMeilisearch(env))
+
+        const response = await LecturerResource.list()
+
+        if (response instanceof ApiError) return response.sendResponse(json)
+
+        json(200, response)
+    } catch (e) {
+        handleRequestHandlingError(e, json)
+    }
 }
+
+
 export const onPost: RequestHandler = async ({env, json, request}) => {
     try {
-        const response = (await request.json())
-        const lecturer = new Lecturer(getMeilisearch(env))
+        const LecturerResource = new Lecturer(getMeilisearch(env))
 
-        if ('picture_url' in response) {
-            if (!(z.string().url(response.picture_url))) {
-                json(400, {code: 400, message: "picture_url is not a valid URL"})
-                return
-            }
-        }
+        const response = await LecturerResource.create(await request.json())
 
-        json(200, (await lecturer.create(createParam.parse(response))).data)
+        if (response instanceof ApiError) return response.sendResponse(json)
+
+        json(200, response)
 
     } catch (e) {
-        json(400, {code: 400, message: JSON.stringify(e)})
+        handleRequestHandlingError(e, json)
     }
 }
