@@ -7,7 +7,7 @@
   },
   "servers": [
     {
-      "url": "{protocol}://{subdomain}.app.tourdeapp.cz/",
+      "url": "{protocol}://{subdomain}.app.tourdeapp.cz/api/",
       "variables": {
         "protocol": {
           "default": "http",
@@ -22,7 +22,7 @@
       }
     },
     {
-      "url": "{protocol}://localhost:5173/",
+      "url": "{protocol}://localhost:5173/api/",
       "variables": {
         "protocol": {
           "default": "https",
@@ -176,7 +176,7 @@
         },
         "requestBody": {
           "required": true,
-          "description": "Data tagu.",
+          "description": "Data tagů.",
           "content": {
             "application/json": {
               "schema": {
@@ -329,7 +329,7 @@
           },
           "message": {
             "type": "string",
-            "example": "User not found"
+            "example": "Not found"
           }
         },
         "required": [

@@ -3,8 +3,8 @@ import type {Index, MeiliSearch, SearchParams, SearchResponse} from "meilisearch
 import * as crypto from "crypto";
 import {ApiError} from "~/app/apiError";
 import {MeiliSearchApiError} from "meilisearch";
-import type { TagType} from "~/app/zod";
-import { tagZod, zodErrorToString} from "~/app/zod";
+import type {TagType} from "~/app/zod";
+import {tagZod, zodErrorToString} from "~/app/zod";
 
 
 export class Tag {
@@ -44,7 +44,7 @@ export class Tag {
             return await this.index.getDocument(uuid)
         } catch (e) {
             if (e instanceof MeiliSearchApiError) {
-                return new ApiError(404, "not found")
+                return new ApiError(404, "Not found")
             }
 
             console.error("Error while getting tag", uuid, e)
@@ -94,7 +94,7 @@ export class Tag {
             };
 
             await Promise.allSettled([
-                (async ()=>{
+                (async () => {
                     await this.meilisearch.tasks.waitForTask((await this.index.updateDocuments([tag])).taskUid)
                 })(),
                 this.onUpdate(tag)

@@ -79,7 +79,7 @@ export class Lecturer {
 
         } catch (e) {
             if (e instanceof MeiliSearchApiError) {
-                return new ApiError(404, "not found")
+                return new ApiError(404, "Not found")
             }
 
             console.error("Error while getting lecturer", uuid, e)
