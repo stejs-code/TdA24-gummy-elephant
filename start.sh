@@ -7,7 +7,7 @@ node -v
 /usr/src/app/meilisearch --config-file-path /usr/src/app/meilisearch.toml --import-dump /usr/src/app/seed_data.dump &
 
 # Start the second process
-node --env-file=.env server/entry.fastify &
+node --env-file=.env server/entry.express &
 
 # Wait for any process to exit
 wait -n

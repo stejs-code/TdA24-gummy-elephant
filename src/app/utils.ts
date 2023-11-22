@@ -7,6 +7,7 @@ export function defer(func: () => any) {
 
 export function handleRequestHandlingError(e:any, json: (statusCode: number, data: any) => AbortMessage) {
     if (e instanceof SyntaxError && e.message === "Unexpected end of JSON input") {
+        console.error("invalid json", e)
         return json(400, {
             code: 400,
             message: "invalid json"
