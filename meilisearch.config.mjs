@@ -3,33 +3,35 @@ import {MeiliSearch} from "meilisearch";
 const client = new MeiliSearch({
     host: 'http://localhost:7700',
     apiKey: process.env.MEILISEARCH_MASTER_KEY
-})
+});
+
+(async () => {
+    try {
+        await client.createIndex("lecturers", {
+            primaryKey: "uuid"
+        })
+    } catch (e) {
+        /* EMPTY */
+    }
 
 
-try {
-    client.createIndex("lecturers", {
-        primaryKey: "uuid"
+    await client.index("lecturers").updateSettings({
+        filterableAttributes: ["tags.uuid"],
+        sortableAttributes: ["first_name", "last_name", "uuid"]
     })
-} catch (e) {
-    /* EMPTY */
-}
+
+    try {
+        await client.createIndex("tags", {
+            primaryKey: "uuid"
+        })
+    } catch (e) {
+        /* EMPTY */
+    }
 
 
-client.index("lecturers").updateSettings({
-    filterableAttributes: ["name"]
-})
-
-try {
-    client.createIndex("tags", {
-        primaryKey: "uuid"
+    await client.index("tags").updateSettings({
+        filterableAttributes: ["name"],
+        sortableAttributes: ["name"]
     })
-} catch (e) {
-    /* EMPTY */
-}
+})()
 
-
-client.index("tags").updateSettings({
-    filterableAttributes: ["name"]
-})
-
-console.log("Meilisearch successfully configured!")
