@@ -115,6 +115,25 @@ export class Tag {
 
             await this.meilisearch.tasks.waitForTask((await this.index.deleteDocument(uuid)).taskUid)
 
+            const lecturer = new (await import("~/app/lecturer")).Lecturer(this.meilisearch)
+
+            const lecturers = await lecturer.search("", {
+                filter: [`tags.uuid = ${uuid}`],
+                limit: 1000
+            })
+
+            if (lecturers instanceof ApiError) {
+                console.error("Error while deleting tag in lecturers", lecturer)
+                return {success: true}
+            }
+
+            const newLecturers = lecturers.hits.map(lecturer => ({
+                ...lecturer,
+                tags: lecturer.tags?.filter(i => (i.uuid !== uuid))
+            }))
+
+            await lecturer.updateBulk(newLecturers)
+
             return {success: true}
         } catch (e) {
             console.error("Error while deleting tag", uuid, e)
