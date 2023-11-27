@@ -19,16 +19,16 @@ export const contactZod = z.object({
 
 export const lecturerZod = z.object({
     uuid: z.string().uuid(),
-    title_before: z.string().optional(),
+    title_before: z.string().optional().nullish().transform(x => x ?? undefined),
     first_name: z.string(),
-    middle_name: z.string().optional(),
+    middle_name: z.string().optional().nullish().transform(x => x ?? undefined),
     last_name: z.string(),
-    title_after: z.string().optional(),
-    picture_url: z.string().optional(),
-    location: z.string().optional(),
-    claim: z.string().optional(),
-    bio: z.string().optional(),
-    price_per_hour: z.number().optional(),
+    title_after: z.string().optional().nullish().transform(x => x ?? undefined),
+    picture_url: z.string().optional().nullish().transform(x => x ?? undefined),
+    location: z.string().optional().nullish().transform(x => x ?? undefined),
+    claim: z.string().optional().nullish().transform(x => x ?? undefined),
+    bio: z.string().optional().nullish().transform(x => x ?? undefined),
+    price_per_hour: z.number().optional().nullish().transform(x => x ?? undefined),
     tags: z.array(tagZod).optional(),
     contact: contactZod.optional()
 })
