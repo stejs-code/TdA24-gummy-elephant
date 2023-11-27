@@ -24,7 +24,7 @@ export const lecturerZod = z.object({
     middle_name: z.string().optional(),
     last_name: z.string(),
     title_after: z.string().optional(),
-    picture_url: z.string().url().optional(),
+    picture_url: z.string().optional(),
     location: z.string().optional(),
     claim: z.string().optional(),
     bio: z.string().optional(),
