@@ -19,16 +19,16 @@ export const contactZod = z.object({
 
 export const lecturerZod = z.object({
     uuid: z.string().uuid(),
-    title_before: z.string().optional().nullish().transform(x => x ?? undefined),
+    title_before: z.string().optional().nullish().transform(x => x ?? null),
     first_name: z.string(),
-    middle_name: z.string().optional().nullish().transform(x => x ?? undefined),
+    middle_name: z.string().optional().nullish().transform(x => x ?? null),
     last_name: z.string(),
-    title_after: z.string().optional().nullish().transform(x => x ?? undefined),
-    picture_url: z.string().optional().nullish().transform(x => x ?? undefined),
-    location: z.string().optional().nullish().transform(x => x ?? undefined),
-    claim: z.string().optional().nullish().transform(x => x ?? undefined),
-    bio: z.string().optional().nullish().transform(x => x ?? undefined),
-    price_per_hour: z.number().optional().nullish().transform(x => x ?? undefined),
+    title_after: z.string().optional().nullish().transform(x => x ?? null),
+    picture_url: z.string().optional().nullish().transform(x => x ?? null),
+    location: z.string().optional().nullish().transform(x => x ?? null),
+    claim: z.string().optional().nullish().transform(x => x ?? null),
+    bio: z.string().optional().nullish().transform(x => x ?? null),
+    price_per_hour: z.number().optional().nullish().transform(x => x ?? null),
     tags: z.array(tagZod).optional(),
     contact: contactZod.optional()
 })
