@@ -98,9 +98,8 @@ export class Lecturer {
 
             const lecturer: LecturerType = {
                 ...previousLecturer,
-                ...data,
-                tags: []
-            }
+                ...data
+            } as LecturerType
 
             if (data.tags) lecturer.tags = await this.processTags(data.tags)
 
