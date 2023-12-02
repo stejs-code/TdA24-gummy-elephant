@@ -1,17 +1,20 @@
 import {component$, Slot} from "@builder.io/qwik";
 import {IconParkElephant} from "~/components/icons/elephant";
 import {Image} from "@unpic/qwik";
+import {Link} from "@builder.io/qwik-city";
 
 export default component$(() => {
     return <>
-        <nav class={"p-8 w-full"}>
-            <Image
-                class={"pointer-events-none"}
-                src={"/images/logo.svg"}
-                width={80}
-                height={53}
-                alt={"Teacher Digital Agency Logo"}
-            />
+        <nav class={"p-8 w-full flex"}>
+            <Link href={"/"} prefetch={true}>
+                <Image
+                    class={"pointer-events-none"}
+                    src={"/images/logo.svg"}
+                    width={80}
+                    height={53}
+                    alt={"Teacher Digital Agency Logo"}
+                />
+            </Link>
         </nav>
 
         <Slot/>

@@ -9,7 +9,7 @@ export class ApiError extends Error {
         super(message)
     }
 
-    sendResponse(json: (statusCode: number, data: any) => AbortMessage){
+    sendResponse(json: (statusCode: number, data: any) => AbortMessage) {
         json(this.code, {
             code: this.code,
             message: this.message

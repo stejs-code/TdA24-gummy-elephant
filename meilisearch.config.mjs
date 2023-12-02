@@ -16,7 +16,7 @@ const client = new MeiliSearch({
 
 
     await client.index("lecturers").updateSettings({
-        filterableAttributes: ["tags.uuid"],
+        filterableAttributes: ["tags.uuid", "tags.alias", "route_url"],
         sortableAttributes: ["first_name", "last_name", "uuid"]
     })
 

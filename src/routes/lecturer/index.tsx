@@ -1,8 +1,8 @@
 import {component$} from "@builder.io/qwik";
 import type {DocumentHead} from "@builder.io/qwik-city";
+import {routeLoader$} from "@builder.io/qwik-city";
 import {Profile} from "~/components/lecturer/profile";
 import {Info} from "~/components/lecturer/info";
-import {routeLoader$} from "@builder.io/qwik-city";
 import {IoCallOutline, IoCashOutline, IoMailOutline, IoMapOutline} from "@qwikest/icons/ionicons";
 
 export default component$(() => {
@@ -33,14 +33,14 @@ export default component$(() => {
                                 text: i,
                                 href: `tel:${i.replaceAll(" ", "")}`
                             }))}>
-                                <IoCallOutline class={"text-primary"} style={{fontSize: "28px"}}/>
+                                <IoCallOutline class={"text-primary-300"} style={{fontSize: "28px"}}/>
                             </Info>
 
                             <Info content={document.value.contact.emails.map(i => ({
                                 text: i,
                                 href: `mailto:${i}`
                             }))}>
-                                <IoMailOutline class={"text-primary"} style={{fontSize: "28px"}}/>
+                                <IoMailOutline class={"text-primary-300"} style={{fontSize: "28px"}}/>
                             </Info>
                             {/*<LongInfo*/}
                             {/*    icon={"#"}*/}
@@ -51,11 +51,11 @@ export default component$(() => {
                         <div>
 
                             <Info content={[{text: document.value.location}]}>
-                                <IoMapOutline class={"text-primary"} style={{fontSize: "28px"}}/>
+                                <IoMapOutline class={"text-primary-300"} style={{fontSize: "28px"}}/>
                             </Info>
 
                             <Info content={[{text: `${document.value.price_per_hour} Kč/h`}]}>
-                                <IoCashOutline class={"text-primary"} style={{fontSize: "28px"}}/>
+                                <IoCashOutline class={"text-primary-300"} style={{fontSize: "28px"}}/>
                             </Info>
                             {/*<Info*/}
                             {/*    icon={"https://tourdeapp.cz/storage/images/2023_02_25/412ff296a291f021bbb6de10e8d0b94863fa89308843b/big.png.webp"}*/}

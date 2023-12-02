@@ -304,6 +304,30 @@
           }
         }
       }
+    },
+    "/app/seed": {
+      "post": {
+        "tags": ["App"],
+        "summary": "Vytvoří 200 lektorů",
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "acknowledged": {
+                      "type": "boolean",
+                      "default": true
+                    }
+                  }
+                }
+              }
+            },
+            "description": "Požadavek bude zpracován"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -346,6 +370,12 @@
             "description": "Token uuid",
             "readOnly": true,
             "example": "c20b98dd-f37e-4fa7-aac1-73300abf086e"
+          },
+          "alias": {
+            "type": "string",
+            "description": "Alias uuid",
+            "readOnly": true,
+            "example": "e45g"
           },
           "name": {
             "type": "string",

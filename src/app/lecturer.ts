@@ -1,8 +1,8 @@
 import {z} from "zod";
 import type {Index, MeiliSearch, SearchParams, SearchResponse} from "meilisearch";
-import { MeiliSearchApiError} from "meilisearch";
+import {MeiliSearchApiError} from "meilisearch";
 import {Tag} from "~/app/tag";
-import type { LecturerType, TagType} from "~/app/zod";
+import type {LecturerType, TagType} from "~/app/zod";
 import {createBody, lecturerZod, updateLectureBodyZod, zodErrorToString} from "~/app/zod";
 import {ApiError} from "~/app/apiError";
 import sanitizeHtml from 'sanitize-html';
@@ -29,6 +29,33 @@ export class Lecturer {
         }
     }
 
+    async doesUrlExist(url: string): Promise<boolean> {
+        const response = await this.search("", {
+            filter: [`route_url = ${url}`]
+        })
+
+        return !(response instanceof ApiError || response.hits.length === 0);
+    }
+
+    async createUrl(lecturer: LecturerType) {
+        const url = [lecturer.title_before, lecturer.first_name, lecturer.middle_name, lecturer.last_name, lecturer.title_after]
+            .filter((i): i is string => !!i)
+            .map(i => i.normalize("NFD").replace(/[\u0300-\u036f]/g, ""))
+            .join("-")
+            .toLowerCase()
+
+        if (await this.doesUrlExist(url)) {
+            console.log(`url already exists, uuid: ${lecturer.uuid}`)
+            return lecturer.uuid
+        }
+
+        return url
+    }
+
+    static getName(lecturer: LecturerType) {
+        return [lecturer.title_before, lecturer.first_name, lecturer.middle_name, lecturer.last_name, lecturer.title_after].filter(i => i).join(" ")
+    }
+
     async create(rawData: z.infer<typeof createBody>): Promise<LecturerType | ApiError> {
         try {
             const data = createBody.parse(rawData)
@@ -36,8 +63,10 @@ export class Lecturer {
             const lecturer: LecturerType = {
                 ...data,
                 tags: [],
-                uuid: crypto.randomUUID()
+                uuid: crypto.randomUUID(),
             }
+
+            lecturer.route_url = await this.createUrl(lecturer)
 
             if (data.bio) lecturer.bio = sanitizeHtml(data.bio)
 
@@ -101,6 +130,14 @@ export class Lecturer {
                 ...data
             } as LecturerType
 
+            if (!data.route_url) {
+                lecturer.route_url = await this.createUrl(lecturer)
+            } else {
+                if (await this.doesUrlExist(data.route_url)) {
+                    lecturer.route_url = lecturer.uuid
+                }
+            }
+
             if (data.tags) lecturer.tags = await this.processTags(data.tags)
 
             await this.index.updateDocuments([lecturer])
@@ -143,7 +180,7 @@ export class Lecturer {
         }
     }
 
-    private async processTags(tags: Omit<TagType, "uuid">[]): Promise<TagType[]> {
+    private async processTags(tags: Omit<TagType, "uuid" | "alias">[]): Promise<TagType[]> {
         // assure unique values
         const uniqueTags = [...new Set(tags.map(i => i.name))].map(i => ({name: i}))
 

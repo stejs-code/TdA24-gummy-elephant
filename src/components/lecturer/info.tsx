@@ -19,8 +19,9 @@ export const Info = component$<Info>(({content}) => {
                         <li key={i} class={"text-base not-italic mb-4"}>
 
                             {val.href
-                            ? <a href={val.href} class={"underline py-2 hover:text-primary transition-colors"}>{val.text}</a>
-                            : val.text}
+                                ? <a href={val.href}
+                                     class={"underline py-2 hover:text-primary-300 transition-colors"}>{val.text}</a>
+                                : val.text}
 
 
                         </li>

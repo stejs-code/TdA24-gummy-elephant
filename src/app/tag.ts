@@ -1,8 +1,8 @@
 import {z} from "zod";
 import type {Index, MeiliSearch, SearchParams, SearchResponse} from "meilisearch";
+import {MeiliSearchApiError} from "meilisearch";
 import * as crypto from "crypto";
 import {ApiError} from "~/app/apiError";
-import {MeiliSearchApiError} from "meilisearch";
 import type {TagType} from "~/app/zod";
 import {tagZod, zodErrorToString} from "~/app/zod";
 
@@ -16,12 +16,13 @@ export class Tag {
         this.index = meilisearch.index<TagType>("tags")
     }
 
-    async create(data: Omit<TagType, "uuid">): Promise<ApiError | TagType> {
+    async create(data: Omit<TagType, "uuid" | "alias">): Promise<ApiError | TagType> {
         try {
 
             const tag = {
-                ...tagZod.omit({uuid: true}).parse(data),
-                uuid: crypto.randomUUID()
+                ...tagZod.omit({uuid: true, alias: true}).parse(data),
+                uuid: crypto.randomUUID(),
+                alias: crypto.randomBytes(2).toString("hex")
             }
 
             await this.meilisearch.tasks.waitForTask((await this.index.addDocuments([tag])).taskUid)
@@ -60,7 +61,7 @@ export class Tag {
                 sort: ["name:desc"]
             });
 
-            return response.hits.map((i) => ({name: i.name, uuid: i.uuid}))
+            return response.hits.map((i) => ({name: i.name, uuid: i.uuid, alias: i.alias}))
 
         } catch (e) {
             console.error("Error while listing tag", e)
@@ -80,17 +81,18 @@ export class Tag {
         }
     }
 
-    async update(uuid: string, rawData: Omit<TagType, "uuid">): Promise<ApiError | TagType> {
+    async update(uuid: string, rawData: Omit<TagType, "uuid" | "alias">): Promise<ApiError | TagType> {
         try {
             const previousTag = await this.get(uuid)
 
             if (previousTag instanceof ApiError) return previousTag
 
-            const data = tagZod.omit({uuid: true}).parse(rawData)
+            const data = tagZod.omit({uuid: true, alias: true}).parse(rawData)
 
             const tag = {
                 uuid,
-                ...data
+                ...data,
+                alias: previousTag.alias
             };
 
             await Promise.allSettled([
@@ -108,7 +110,9 @@ export class Tag {
         }
     }
 
-    async delete(uuid: string): Promise<ApiError | { success: true }> {
+    async delete(uuid: string): Promise<ApiError | {
+        success: true
+    }> {
         try {
             const getResponse = await this.get(uuid)
             if (getResponse instanceof ApiError) return getResponse
@@ -142,7 +146,7 @@ export class Tag {
         }
     }
 
-    async assureTagExistence(tag: Omit<TagType, "uuid">): Promise<ApiError | TagType> {
+    async assureTagExistence(tag: Omit<TagType, "uuid" | "alias">): Promise<ApiError | TagType> {
         const searchResults = await this.search("", {filter: [`name = "${tag.name}"`]})
 
         if (!(searchResults instanceof ApiError) && searchResults.hits.length > 0) return searchResults.hits[0]
