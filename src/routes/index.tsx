@@ -223,7 +223,7 @@ export default component$(() => {
 
                     {!!data.totalPages && forI(data.totalPages, (i) => (
                         <li key={i}>
-                            <a class={"w-8 text-center py-1 rounded-md bg-slate-100 hover:bg-slate-200 block"}
+                            <a class={`w-8 text-center py-1 rounded-md bg-slate-100 hover:bg-slate-200 transition-colors block ${data.page === i && "bg-slate-200 hover:bg-slate-300"}`}
                                href={getUrl(data.query, i, data.filters)}>
                                 {i}
                             </a>
