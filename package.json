@@ -2,7 +2,7 @@
   "name": "my-qwik-empty-starter",
   "description": "App with Routing built-in ready to create your app",
   "engines": {
-    "node": ">=15.0.0"
+    "node": ">=21.0.0"
   },
   "private": true,
   "trustedDependencies": [
@@ -22,7 +22,7 @@
     "fmt.check": "prettier --check .",
     "lint": "eslint \"src/**/*.ts*\"",
     "preview": "qwik build preview && vite preview --open",
-    "serve": "node server/entry.express",
+    "serve": "node --env-file=.env server/entry.express",
     "start": "vite --open --mode ssr",
     "test": "npx jest",
     "qwik": "qwik"
@@ -59,8 +59,10 @@
   "dependencies": {
     "@modular-forms/qwik": "^0.21.1",
     "@qwikest/icons": "^0.0.13",
+    "@types/morgan": "^1.9.9",
     "@unpic/qwik": "^0.0.32",
     "meilisearch": "^0.35.0",
+    "morgan": "^1.10.0",
     "sanitize-html": "^2.11.0",
     "vite-plugin-run": "^0.5.1"
   }

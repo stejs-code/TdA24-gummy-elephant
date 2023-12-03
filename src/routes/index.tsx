@@ -192,7 +192,7 @@ export default component$(() => {
                             {i.picture_url &&
                                 <a class={"shrink-0 mr-8 mb-4"} href={`/lecturer/${i.route_url || i.uuid}`}>
                                     <img
-                                        loading={"lazy"}
+                                        loading={index > 3 ? "lazy" : "eager"}
                                         width={225}
                                         height={225}
                                         src={i.picture_url}
@@ -277,7 +277,7 @@ export const useTags = routeLoader$(async (event) => {
 })
 
 export const head: DocumentHead = {
-    title: "Hello TdA",
+    title: "Teacher Digital Agency",
     meta: [
         {
             name: "description",

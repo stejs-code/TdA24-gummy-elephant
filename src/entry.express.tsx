@@ -15,6 +15,7 @@ import express from "express";
 import {fileURLToPath} from "node:url";
 import {join} from "node:path";
 import compression from "compression";
+import morgan from "morgan";
 
 declare global {
     interface QwikCityPlatform extends PlatformNode {
@@ -46,6 +47,7 @@ const {router, notFound} = createQwikCity({
 
 const app = express();
 app.use(compression());
+app.use(morgan("tiny"))
 
 app.use(`/build`, express.static(buildDir, {immutable: true, maxAge: "1y"}));
 app.use(express.static(distDir, {redirect: false}));
