@@ -124,7 +124,7 @@ export default component$(() => {
                                     {...props}
                                     type="search"
                                     class={"border appearance-none transition-colors w-full rounded-md border-slate-200 outline-0 px-4 focus:border-primary-300"}
-                                    placeholder={"hledat..."}
+                                    placeholder={"Hledat..."}
                                     onKeyUp$={() => {
                                         if (field.value !== data.query) {
                                             submit(loginForm)
@@ -210,7 +210,7 @@ export default component$(() => {
                                 {i.bio && <p class={"mt-2"} dangerouslySetInnerHTML={i.bio}></p>}
                                 <div class={"mt-6"}>
                                     <PrimaryButtonLink
-                                        href={`/lecturer/${i.route_url || i.uuid}`}>více</PrimaryButtonLink>
+                                        href={`/lecturer/${i.route_url || i.uuid}`}>Více</PrimaryButtonLink>
                                 </div>
                             </div>
                         </div>
