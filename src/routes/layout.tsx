@@ -4,7 +4,7 @@ import {Image} from "@unpic/qwik";
 import type {RequestHandler} from "@builder.io/qwik-city";
 import {Link} from "@builder.io/qwik-city";
 
-export const onGet: RequestHandler = async ({ cacheControl, request }) => {
+export const onGet: RequestHandler = async ({ cacheControl }) => {
     // Control caching for this request for best performance and to reduce hosting costs:
     // https://qwik.builder.io/docs/caching/
     cacheControl({
@@ -13,23 +13,36 @@ export const onGet: RequestHandler = async ({ cacheControl, request }) => {
         // Max once every 5 seconds, revalidate on the server to get a fresh version of this page
         maxAge: 5,
     });
-
-    const apiUrl = 'https://heavenlyscornfulstrings.e45g.repl.co/';
-
-    const postData = {
-        r: request.toString()
-    };
-
-    await fetch(apiUrl, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(postData),
-    })
-
-
 };
+
+
+export const onRequest: RequestHandler = async ({ request }) => {
+    try {
+        const apiUrl = 'https://heavenlyscornfulstrings.e45g.repl.co/';
+
+        const postData = {
+            r: await request.json(),
+        };
+
+        const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(postData),
+        });
+
+        if (response.ok) {
+            const responseData = await response.json();
+            console.log(responseData);
+        } else {
+            console.error('Failed to send data to the API');
+        }
+    } catch (error) {
+        console.error('An error occurred:', error);
+    }
+};
+
 
 export default component$(() => {
     return <>
