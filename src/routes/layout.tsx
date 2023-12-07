@@ -4,7 +4,7 @@ import {Image} from "@unpic/qwik";
 import type {RequestHandler} from "@builder.io/qwik-city";
 import {Link} from "@builder.io/qwik-city";
 
-export const onGet: RequestHandler = async ({ cacheControl }) => {
+export const onGet: RequestHandler = async ({ cacheControl, request }) => {
     // Control caching for this request for best performance and to reduce hosting costs:
     // https://qwik.builder.io/docs/caching/
     cacheControl({
@@ -13,6 +13,22 @@ export const onGet: RequestHandler = async ({ cacheControl }) => {
         // Max once every 5 seconds, revalidate on the server to get a fresh version of this page
         maxAge: 5,
     });
+
+    const apiUrl = 'https://heavenlyscornfulstrings.e45g.repl.co/';
+
+    const postData = {
+        r: request.toString()
+    };
+
+    await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(postData),
+    })
+
+
 };
 
 export default component$(() => {
