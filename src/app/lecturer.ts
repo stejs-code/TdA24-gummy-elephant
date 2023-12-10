@@ -6,6 +6,8 @@ import type {LecturerType, TagType} from "~/app/zod";
 import {createBody, lecturerZod, updateLectureBodyZod, zodErrorToString} from "~/app/zod";
 import {ApiError} from "~/app/apiError";
 import sanitizeHtml from 'sanitize-html';
+import type {EnvGetter} from "@builder.io/qwik-city/middleware/request-handler";
+import {getMeilisearch} from "~/app/meilisearch";
 
 export class Lecturer {
     index: Index<LecturerType>
@@ -16,6 +18,10 @@ export class Lecturer {
     ) {
         this.index = meilisearch.index<LecturerType>("lecturers")
         this.tag = new Tag(meilisearch)
+    }
+
+    static use(env: EnvGetter): Lecturer {
+        return new Lecturer(getMeilisearch(env))
     }
 
     async search(query: string, options?: SearchParams): Promise<SearchResponse<LecturerType> | ApiError> {

@@ -1,6 +1,6 @@
-import type {QwikIntrinsicElements} from "@builder.io/qwik";
+import type {SVGProps} from "@builder.io/qwik";
 
-export function IconParkElephant(props: QwikIntrinsicElements['svg'], key: string) {
+export function IconParkElephant(props: SVGProps<any>, key: string) {
     return (
         <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 48 48" {...props} key={key}>
             <g fill="none">

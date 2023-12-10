@@ -1,276 +1,447 @@
-import {component$, useStore, useTask$} from "@builder.io/qwik";
+import {$, component$, useSignal, useStore, useTask$} from "@builder.io/qwik";
+import type {FormStore} from "@modular-forms/qwik";
+import {formAction$, getValue, reset, setValue, submit, useForm, valiForm$} from "@modular-forms/qwik";
 import type {DocumentHead} from "@builder.io/qwik-city";
-import {routeLoader$} from "@builder.io/qwik-city";
+import { routeLoader$} from "@builder.io/qwik-city";
+import type {Input} from "valibot";
+import {array, number, object, string} from "valibot";
 import {Lecturer} from "~/app/lecturer";
-import {getMeilisearch} from "~/app/meilisearch";
 import {ApiError} from "~/app/apiError";
-import {z} from "zod";
 import {Tag} from "~/app/tag";
-import {array, type Input, object, string} from 'valibot';
-import type {InitialValues} from "@modular-forms/qwik";
-import {formAction$, submit, useForm, valiForm$} from "@modular-forms/qwik";
-import type {SearchResponse} from "meilisearch";
-import {forI} from "~/app/utils";
-import {PrimaryButton, PrimaryButtonLink} from "~/components/ui/button";
-import {Tags} from "~/components/ui/tag";
+import type {LecturerType, TagType} from "~/app/zod";
+import {MultiRangeSlider} from "~/components/ui/multiRange";
+import {InputLabel, SearchInput, SelectInput} from "~/components/ui/form";
 import {Spinner} from "~/components/ui/spinner";
+import {Tags} from "~/components/ui/tag";
+import {Info} from "~/components/lecturer/info";
+import {IoCashOutline, IoCloseOutline, IoMapOutline} from "@qwikest/icons/ionicons";
+import {DefaultButton, PrimaryButton, PrimaryButtonLink} from "~/components/ui/button";
+import {useDebounce} from "~/components/ui/debounce";
+import type {SearchParams, SearchResponse} from "meilisearch";
+import {getMeilisearch} from "~/app/meilisearch";
+import {forI} from "~/app/utils";
+import {Modal, ModalContent, ModalFooter, ModalHeader} from "@qwik-ui/headless";
 
-
-export const zLecturerMask = z.object({
-    uuid: z.string(),
-    name: z.string(),
-    route_url: z.string().nullish(),
-    picture_url: z.string().nullish(),
-    bio: z.string().nullish(),
-    tags: z.string().array().default([]),
-    claim: z.string().nullish()
-})
-
-const LoginSchema = object({
+export const SearchForm = object({
     query: string(),
-    filters: array(string())
+    page: number(),
+    tags: array(string()), // aliases
+    priceRangeMin: number(),
+    priceRangeMax: number(),
+    location: string()
 });
 
-type LoginForm = Input<typeof LoginSchema>;
-type ActionSearchResponse = Record<string, any> & SearchResponse<z.infer<typeof zLecturerMask>> & { filters: string[] }
+export type SearchForm = Input<typeof SearchForm>;
+export type ActionResponse = Record<string, any> & SearchResponse<LecturerType>
 
-export const useFormLoader = routeLoader$<InitialValues<LoginForm>>(({url}) => ({
-    query: url.searchParams.get("q") || "",
-    filters: url.searchParams.get("f")?.split(",") || []
-}));
+export function exportFormToUrl(form: FormStore<SearchForm, ActionResponse>, pageOverride?: number) {
+    const urlQuery = new URLSearchParams()
 
-export const useFormAction = formAction$<LoginForm, ActionSearchResponse>(async (values, event) => {
-    const filters = values.filters.map(i => `tags.alias = ${i}`)
-    const lecturerResource = new Lecturer(getMeilisearch(event.env))
-    const response = await lecturerResource.search(values.query, {
-        page: 1,
-        hitsPerPage: 20,
-        filter: filters
+    const query = getValue(form, "query")
+    if (query) urlQuery.set("q", query)
+
+    const page = getValue(form, "page")
+    if (pageOverride || page) urlQuery.set("p", String(pageOverride || page))
+
+    const tags = getValue(form, "tags")
+    if (tags?.length) urlQuery.set("tags", tags.join(","))
+
+    const min = getValue(form, "priceRangeMin")
+    if (min) urlQuery.set("min", String(min))
+
+    const max = getValue(form, "priceRangeMax")
+    if (max) urlQuery.set("max", String(max))
+
+    const location = getValue(form, "location")
+    if (location && location !== "- - -") urlQuery.set("loc", location)
+
+    return urlQuery.toString()
+}
+
+
+export default component$(() => {
+    const tags = useTags()
+    const locations = useLocations()
+    const maxPrice = useMaxPrice()
+    const formParameters = useFormLoader()
+    const lecturers = useLecturers()
+    const data = useStore<ActionResponse>(lecturers.value)
+    const currentMin = useSignal(formParameters.value.priceRangeMin)
+    const currentMax = useSignal(formParameters.value.priceRangeMax)
+
+    const [searchForm, {Form, Field}] = useForm<SearchForm, ActionResponse>({
+        loader: formParameters,
+        validate: valiForm$(SearchForm),
+        action: searchAction(),
     })
+
+    const resetForm = $(()=>{
+        currentMin.value = 0
+        currentMax.value = maxPrice.value
+        reset(searchForm)
+        setValue(searchForm, "query", "")
+        setValue(searchForm, "page", 1)
+        setValue(searchForm, "query", "")
+        setValue(searchForm, "location", "")
+        setValue(searchForm, "priceRangeMin", 0)
+        setValue(searchForm, "priceRangeMax", maxPrice.value)
+        submit(searchForm)
+    })
+
+    useTask$(({track}) => {
+        track(() => searchForm.response.data)
+
+        if (searchForm.response.status === "success") {
+            for (const key in data) {
+                if (searchForm.response.data) {
+                    data[key] = searchForm.response.data[key]
+                }
+            }
+
+            window.history.replaceState({}, "", "?" + exportFormToUrl(searchForm));
+        }
+
+    })
+
+    const debounce = useSignal("")
+
+    const debounced = $(() => {
+        submit(searchForm)
+    })
+
+    const handleSliderChange = $((data: {
+        min: number,
+        max: number
+    }) => {
+        setValue(searchForm, "priceRangeMin", data.min)
+        setValue(searchForm, "priceRangeMax", data.max)
+        debounce.value = Math.random().toString(36)
+    })
+
+    useDebounce(debounce, 200, debounced)
+
+    useTask$(({track}) => {
+        track(() => searchForm.internal.fields.query?.value)
+        if (getValue(searchForm, "query") !== data.query) {
+            submit(searchForm)
+
+            setValue(searchForm, "page", 1)
+        }
+    })
+
+    useTask$(({track}) => {
+        track(() => searchForm.internal.fields.tags?.value)
+        track(() => searchForm.internal.fields.location?.value)
+        track(() => searchForm.internal.fields.page?.value)
+
+        setValue(searchForm, "page", 1)
+
+        submit(searchForm)
+    })
+
+    useTask$(({track}) => {
+        track(() => searchForm.internal.fields.page?.value)
+
+        submit(searchForm)
+    })
+
+    const modalVisible = useSignal(false)
+    return (
+        <>
+            <div class={"w-full max-w-4xl m-auto px-4"}>
+                <h1 class={"text-6xl font-display mb-4 sm:mb-8"}>Naši lektoři</h1>
+                <Modal
+                    bind:show={modalVisible}
+                    class="sheet shadow-dark-medium max-h-[100vh] fixed right-0 inset-y-0 my-0 mr-0 h-[100vh] max-w-[25rem] rounded-l-md border-0 bg-white p-6 text-slate-950 backdrop:backdrop-blur backdrop:backdrop-brightness-100"
+                >
+                    <ModalHeader>
+                        <h2 class="text-lg font-bold">Filtry</h2>
+                    </ModalHeader>
+                    <ModalContent class="mb-2 py-4">
+                        <Field name="location" type={"string"}>
+                            {(field, props) => (
+                                <>
+                                    <InputLabel name={props.name} label={"Lokace"}/>
+                                    <SelectInput
+                                        value={field.value}
+                                        {...props}>
+                                        <option selected={true} value={"- - -"}>- - -</option>
+                                        {locations.value.map(i => <option key={i.name} value={i.name}>
+                                            {`${i.name} (${i.count})`}
+                                        </option>)}
+                                    </SelectInput>
+                                </>
+                            )}
+                        </Field>
+
+                        <InputLabel name={"priceRangeMax"} label={"Cena za hodinu"}/>
+                        <MultiRangeSlider
+                            min={0}
+                            max={maxPrice.value}
+                            onChange={handleSliderChange}
+                            minValue={currentMin}
+                            maxValue={currentMax}
+                        />
+
+                        <InputLabel name={"tags"} label={"Značky"}/>
+                        <div class={"flex flex-wrap gap-4 mb-12 py-2"}>
+                            {
+                                tags.value.map(({name, alias}) => (
+                                    <Field key={alias} name="tags" type="string[]">
+                                        {(field, props) => (
+                                            <>
+                                                <label>
+                                                    <input
+                                                        {...props}
+                                                        type="checkbox"
+                                                        class={"peer hidden"}
+                                                        value={alias}
+                                                        checked={field.value?.includes(alias)}
+                                                        onChange$={() => {
+                                                            submit(searchForm)
+                                                        }}
+                                                    />
+                                                    <span
+                                                        class={"relative transition-colors px-4 py-1 bg-slate-100 rounded-md peer-checked:bg-primary-300 peer-checked:text-white hover:bg-slate-200"}>
+                                                {name}
+                                                </span>
+                                                </label>
+                                            </>
+                                        )}
+                                    </Field>
+                                ))
+                            }
+                        </div>
+                    </ModalContent>
+                    <ModalFooter class="flex gap-4 absolute bottom-6 inset-x-6">
+                        <PrimaryButton type="submit" onClick$={()=>{
+                            modalVisible.value = false
+                        }}>Hledat</PrimaryButton>
+                        <DefaultButton type="submit" onClick$={async ()=> {
+                            modalVisible.value = false
+                            await resetForm()
+                        }}>Resetovat</DefaultButton>
+                    </ModalFooter>
+                    <button
+                        onClick$={() => (modalVisible.value = false)}
+                        class="absolute right-6 top-6"
+                    >
+                        {/*<CloseIcon class="h-8 w-8" />*/}
+                        <IoCloseOutline class={"text-2xl"} />
+                    </button>
+                </Modal>
+
+                <Form reloadDocument={false}>
+                    <Field name={"page"} type={"number"}>
+                        {(field, props) => (
+                            <input type="hidden" value={field.value} {...props}/>
+                        )}
+                    </Field>
+
+                    <Field name={"priceRangeMin"} type={"number"}>
+                        {(field, props) => (
+                            <input type="hidden" value={field.value} {...props}/>
+                        )}
+                    </Field>
+
+                    <Field name={"priceRangeMax"} type={"number"}>
+                        {(field, props) => (
+                            <input type="hidden" value={field.value} {...props}/>
+                        )}
+                    </Field>
+
+                    <Field name={"query"} type={"string"}>
+                        {(field, props) => (
+                            <>
+                                <div class={"flex mb-12 sm:mb-8"}>
+                                    <DefaultButton type="button" onClick$={() => (modalVisible.value = true)} class={"mr-4"}>Filtry</DefaultButton>
+                                    <SearchInput
+                                        placeholder={"Hledat..."}
+                                        value={field.value}
+                                        {...props}/>
+                                    <PrimaryButton type="submit" class={"ml-6"}>Hledat</PrimaryButton>
+                                </div>
+                            </>
+                        )}
+                    </Field>
+
+                    <div class={`h-0 relative ${!data.hits.length ? "mb-24" : ""}`}>
+                        <div
+                            class={`absolute inset-x-0 top-0 hidden opacity-0 justify-center transition-opacity ${searchForm.submitting ? "!flex !visible !opacity-100" : ""} `}>
+                            <Spinner/>
+                        </div>
+                        <div
+                            class={`absolute inset-x-0 top-0 hidden opacity-0 justify-center transition-opacity py-4 ${!data.hits.length ? "!flex !visible !opacity-100" : ""} `}>
+                            <p>
+                                Nenalezen žádný lektor. <br/>
+                                Zkuste <button
+                                role={"button"}
+                                onClick$={async ()=> {
+                                    modalVisible.value = false
+                                    await resetForm()
+                                }}
+                                class={"text-primary-300 underline"}>vyresetovat filtry</button>.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class={`child:transition-opacity ${searchForm.submitting ? "child:opacity-0" : ""} `}>
+                        {data.hits.map((i, index, array) => (<>
+                            <div class={"flex flex-col content-center items-center sm:items-start sm:flex-row"}
+                                 key={i.uuid + data.processingTimeMs}>
+                                {i.picture_url &&
+                                    <a class={"shrink-0 mr-8 mb-4"} href={`/lecturer/${i.uuid}`}>
+                                        <img
+                                            loading={index > 3 ? "lazy" : "eager"}
+                                            width={225}
+                                            height={225}
+                                            src={i.picture_url}
+                                            alt={Lecturer.getName(i)}/>
+                                    </a>
+                                }
+                                <div class={"py-2"}>
+                                    <a href={`/lecturer/${i.uuid}`}>
+                                        <h2 class={"font-display text-4xl mb-4"}>{Lecturer.getName(i)}</h2>
+                                    </a>
+                                    <div class={"mb-4"}>
+                                        <Tags tags={i.tags || []}/>
+                                    </div>
+
+                                    {(i.price_per_hour || i.location) && <div class={"flex flex-wrap pl-2"}>
+                                        {i.price_per_hour &&
+                                            <Info content={[{text: `${i.price_per_hour} Kč/h`}]} class={"mr-16 !mb-0"}>
+                                                <IoCashOutline class={"text-primary-300"} style={{fontSize: "28px"}}/>
+                                            </Info>}
+
+                                        {i.location && <Info content={[{text: i.location}]}>
+                                            <IoMapOutline class={"text-primary-300"} style={{fontSize: "28px"}}/>
+                                        </Info>}
+                                    </div>}
+
+                                    {i.claim && <p>„{i.claim}“</p>}
+                                    {i.bio && <p class={"mt-2"} dangerouslySetInnerHTML={i.bio}></p>}
+                                    <div class={"mt-6"}>
+                                        <PrimaryButtonLink
+                                            href={`/lecturer/${i.uuid}`}>Více</PrimaryButtonLink>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {(array.length - 1) !== index && <hr class={"my-10"}/>}
+                        </>))}
+                    </div>
+
+                    <ul class={"flex mt-14 mb-8 gap-2 flex-wrap justify-center"}>
+                        {!!data.totalPages && forI(data.totalPages, (i) => (
+                            <li key={i}>
+                                <a href={`?${exportFormToUrl(searchForm, i) || i}`}
+                                   class={`w-8 text-center py-1 rounded-md bg-slate-100 hover:bg-slate-200 transition-colors block ${data.page === i && "bg-slate-200 hover:bg-slate-300"}`}>
+                                    {i}
+                                </a>
+                            </li>
+                        ))}
+                    </ul>
+                </Form>
+
+            </div>
+        </>
+    )
+})
+
+export function getSearchOptions(input: SearchForm): SearchParams {
+    const filters = input.tags.map(i => `tags.alias = ${i}`)
+    return {
+        page: input.page,
+        hitsPerPage: 20,
+        filter: [
+            ...filters,
+            [`price_per_hour ${input.priceRangeMin} TO ${input.priceRangeMax}`, (input.priceRangeMin === 0) ? "price_per_hour IS NULL" : ""],
+            (input.location === "" || input.location === "- - -") ? "" : `location = ${input.location}`
+        ]
+    }
+}
+
+export const searchAction = formAction$<SearchForm, ActionResponse>(async (values, event) => {
+    console.log(values)
+    const lecturerResource = new Lecturer(getMeilisearch(event.env))
+    const response = await lecturerResource.search(values.query, getSearchOptions(values))
 
     if (response instanceof ApiError) {
         return {
             status: "error",
-            message: "neočekavaná chyba při získávání lektorů"
+            message: "Neočekavaná chyba při získávání lektorů"
         }
     }
 
     return {
         status: "success",
         data: {
-            ...response,
-            hits: response.hits.map(i => zLecturerMask.parse({
-                ...i,
-                name: [i.title_before, i.first_name, i.middle_name, i.last_name, i.title_after].filter(i => i).join(" "),
-                tags: i.tags?.map(i => i.name),
-                bio: i.bio?.split(" ").slice(0, 20).join(" ") + "..."
-            })),
-            filters: values.filters
+            ...response
         }
     }
 
-}, valiForm$(LoginSchema));
+}, valiForm$(SearchForm))
 
-export function getUrl(query: string, page: number, filters: string[]) {
-    let url = "?"
-    if (query !== "") url += `q=${query}&`
-    if (page > 1) url += `p=${page}&`
-    if (filters.length) url += `f=${filters.join(",")}`
-
-    if (url.endsWith("&")) url = url.slice(0, -1)
-
-    return url
-}
-
-export default component$(() => {
-    const tags = useTags()
-    const defaultValue = useLecturers()
-    const data = useStore<ActionSearchResponse>(defaultValue.value)
-
-    const [loginForm, {
-        Form,
-        Field
-    }] = useForm<LoginForm, Record<string, any> & SearchResponse<z.infer<typeof zLecturerMask>>>({
-        loader: useFormLoader(),
-        action: useFormAction(),
-        validate: valiForm$(LoginSchema),
-    });
-
-    useTask$(({track}) => {
-        track(() => loginForm.response.data)
-
-        if (loginForm.response.status === "success") {
-            for (const key in data) {
-                if (loginForm.response.data) {
-                    data[key] = loginForm.response.data[key]
-                }
-            }
-
-            window.history.replaceState({}, "", getUrl(data.query, data.page || 1, data.filters));
-        }
+export const useMaxPrice = routeLoader$(async ({env}) => {
+    const response = await Lecturer.use(env).search("", {
+        sort: ["price_per_hour:desc"],
+        limit: 1
     })
 
+    return (response instanceof ApiError)
+        ? 1200
+        : response.hits[0]?.price_per_hour || 1200
 
-    return (
-        <>
-            <div class={"w-full max-w-5xl m-auto px-4"}>
-                <h1 class={"text-6xl font-display mb-4"}>Naši lektoři</h1>
-                <Form reloadDocument={false}>
-
-                    <Field name="query" type={"string"}>
-                        {(field, props) => (
-                            <div class={"flex "}>
-                                <input
-                                    {...props}
-                                    type="search"
-                                    class={"border appearance-none transition-colors w-full rounded-md border-slate-200 outline-0 px-4 focus:border-primary-300"}
-                                    placeholder={"Hledat..."}
-                                    onKeyUp$={() => {
-                                        if (field.value !== data.query) {
-                                            submit(loginForm)
-                                        }
-                                    }}
-                                    onClick$={() => {
-                                        if (field.value !== data.query) {
-                                            submit(loginForm)
-                                        }
-                                    }}
-                                    value={field.value}/>
-                                <PrimaryButton type="submit" class={"ml-4"}>Hledat</PrimaryButton>
-                            </div>
-                        )}
-                    </Field>
-
-                    <div class={"flex flex-wrap gap-4 mt-6 mb-12 py-2"}>
-                        {
-                            tags.value.map(({name, alias}) => (
-                                <Field key={alias} name="filters" type="string[]">
-                                    {(field, props) => (
-                                        <>
-                                            <label>
-                                                <input
-                                                    {...props}
-                                                    type="checkbox"
-                                                    class={"peer hidden"}
-                                                    value={alias}
-                                                    checked={field.value?.includes(alias)}
-                                                    onChange$={() => {
-                                                        submit(loginForm)
-                                                    }}
-                                                />
-                                                <span
-                                                    class={"relative transition-colors px-4 py-1 bg-slate-100 rounded-md peer-checked:bg-primary-300 peer-checked:text-white hover:bg-slate-200"}>
-                                                {name}
-                                                </span>
-                                            </label>
-                                        </>
-                                    )}
-                                </Field>
-                            ))
-                        }
-                    </div>
-                </Form>
-
-                <div class={`h-0 relative ${!data.hits.length ? "mb-24" : ""}`}>
-                    <div
-                        class={`absolute inset-x-0 top-0 hidden opacity-0 justify-center transition-opacity ${loginForm.submitting ? "!flex !visible !opacity-100" : ""} `}>
-                        <Spinner/>
-                    </div>
-                    <div
-                        class={`absolute inset-x-0 top-0 hidden opacity-0 justify-center transition-opacity ${!data.hits.length ? "!flex !visible !opacity-100" : ""} `}>
-                        <p>
-                            Nenalezen žádný lektor. <br/>
-                            Zkuste <a href={"/?"} class={"text-primary-300 underline"}>vyresetovat filtry</a>.
-                        </p>
-                    </div>
-                </div>
-
-                <div class={`child:transition-opacity ${loginForm.submitting ? "child:opacity-0" : ""} `}>
-                    {data.hits.map((i, index, array) => (<>
-                        <div class={"flex flex-col content-center items-center sm:items-start sm:flex-row"}
-                             key={i.uuid + data.processingTimeMs}>
-                            {i.picture_url &&
-                                <a class={"shrink-0 mr-8 mb-4"} href={`/lecturer/${i.route_url || i.uuid}`}>
-                                    <img
-                                        loading={index > 3 ? "lazy" : "eager"}
-                                        width={225}
-                                        height={225}
-                                        src={i.picture_url}
-                                        alt={i.name}/>
-                                </a>
-                            }
-                            <div class={"py-2"}>
-                                <a href={`/lecturer/${i.route_url || i.uuid}`}>
-                                    <h2 class={"font-display text-4xl mb-4"}>{i.name}</h2>
-                                </a>
-                                <div class={"mb-2"}>
-                                    <Tags tags={i.tags.map(i => ({name: i}))}/>
-                                </div>
-
-                                {i.bio && <p class={"mt-2"} dangerouslySetInnerHTML={i.bio}></p>}
-                                <div class={"mt-6"}>
-                                    <PrimaryButtonLink
-                                        href={`/lecturer/${i.route_url || i.uuid}`}>Více</PrimaryButtonLink>
-                                </div>
-                            </div>
-                        </div>
-
-                        {(array.length - 1) !== index && <hr class={"my-10"}/>}
-                    </>))}
-                </div>
-
-                <ul class={"flex mt-14 mb-8 gap-2 flex-wrap justify-center"}>
-
-                    {!!data.totalPages && forI(data.totalPages, (i) => (
-                        <li key={i}>
-                            <a class={`w-8 text-center py-1 rounded-md bg-slate-100 hover:bg-slate-200 transition-colors block ${data.page === i && "bg-slate-200 hover:bg-slate-300"}`}
-                               href={getUrl(data.query, i, data.filters)}>
-                                {i}
-                            </a>
-                        </li>
-                    ))}
-
-                </ul>
-
-            </div>
-        </>
-    );
-});
-
-export const useLecturers = routeLoader$(async (event) => {
-    const page = Number(event.url.searchParams.get("p")) || 1
-    const query = event.url.searchParams.get("q") || ""
-    const filters = event.url.searchParams.get("f")?.split(",") || []
-
-    const lecturerResource = new Lecturer(getMeilisearch(event.env))
-    const response = await lecturerResource.search(query, {
-        page,
-        hitsPerPage: 20,
-        filter: filters.map(i => `tags.alias = ${i}`)
-    })
-
-    if (response instanceof ApiError) {
-        throw event.error(500, "neočekavaná chyba při získávání lektorů")
-    }
-
-    return {
-        ...response,
-        hits: response.hits.map(i => zLecturerMask.parse({
-            ...i,
-            name: [i.title_before, i.first_name, i.middle_name, i.last_name, i.title_after].filter(i => i).join(" "),
-            tags: i.tags?.map(i => i.name),
-            bio: i.bio?.split(" ").slice(0, 20).join(" ") + "..."
-        })),
-        filters: filters
-    }
 })
 
-export const useTags = routeLoader$(async (event) => {
-    const tagResource = new Tag(getMeilisearch(event.env))
-    const response = await tagResource.list()
+export const useFormLoader = routeLoader$<SearchForm>(async ({resolveValue, query}) => {
+    const priceRangeMax = await resolveValue(useMaxPrice)
+
+    return {
+        query: query.get("q") || "",
+        tags: query.get("tags")?.split(",") || [],
+        priceRangeMin: Number(query.get("min") || 0),
+        page: Number(query.get("p") || 1),
+        location: query.get("loc") || "",
+        priceRangeMax: Number(query.get("max") || priceRangeMax)
+    };
+});
+
+export const useTags = routeLoader$<TagType[]>(async ({env}) => {
+    const response = await Tag.use(env).list()
 
     if (response instanceof ApiError) {
-        throw event.error(500, "neočekavaná chyba při získávání tagů")
+        return []
+    }
+
+    return response
+});
+
+export const useLocations = routeLoader$<{
+    name: string,
+    count: number
+}[]>(async ({env}) => {
+    const response = await Lecturer.use(env).search("", {
+        limit: 0,
+        facets: ["location"]
+    })
+
+    if (response instanceof ApiError || !response.facetDistribution?.location) {
+        return []
+    }
+
+    return Object.entries(response.facetDistribution.location).map(([k, v]) => ({
+        name: k,
+        count: v
+    }))
+});
+
+export const useLecturers = routeLoader$(async ({env, error, resolveValue}) => {
+    const input = await resolveValue(useFormLoader)
+    const response = await Lecturer.use(env).search(input.query, getSearchOptions(input))
+
+    if (response instanceof ApiError) {
+        throw error(500, "Chyba při načítání lektorů")
     }
 
     return response

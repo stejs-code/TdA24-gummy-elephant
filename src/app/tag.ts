@@ -5,6 +5,8 @@ import * as crypto from "crypto";
 import {ApiError} from "~/app/apiError";
 import type {TagType} from "~/app/zod";
 import {tagZod, zodErrorToString} from "~/app/zod";
+import type {EnvGetter} from "@builder.io/qwik-city/middleware/request-handler";
+import {getMeilisearch} from "~/app/meilisearch";
 
 
 export class Tag {
@@ -14,6 +16,10 @@ export class Tag {
         private meilisearch: MeiliSearch
     ) {
         this.index = meilisearch.index<TagType>("tags")
+    }
+
+    static use(env: EnvGetter): Tag {
+        return new Tag(getMeilisearch(env))
     }
 
     async create(data: Omit<TagType, "uuid" | "alias">): Promise<ApiError | TagType> {

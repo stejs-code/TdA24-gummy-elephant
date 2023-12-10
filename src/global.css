@@ -100,3 +100,164 @@ input[type="search"]::-webkit-search-results-button,
 input[type="search"]::-webkit-search-results-decoration {
     display: none;
 }
+
+
+.container {
+    margin-top: 10px;
+    margin-bottom: 54px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    position: relative;
+}
+
+.slider {
+    width: 100%;
+}
+
+.slider__track,
+.slider__range,
+.slider__left-value,
+.slider__right-value {
+    position: absolute;
+}
+
+.slider__track,
+.slider__range {
+    border-radius: 3px;
+    height: 5px;
+}
+
+.slider__track {
+    background-color: #eeeeee;
+    width: 100%;
+    z-index: 1;
+}
+
+.slider__range {
+    @apply bg-primary-300;
+    z-index: 2;
+}
+
+.slider__left-value,
+.slider__right-value {
+    @apply text-slate-700;
+    font-size: 12px;
+    margin-top: 20px;
+}
+
+.slider__left-value {
+    left: 0;
+}
+
+.slider__right-value {
+    right: -4px;
+}
+
+/* Removing the default appearance */
+.thumb,
+.thumb::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.thumb {
+    pointer-events: none;
+    position: absolute;
+    height: 0;
+    width: 100%;
+    outline: none;
+}
+
+.thumb--left {
+    z-index: 3;
+}
+
+.thumb--right {
+    z-index: 4;
+}
+
+/* For Chrome browsers */
+.thumb::-webkit-slider-thumb {
+    @apply border-primary-300 bg-primary-100 rounded-md shadow-2xl;
+    box-shadow: 0 0 1px 1px rgba(255, 255, 255, 0.5);
+    cursor: pointer;
+    height: 22px;
+    width: 22px;
+    margin-top: 4px;
+    pointer-events: all;
+    position: relative;
+}
+
+/* For Firefox browsers */
+.thumb::-moz-range-thumb {
+    @apply border-primary-300 bg-primary-100 rounded-md shadow-2xl;
+    box-shadow: 0 0 1px 1px rgba(255, 255, 255, 0.5);
+    cursor: pointer;
+    height: 22px;
+    width: 22px;
+    margin-top: 4px;
+    pointer-events: all;
+    position: relative;
+}
+
+.sheet::backdrop {
+    background: hsla(0, 0%, 0%, 0.5);
+}
+
+.sheet.modal-showing {
+    animation: sheetOpen 0.75s forwards cubic-bezier(0.6, 0.6, 0, 1);
+}
+
+.sheet.modal-showing::backdrop {
+    animation: sheetFadeIn 0.75s forwards cubic-bezier(0.6, 0.6, 0, 1);
+}
+
+.sheet.modal-closing {
+    animation: sheetClose 0.35s forwards cubic-bezier(0.6, 0.6, 0, 1);
+}
+
+.sheet.modal-closing::backdrop {
+    animation: sheetFadeOut 0.35s forwards cubic-bezier(0.6, 0.6, 0, 1);
+}
+
+@keyframes sheetOpen {
+    from {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0%);
+    }
+}
+
+@keyframes sheetClose {
+    from {
+        opacity: 1;
+        transform: translateX(0%);
+    }
+    to {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+}
+
+@keyframes sheetFadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes sheetFadeOut {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
