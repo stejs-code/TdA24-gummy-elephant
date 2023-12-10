@@ -15,8 +15,13 @@ export const onPost: RequestHandler = ({env, json}) => {
 
         for (let i = 0; i < 200; i++) {
             await LecturerResource.create({
-                claim: null,
-                location: null,
+                claim: faker.lorem.sentences(1),
+                location: faker.helpers.arrayElement([
+                    "Brno",
+                    "Praha",
+                    "Ostrava",
+                    "Olomouc"
+                ]),
                 middle_name: null,
                 route_url: null,
                 picture_url: faker.image.urlLoremFlickr({
@@ -24,7 +29,10 @@ export const onPost: RequestHandler = ({env, json}) => {
                     height: 300,
                     category: "person",
                 }),
-                price_per_hour: null,
+                price_per_hour: faker.number.int({
+                    min: 1,
+                    max: 14,
+                }) * 100,
                 tags: faker.helpers.arrayElements([
                     "Miluje kakao",
                     "Alchymista",
