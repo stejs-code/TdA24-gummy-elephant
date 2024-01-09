@@ -28,7 +28,8 @@ export const SearchForm = object({
     tags: array(string()), // aliases
     priceRangeMin: number(),
     priceRangeMax: number(),
-    location: string()
+    location: string(),
+    sort: string()
 });
 
 export type SearchForm = Input<typeof SearchForm>;
@@ -54,6 +55,10 @@ export function exportFormToUrl(form: FormStore<SearchForm, ActionResponse>, pag
 
     const location = getValue(form, "location")
     if (location && location !== "- - -") urlQuery.set("loc", location)
+
+
+    const sort = getValue(form, "sort")
+    if (sort && sort !== "relevance") urlQuery.set("s", sort)
 
     return urlQuery.toString()
 }
@@ -83,6 +88,7 @@ export default component$(() => {
         setValue(searchForm, "page", 1)
         setValue(searchForm, "query", "")
         setValue(searchForm, "location", "")
+        setValue(searchForm, "sort", "")
         setValue(searchForm, "priceRangeMin", 0)
         setValue(searchForm, "priceRangeMax", maxPrice.value)
         submit(searchForm)
@@ -132,6 +138,7 @@ export default component$(() => {
     useTask$(({track}) => {
         track(() => searchForm.internal.fields.tags?.value)
         track(() => searchForm.internal.fields.location?.value)
+        track(() => searchForm.internal.fields.sort?.value)
         track(() => searchForm.internal.fields.page?.value)
 
         setValue(searchForm, "page", 1)
@@ -158,6 +165,23 @@ export default component$(() => {
                         <h2 class="text-lg font-bold">Filtry</h2>
                     </ModalHeader>
                     <ModalContent class="mb-2 py-4">
+                        <Field name="sort" type={"string"}>
+                            {(field, props) => (
+                                <>
+                                    <InputLabel name={props.name} label={"Řazení dle"}/>
+                                    <SelectInput
+                                        value={field.value}
+                                        {...props}>
+                                        <option selected={true} value={"relevance"}>Relevance</option>
+                                        <option selected={false} value={"price_per_hour:desc"}>Cena od nejdražšího</option>
+                                        <option selected={false} value={"price_per_hour:asc"}>Cena od nejlevnějšího</option>
+
+                                    </SelectInput>
+                                </>
+                            )}
+                        </Field>
+
+
                         <Field name="location" type={"string"}>
                             {(field, props) => (
                                 <>
@@ -353,6 +377,7 @@ export function getSearchOptions(input: SearchForm): SearchParams {
     return {
         page: input.page,
         hitsPerPage: 20,
+        sort: (input.sort === "" || input.sort === "relevance") ? undefined : [input.sort],
         filter: [
             ...filters,
             [`price_per_hour ${input.priceRangeMin} TO ${input.priceRangeMax}`, (input.priceRangeMin === 0) ? "price_per_hour IS NULL" : ""],
@@ -403,6 +428,7 @@ export const useFormLoader = routeLoader$<SearchForm>(async ({resolveValue, quer
         priceRangeMin: Number(query.get("min") || 0),
         page: Number(query.get("p") || 1),
         location: query.get("loc") || "",
+        sort: query.get("s") || "",
         priceRangeMax: Number(query.get("max") || priceRangeMax)
     };
 });
