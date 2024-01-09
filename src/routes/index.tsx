@@ -165,6 +165,23 @@ export default component$(() => {
                         <h2 class="text-lg font-bold">Filtry</h2>
                     </ModalHeader>
                     <ModalContent class="mb-2 py-4">
+                        <Field name="sort" type={"string"}>
+                            {(field, props) => (
+                                <>
+                                    <InputLabel name={props.name} label={"Řazení dle"}/>
+                                    <SelectInput
+                                        value={field.value}
+                                        {...props}>
+                                        <option selected={true} value={"relevance"}>Relevance</option>
+                                        <option selected={false} value={"price_per_hour:desc"}>Cena od nejdražšího</option>
+                                        <option selected={false} value={"price_per_hour:asc"}>Cena od nejlevnějšího</option>
+
+                                    </SelectInput>
+                                </>
+                            )}
+                        </Field>
+
+
                         <Field name="location" type={"string"}>
                             {(field, props) => (
                                 <>
@@ -190,21 +207,6 @@ export default component$(() => {
                             maxValue={currentMax}
                         />
 
-                        <Field name="sort" type={"string"}>
-                            {(field, props) => (
-                                <>
-                                    <InputLabel name={props.name} label={"Řazení dle"}/>
-                                    <SelectInput
-                                        value={field.value}
-                                        {...props}>
-                                        <option selected={true} value={"relevance"}>Relevance</option>
-                                        <option selected={false} value={"price_per_hour:desc"}>Cena od nejdražší po nejlevnější</option>
-                                        <option selected={false} value={"price_per_hour:asc"}>Cena od nejlevnější po nejdražší</option>
-
-                                    </SelectInput>
-                                </>
-                            )}
-                        </Field>
                         <InputLabel name={"tags"} label={"Značky"}/>
                         <div class={"flex flex-wrap gap-4 mb-12 py-2"}>
                             {
