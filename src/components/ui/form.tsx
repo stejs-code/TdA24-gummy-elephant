@@ -1,11 +1,11 @@
 import type {InputHTMLAttributes, SelectHTMLAttributes} from "@builder.io/qwik";
 import {component$, Slot} from "@builder.io/qwik";
 
-export const SearchInput = component$((props: InputHTMLAttributes<any>) => {
+export const SearchInput = component$(({class: className, ...props}: InputHTMLAttributes<any>) => {
     return (
         <input
             {...props}
-            class={"border appearance-none py-2 transition-colors w-full rounded-md border-slate-200 outline-0 px-4 focus:border-primary-300" + (props.class ? (" " + props.class) : "")}
+            class={`border appearance-none py-2 transition-colors w-full rounded-md border-slate-200 outline-0 px-4 focus:border-primary-300 ${className ??  ""}`}
             type="search"
         />
     )
