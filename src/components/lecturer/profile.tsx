@@ -16,7 +16,7 @@ export const Profile = component$<Profile>(({imageUrl, alt}) => {
                     <Image
                         class={"max-w-none pointer-events-none select-none"}
                         src={"/images/drop.webp"}
-                        // layout="constrained"
+                        decoding={"sync"}
                         width={640}
                         height={280}
                         alt={alt}
@@ -26,6 +26,7 @@ export const Profile = component$<Profile>(({imageUrl, alt}) => {
                     class={"absolute sm:-translate-y-5 sm:static left-1/2 top-0 -translate-x-1/2 sm:translate-x-[42px] drop-shadow-lg"}
                     src={imageUrl}
                     loading={"eager"}
+                    decoding={"sync"}
                     width={300}
                     height={300}
                     alt={alt}/>

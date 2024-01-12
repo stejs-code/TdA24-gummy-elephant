@@ -20,7 +20,6 @@ export default component$(() => {
                         <Profile
                             imageUrl={document.value.picture_url}
                             alt={document.value.name}/>
-
                     </div>
                 }
                 <div class="flex flex-col pt-8 lg:pt-4 px-6 w-full lg:ml-4">
@@ -31,8 +30,8 @@ export default component$(() => {
                         }
                     </div>
 
-                    <div class="mt-10 flex sm:max-w-sm flex-wrap">
-                        {document.value.contact && <div class={"mr-14"}>
+                    <div class="mt-10 flex sm:max-w-sm flex-wrap sm:flex-nowrap w-full gap-x-14">
+                        {document.value.contact && <div>
                             <Info content={document.value.contact.telephone_numbers.map(i => ({
                                 text: i,
                                 href: `tel:${i.replaceAll(" ", "")}`
@@ -48,7 +47,7 @@ export default component$(() => {
                             </Info>
 
                         </div>}
-                        <div>
+                        <div class={"flex-shrink-0"}>
                             {document.value.location && <Info content={[{text: document.value.location}]}>
                                 <IoMapOutline class={"text-primary-300"} style={{fontSize: "28px"}}/>
                             </Info>}

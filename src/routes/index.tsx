@@ -2,7 +2,7 @@ import {$, component$, useSignal, useStore, useTask$} from "@builder.io/qwik";
 import type {FormStore} from "@modular-forms/qwik";
 import {formAction$, getValue, reset, setValue, submit, useForm, valiForm$} from "@modular-forms/qwik";
 import type {DocumentHead} from "@builder.io/qwik-city";
-import { routeLoader$} from "@builder.io/qwik-city";
+import {routeLoader$} from "@builder.io/qwik-city";
 import type {Input} from "valibot";
 import {array, number, object, string} from "valibot";
 import {Lecturer} from "~/app/lecturer";
@@ -14,7 +14,13 @@ import {InputLabel, SearchInput, SelectInput} from "~/components/ui/form";
 import {Spinner} from "~/components/ui/spinner";
 import {Tags} from "~/components/ui/tag";
 import {Info} from "~/components/lecturer/info";
-import {IoCashOutline, IoCloseOutline, IoMapOutline} from "@qwikest/icons/ionicons";
+import {
+    IoCashOutline,
+    IoCloseOutline,
+    IoFilterCircleOutline,
+    IoMapOutline,
+    IoSearchOutline
+} from "@qwikest/icons/ionicons";
 import {DefaultButton, PrimaryButton, PrimaryButtonLink} from "~/components/ui/button";
 import {useDebounce} from "~/components/ui/debounce";
 import type {SearchParams, SearchResponse} from "meilisearch";
@@ -70,17 +76,18 @@ export default component$(() => {
     const maxPrice = useMaxPrice()
     const formParameters = useFormLoader()
     const lecturers = useLecturers()
+
     const data = useStore<ActionResponse>(lecturers.value)
     const currentMin = useSignal(formParameters.value.priceRangeMin)
     const currentMax = useSignal(formParameters.value.priceRangeMax)
-
+    console.log(formParameters.value.tags)
     const [searchForm, {Form, Field}] = useForm<SearchForm, ActionResponse>({
         loader: formParameters,
         validate: valiForm$(SearchForm),
         action: searchAction(),
     })
 
-    const resetForm = $(()=>{
+    const resetForm = $(() => {
         currentMin.value = 0
         currentMax.value = maxPrice.value
         reset(searchForm)
@@ -89,6 +96,7 @@ export default component$(() => {
         setValue(searchForm, "query", "")
         setValue(searchForm, "location", "")
         setValue(searchForm, "sort", "")
+        setValue(searchForm, "tags", [])
         setValue(searchForm, "priceRangeMin", 0)
         setValue(searchForm, "priceRangeMax", maxPrice.value)
         submit(searchForm)
@@ -156,15 +164,15 @@ export default component$(() => {
     return (
         <>
             <div class={"w-full max-w-4xl m-auto px-4"}>
-                <h1 class={"text-6xl font-display mb-4 sm:mb-8"}>Naši lektoři</h1>
+                <h1 class={"text-5xl sm:text-6xl font-display mb-4 sm:mb-8"}>Naši lektoři</h1>
                 <Modal
                     bind:show={modalVisible}
-                    class="sheet shadow-dark-medium max-h-[100vh] fixed right-0 inset-y-0 my-0 mr-0 h-[100vh] max-w-[25rem] rounded-l-md border-0 bg-white p-6 text-slate-950 backdrop:backdrop-blur backdrop:backdrop-brightness-100"
+                    class="sheet shadow-dark-medium overflow-y-hidden max-h-[100vh] fixed right-0 inset-y-0 my-0 mr-0 h-[100vh] max-w-[25rem] rounded-l-md border-0 bg-white p-6 text-slate-950 backdrop:backdrop-blur backdrop:backdrop-brightness-100"
                 >
                     <ModalHeader>
                         <h2 class="text-lg font-bold">Filtry</h2>
                     </ModalHeader>
-                    <ModalContent class="mb-2 py-4">
+                    <ModalContent class="mb-2 py-4 overflow-y-scroll h-full">
                         <Field name="sort" type={"string"}>
                             {(field, props) => (
                                 <>
@@ -173,8 +181,10 @@ export default component$(() => {
                                         value={field.value}
                                         {...props}>
                                         <option selected={true} value={"relevance"}>Relevance</option>
-                                        <option selected={false} value={"price_per_hour:desc"}>Cena od nejdražšího</option>
-                                        <option selected={false} value={"price_per_hour:asc"}>Cena od nejlevnějšího</option>
+                                        <option selected={false} value={"price_per_hour:desc"}>Cena od nejdražšího
+                                        </option>
+                                        <option selected={false} value={"price_per_hour:asc"}>Cena od nejlevnějšího
+                                        </option>
 
                                     </SelectInput>
                                 </>
@@ -227,7 +237,7 @@ export default component$(() => {
                                                     />
                                                     <span
                                                         class={"relative transition-colors px-4 py-1 bg-slate-100 rounded-md peer-checked:bg-primary-300 peer-checked:text-white hover:bg-slate-200"}>
-                                                {name}
+                                                #{name}
                                                 </span>
                                                 </label>
                                             </>
@@ -236,12 +246,13 @@ export default component$(() => {
                                 ))
                             }
                         </div>
+                        <div class={"py-4"}></div>
                     </ModalContent>
-                    <ModalFooter class="flex gap-4 absolute bottom-6 inset-x-6">
-                        <PrimaryButton type="submit" onClick$={()=>{
+                    <ModalFooter class="flex gap-4 absolute bottom-0 px-6 py-6 inset-x-0 bg-white">
+                        <PrimaryButton type="submit" onClick$={() => {
                             modalVisible.value = false
                         }}>Hledat</PrimaryButton>
-                        <DefaultButton type="submit" onClick$={async ()=> {
+                        <DefaultButton type="submit" onClick$={async () => {
                             modalVisible.value = false
                             await resetForm()
                         }}>Resetovat</DefaultButton>
@@ -251,7 +262,7 @@ export default component$(() => {
                         class="absolute right-6 top-6"
                     >
                         {/*<CloseIcon class="h-8 w-8" />*/}
-                        <IoCloseOutline class={"text-2xl"} />
+                        <IoCloseOutline class={"text-2xl"}/>
                     </button>
                 </Modal>
 
@@ -277,13 +288,23 @@ export default component$(() => {
                     <Field name={"query"} type={"string"}>
                         {(field, props) => (
                             <>
-                                <div class={"flex mb-12 sm:mb-8"}>
-                                    <DefaultButton type="button" onClick$={() => (modalVisible.value = true)} class={"mr-4"}>Filtry</DefaultButton>
+                                <div class={"flex mb-8 sm:mb-12 gap-4"}>
+                                    <DefaultButton
+                                        type="button"
+                                        class={"flex-shrink-0 w-sm"}
+                                        onClick$={() => (modalVisible.value = true)}
+                                    >
+                                        <IoFilterCircleOutline class={"sm:-translate-x-2 text-xl mb-1 inline "}/>
+                                        <span class={"hidden sm:inline"}>Filtry</span>
+                                    </DefaultButton>
                                     <SearchInput
                                         placeholder={"Hledat..."}
                                         value={field.value}
                                         {...props}/>
-                                    <PrimaryButton type="submit" class={"ml-6"}>Hledat</PrimaryButton>
+                                    <PrimaryButton type="submit" class={"flex-shrink-0 w-sm"}>
+                                        <IoSearchOutline class={"sm:-translate-x-2 text-xl mb-1 inline"}/>
+                                        <span class={"hidden sm:inline"}>Hledat</span>
+                                    </PrimaryButton>
                                 </div>
                             </>
                         )}
@@ -300,7 +321,7 @@ export default component$(() => {
                                 Nenalezen žádný lektor. <br/>
                                 Zkuste <button
                                 role={"button"}
-                                onClick$={async ()=> {
+                                onClick$={async () => {
                                     modalVisible.value = false
                                     await resetForm()
                                 }}
@@ -387,7 +408,6 @@ export function getSearchOptions(input: SearchForm): SearchParams {
 }
 
 export const searchAction = formAction$<SearchForm, ActionResponse>(async (values, event) => {
-    console.log(values)
     const lecturerResource = new Lecturer(getMeilisearch(event.env))
     const response = await lecturerResource.search(values.query, getSearchOptions(values))
 
