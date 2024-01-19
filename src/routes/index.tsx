@@ -165,7 +165,7 @@ export default component$(() => {
     return (
         <>
             <Hero/>
-            <div class={"w-full max-w-4xl m-auto px-4 "}>
+            <div class={"w-full max-w-4xl m-auto px-4"}>
                 <h1 class={"text-5xl sm:text-6xl font-display mb-4 pt-12 sm:mb-8"} id={"lecturers"}>Naši lektoři</h1>
                 <Modal
                     bind:show={modalVisible}
