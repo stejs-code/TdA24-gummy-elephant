@@ -164,9 +164,9 @@ export default component$(() => {
     const modalVisible = useSignal(false)
     return (
         <>
-            <Hero></Hero>
+            <Hero/>
             <div class={"w-full max-w-4xl m-auto px-4 "}>
-                <h1 class={"text-5xl sm:text-6xl font-display mb-4 sm:mb-8"} id={"scroll"}>Naši lektoři</h1>
+                <h1 class={"text-5xl sm:text-6xl font-display mb-4 pt-12 sm:mb-8"} id={"lecturers"}>Naši lektoři</h1>
                 <Modal
                     bind:show={modalVisible}
                     class="sheet shadow-dark-medium overflow-y-hidden max-h-[100vh] fixed right-0 inset-y-0 my-0 mr-0 h-[100vh] max-w-[25rem] rounded-l-md border-0 bg-white p-6 text-slate-950 backdrop:backdrop-blur backdrop:backdrop-brightness-100"

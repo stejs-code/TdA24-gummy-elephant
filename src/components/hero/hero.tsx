@@ -1,5 +1,6 @@
 import {component$} from "@builder.io/qwik";
 import {Link} from "@builder.io/qwik-city";
+import {PrimaryButtonLink} from "~/components/ui/button";
 
 
 export const Hero = component$(() => {
@@ -7,7 +8,7 @@ export const Hero = component$(() => {
 
     return(
         <>
-            <div class={"font-body -mt-24 sm:-mt-12 mb-10 py-20"}>
+            <div class={"font-body -mt-24 sm:-mt-12 mb-28 py-20"}>
                 <div class={"w-full max-w-4xl m-auto pb-4 flex max-lg:ml-10 "}>
                     <div class={"pt-32"}>
                         <div>
@@ -20,9 +21,9 @@ export const Hero = component$(() => {
                                 </svg>
                             </div>
                         </div>
-                        <Link href={"#scroll"} class={"relative z-20 bg-primary-400 text-white rounded-xl px-12 py-3 font-bold"}>
+                        <PrimaryButtonLink class={"relative z-20 !rounded-xl !px-12 !py-3 font-bold"} href={"#lecturers"}>
                             Najít lektora
-                        </Link>
+                        </PrimaryButtonLink>
                     </div>
                     <div class={"relative w-full hidden md:block"}>
                         <div class={"w-2/3 absolute right-1"}>
