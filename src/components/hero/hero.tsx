@@ -1,11 +1,6 @@
 import {component$} from "@builder.io/qwik";
-import {PrimaryButton} from "~/components/ui/button";
 import {Link} from "@builder.io/qwik-city";
 
-
-export interface Props{
-
-}
 
 export const Hero = component$(() => {
 
