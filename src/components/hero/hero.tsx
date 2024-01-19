@@ -7,10 +7,10 @@ export const Hero = component$(() => {
 
     return (
         <>
-            <div class={"mb-14 overflow-hidden pb-20"}>
+            <div class={"mb-14 overflow-hidden sm:pb-20"}>
                 <div class={"-z-10 relative w-full max-w-4xl px-4 mx-auto"}>
-                    <div class={"absolute top-0"}>
-                        <svg class={"sm:-translate-x-10"} width={"380px"} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2000 1800" fill="#f0fafb">
+                    <div class={"absolute top-0 left-20 sm:left-0"}>
+                        <svg class={"sm:-translate-x-10"} width={"380px"} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2000 1800" fill="#f2fdfd">
                             <path
                                 d="M1386.57 181.4c160.9 73.74 328.5 149.72 424.59 281.57 96.09 129.61 118.44 315.09 98.33 487.16-20.11 172.07-84.92 332.97-187.71 446.94-105.03 116.2-250.29 185.48-391.07 243.58-138.55 60.34-272.63 109.5-393.31 91.62-122.91-17.88-234.64-102.8-377.66-160.9-143.02-58.1-317.33-87.15-406.71-183.24-89.39-96.09-96.09-261.46 2.23-368.72 98.33-109.5 301.68-160.9 384.37-270.4 82.68-111.73 42.46-283.81 84.92-422.36C669.24 188.1 798.86 80.83 937.41 60.72c140.79-20.11 290.51 49.16 449.17 120.67Z"></path>
                         </svg>
@@ -28,9 +28,9 @@ export const Hero = component$(() => {
                         </svg>
                     </div>
                 </div>
-                <div class={"w-full max-w-4xl px-4 mx-auto flex"}>
+                <div class={"w-full max-w-4xl px-8 sm:px-4 mx-auto flex"}>
                     <div class={"py-20"}>
-                        <h1 class={"text-5xl font-bold mb-12 leading-tight max-w-md"}>
+                        <h1 class={"text-6xl font-display mb-12 leading-none sm:leading-2 max-w-md"}>
                             Vzdělávat se s&nbsp;námi je hračka
                         </h1>
                         <PrimaryButtonLink
