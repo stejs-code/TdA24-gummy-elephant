@@ -81,7 +81,7 @@ export default component$(() => {
     const data = useStore<ActionResponse>(lecturers.value)
     const currentMin = useSignal(formParameters.value.priceRangeMin)
     const currentMax = useSignal(formParameters.value.priceRangeMax)
-    console.log(formParameters.value.tags)
+    //console.log(formParameters.value.tags)
     const [searchForm, {Form, Field}] = useForm<SearchForm, ActionResponse>({
         loader: formParameters,
         validate: valiForm$(SearchForm),
