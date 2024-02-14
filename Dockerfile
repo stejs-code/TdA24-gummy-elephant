@@ -1,5 +1,4 @@
 FROM node:19.2-alpine3.15 as build
-
 WORKDIR /usr/src/app
 
 COPY ./package.json ./
@@ -10,7 +9,6 @@ COPY ./ ./
 
 RUN npm ci
 RUN npm run build
-
 
 FROM node:21.2.0-bookworm-slim as production
 WORKDIR /usr/src/app
@@ -24,18 +22,21 @@ COPY --from=build /usr/src/app/start.sh ./start.sh
 COPY --from=build /usr/src/app/seed_data.dump ./seed_data.dump
 COPY --from=build /usr/src/app/.env ./.env
 
+WORKDIR /usr/src/app
+
 RUN apt-get update
 RUN apt-get install curl -y
+RUN apt-get install redis-server -y
 
 RUN curl -L https://install.meilisearch.com | sh
 RUN chmod +x meilisearch
 
+EXPOSE 6379
 EXPOSE 7700
-
 EXPOSE 80
 
-RUN chmod +x start.sh
-
 ENV PORT=80
+
+RUN chmod +x start.sh
 
 CMD ./start.sh

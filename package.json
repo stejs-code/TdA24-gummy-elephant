@@ -9,7 +9,7 @@
     "sharp"
   ],
   "scripts": {
-    "build": "qwik build",
+    "build": "qwik build --force",
     "build.client": "vite build",
     "build.preview": "vite build --ssr src/entry.preview.tsx",
     "build.server": "vite build -c adapters/express/vite.config.ts",
@@ -64,6 +64,7 @@
     "@unpic/qwik": "^0.0.32",
     "meilisearch": "^0.35.0",
     "morgan": "^1.10.0",
+    "redis": "^4.6.13",
     "sanitize-html": "^2.11.0",
     "vite-plugin-run": "^0.5.1"
   }
