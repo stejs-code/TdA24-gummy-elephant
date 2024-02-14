@@ -10,6 +10,6 @@ export default component$(() => {
 
 export const useRedis = routeLoader$(async (ev) => {
     await initializeRedisIfItIsUndefined(ev.env)
-    await redis().set("elephant", "gummy")
+    await redis().set("elephant", Math.random())
     return await redis().get("elephant")
 })
