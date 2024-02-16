@@ -8,6 +8,7 @@ import {ApiError} from "~/app/apiError";
 import sanitizeHtml from 'sanitize-html';
 import type {EnvGetter} from "@builder.io/qwik-city/middleware/request-handler";
 import {getMeilisearch} from "~/app/meilisearch";
+import { createHash } from "crypto";
 
 export class Lecturer {
     index: Index<LecturerType>
@@ -26,7 +27,12 @@ export class Lecturer {
 
     async search(query: string, options?: SearchParams): Promise<SearchResponse<LecturerType> | ApiError> {
         try {
-            return await this.index.search(query, options)
+            const result = await this.index.search(query, options)
+            const newLecturer = result.hits.map(l => ({
+                ...l,
+                password: ""
+            }))
+            return {...result, hits: newLecturer}
 
         } catch (e) {
             console.error("Error while searching lecturer", options, e)
@@ -68,6 +74,7 @@ export class Lecturer {
 
             const lecturer: LecturerType = {
                 ...data,
+                password: createHash('sha256').update(data.password).digest('hex'),
                 tags: [],
                 uuid: crypto.randomUUID(),
             }
@@ -110,7 +117,8 @@ export class Lecturer {
 
     async get(uuid: string): Promise<ApiError | LecturerType> {
         try {
-            return await this.index.getDocument(uuid)
+            const lecturer = (await this.index.getDocument(uuid));
+            return {...lecturer, password: ""};
 
         } catch (e) {
             if (e instanceof MeiliSearchApiError) {
@@ -148,7 +156,7 @@ export class Lecturer {
 
             await this.index.updateDocuments([lecturer])
 
-            return lecturer
+            return {...lecturer, password: ""}
         } catch (e) {
             console.error("Error while updating lecturer", uuid, rawData, e)
 
@@ -165,7 +173,7 @@ export class Lecturer {
                     "uuid:desc"
                 ],
                 limit: 1000
-            })).hits.map(i => lecturerZod.parse(i))
+            })).hits.map(lecturer => lecturerZod.parse({...lecturer, password: ""}))
         } catch (e) {
             console.error("Error while listing lecturers", e)
             return ApiError.internal()

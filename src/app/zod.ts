@@ -20,6 +20,7 @@ export const contactZod = z.object({
 
 export const lecturerZod = z.object({
     uuid: z.string().uuid(),
+    password: z.string(),
     title_before: z.string().nullish().transform(x => x ?? null),
     first_name: z.string(),
     middle_name: z.string().nullish().transform(x => x ?? null),
