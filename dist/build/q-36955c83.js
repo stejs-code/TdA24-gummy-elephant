@@ -1,1 +1,0 @@
-import{F as a,j as e,q as n}from"./q-5cbd8fe3.js";const c=r=>{const s=a(r,["class"]);return e("input",{...s},{class:n(o=>`border appearance-none py-2 transition-colors w-full rounded-md border-slate-200 outline-0 px-4 focus:border-primary-300 ${o.class??""}`,[r]),type:"search"},0,"Kh_0")};export{c as s_r3AEj5nuD8M};

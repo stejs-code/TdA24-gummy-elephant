@@ -1,1 +1,0 @@
-import{u as n}from"./q-5cbd8fe3.js";import{p as d}from"./q-5cbd8fe3.js";const i=({track:o,cleanup:a})=>{const[l,s,t,e]=n();o(()=>e.value);const u=setTimeout(async()=>{await s(e.value),l.value=e.value},t);a(()=>clearTimeout(u))};export{d as _hW,i as s_jN91RlXlAj4};

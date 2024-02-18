@@ -1,1 +1,0 @@
-import{j as n,M as l,L as o}from"./q-5cbd8fe3.js";const e=s=>n("button",{...s,class:"px-6 py-2 bg-slate-100 rounded-md transition-colors hover:bg-slate-200 focus:bg-slate-300 "+s.class,children:l(o,null,3,"ze_2")},null,0,"ze_3");export{e as s_hZE3SL9mOno};

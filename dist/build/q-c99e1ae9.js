@@ -1,1 +1,0 @@
-import{k as t,R as a}from"./q-5cbd8fe3.js";const r=e=>t("ul",null,{class:"flex flex-wrap content-center"},e.tags.map((l,s)=>t("li",null,{class:"mr-2 text-slate-800 mb-2 px-4 text-sm py-1 bg-slate-100 rounded-lg"},["#",a(l,"name")],1,s)),1,"L4_0");export{r as s_Z4ZyudS5gDM};
