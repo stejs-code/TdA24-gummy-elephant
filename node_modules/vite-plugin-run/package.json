@@ -1,0 +1,52 @@
+{
+  "name": "vite-plugin-run",
+  "version": "0.5.1",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/innocenzi/vite-plugin-run"
+  },
+  "author": "Enzo Innocenzi",
+  "files": [
+    "dist",
+    "*.d.ts"
+  ],
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "main": "dist/index.cjs",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "homepage": "https://github.com/innocenzi/vite-plugin-run#readme",
+  "bugs": "https://github.com/innocenzi/vite-plugin-run/issues",
+  "dependencies": {
+    "@antfu/utils": "^0.7.6",
+    "debug": "^4.3.4",
+    "execa": "5.1",
+    "minimatch": "^9.0.3",
+    "picocolors": "^1.0.0"
+  },
+  "devDependencies": {
+    "@innocenzi/eslint-config": "^0.20.0",
+    "@types/debug": "^4.1.8",
+    "@types/node": "^18.17.12",
+    "bumpp": "^9.2.0",
+    "eslint": "^8.48.0",
+    "typescript": "^5.2.2",
+    "unbuild": "^2.0.0",
+    "vite": "^4.4.9",
+    "vitest": "^0.34.3"
+  },
+  "scripts": {
+    "dev": "unbuild --stub",
+    "build": "unbuild",
+    "test": "vitest",
+    "lint": "eslint src/*.ts",
+    "release": "bumpp --push --tag --commit \"release: v\""
+  },
+  "readme": "<p align=\"center\">\n<h2 align=\"center\">Runner plugin for Vite</h2>\n\n<p align=\"center\">\n\t<a href=\"https://github.com/innocenzi/vite-plugin-run/releases\"><img alt=\"version\" src=\"https://img.shields.io/github/v/release/innocenzi/vite-plugin-run?include_prereleases&label=version&logo=github&logoColor=white\"></a>\n\t<br />\n\t<br />\n\t<p align=\"center\">\n\t\tA plugin for running commands when files change or when Vite starts.\n\t</p>\n\t<pre><div align=\"center\">npm i -D vite-plugin-run</div></pre>\n</p>\n\n&nbsp;\n\n## Usage\n\nInstall `vite-plugin-run` and add it to your Vite configuration:\n\n```ts\nimport { run } from 'vite-plugin-run'\n\nexport default defineConfig({\n  plugins: [\n    laravel(),\n      vue(),\n      run([\n        {\n          name: 'typescript transform',\n          run: ['php', 'artisan', 'typescript:transform'],\n          pattern: ['app/**/*Data.php', 'app/**/Enums/**/*.php'],\n        },\n        {\n          name: 'build routes',\n          run: ['php', 'artisan', 'routes:generate'],\n          condition: (file) => file.includes('/routes/'),\n        }\n      ]),\n  ],\n})\n```\n\nYou can either use a `pattern` or a `condition` to specify how the files changes should be detected.\n\nWhen a file in your project changes, its path will be given as an argument to `condition`. If the function returns `true`, a shell command described by `run` will be executed.\n\n&nbsp;\n\n## Plugin options\n\n\n| Option    | Type       | Description                                             | Default |\n| --------- | ---------- | ------------------------------------------------------- | ------- |\n| `silent`  | `bool`     | Whether to hide the commands output in the console      | `true`  |\n| `skipDts` | `bool`     | Whether to skip HMR reloads when a `.d.ts` file changes | `true`  |\n| `input`   | `Runner[]` | List of runners                                         | `[]`    |\n\nOptionally, you can directly pass a runner or a list of runner to the plugin options.\n\n&nbsp;\n\n## Runner options\n\n| Option          | Type                           | Description                                                                | Default |\n| --------------- | ------------------------------ | -------------------------------------------------------------------------- | ------- |\n| `startup`       | `bool`                         | Whether the command should run when Vite starts                            | `true`  |\n| `build`         | `bool`                         | Whether the command should run when Vite builds                            | `true`  |\n| `name`          | `string`                       | An identifier for the runner, used in logs                                 |         |\n| `condition`     | `() => boolean`                | A function that should return true for a file change to execute the runner |         |\n| `pattern`       | `string` or `string[]`         | A minimatch pattern which files must match                                 |         |\n| `run`           | `() => string[]` or `string[]` | A command executed when a file changed and the condition matches           |         |\n| `onFileChanged` | `() =>void`                    | A callback executed when a file changed and the condition matches          |         |\n| `delay`         | `number`                       | Delay before the command is executed                                       | `50`    |\n| `throttle`      | `number`                       | Delay before the command can be re-executed                                | `50`    |\n\n<p align=\"center\">\n\t<br />\n\t<br />\n\t·\n\t<br />\n\t<br />\n\t<sub>Built with ❤︎ by <a href=\"https://twitter.com/enzoinnocenzi\">Enzo Innocenzi</a>\n</p>\n"
+}

@@ -33,5 +33,18 @@ const client = new MeiliSearch({
         filterableAttributes: ["name"],
         sortableAttributes: ["name"]
     })
+
+    try {
+        await client.createIndex("notifications", {
+            primaryKey: "uuid"
+        })
+    } catch (e) {
+        /* EMPTY */
+    }
+
+
+    await client.index("notifications").updateSettings({
+        sortableAttributes: ["created_unix"]
+    })
 })()
 

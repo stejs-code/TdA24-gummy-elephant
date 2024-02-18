@@ -1,0 +1,1 @@
+import{j as s,M as a,L as n}from"./q-5cbd8fe3.js";const l=r=>s("a",{...r,class:"px-6 py-2 bg-primary-300 text-white rounded-md transition-colors hover:bg-primary-400 focus:bg-primary-500 "+r.class,children:a(n,null,3,"ze_4")},null,0,"ze_5");export{l as s_lT4zAk8Yvcw};

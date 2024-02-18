@@ -1,0 +1,1 @@
+const o=()=>{throw"Symbol removed by Qwik Optimizer, it can not be called from current platform"},t=()=>{throw"Symbol removed by Qwik Optimizer, it can not be called from current platform"},e=()=>{throw"Symbol removed by Qwik Optimizer, it can not be called from current platform"};export{e as onDelete,o as onGet,t as onPut};

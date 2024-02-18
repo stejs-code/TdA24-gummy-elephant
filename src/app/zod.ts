@@ -18,6 +18,19 @@ export const contactZod = z.object({
     emails: z.array(z.string()),
 })
 
+
+export const notificationZod = z.object({
+    uuid: z.string().uuid(),
+    lecturer: z.string().uuid(),
+    created_at: z.date(),
+    created_unix: z.number(),
+    read: z.boolean(),
+    data: z.object({
+        type: z.literal("new_lecture"),
+        message: z.string()  
+    })
+})
+
 export const lecturerZod = z.object({
     uuid: z.string().uuid(),
     password: z.string().optional().nullish().transform(x => x ?? null),
