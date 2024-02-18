@@ -1,0 +1,19 @@
+version: '3'
+
+services:
+  meilisearch:
+    image: getmeili/meilisearch:v1.5
+    environment:
+      - MEILI_MASTER_KEY=${MEILISEARCH_MASTER_KEY}
+      - MEILI_ENV=development
+      - MEILI_IMPORT_DUMP=/meili_data/dumps/seed_data.dump
+      - MEILI_IGNORE_DUMP_IF_DB_EXISTS=true
+    volumes:
+      - ./tmp/meili_data:/meili_data
+      - ./seed_data.dump:/meili_data/dumps/seed_data.dump
+    ports: ['7700:7700']
+
+  redis:
+    image: "redis:7.2.4"
+    ports:
+      - '6379:6379'
