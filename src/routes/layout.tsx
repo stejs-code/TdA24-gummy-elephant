@@ -1,10 +1,10 @@
 import {component$, Slot} from "@builder.io/qwik";
 import {IconParkElephant} from "~/components/icons/elephant";
-import {Image} from "@unpic/qwik";
 import type {RequestHandler} from "@builder.io/qwik-city";
-import {Link} from "@builder.io/qwik-city";
+import {Navigation} from "~/components/navigation/navigation";
+import {useAuthSession} from "~/routes/plugin@auth";
 
-export const onGet: RequestHandler = async ({ cacheControl }) => {
+export const onGet: RequestHandler = async ({cacheControl}) => {
     // Control caching for this request for best performance and to reduce hosting costs:
     // https://qwik.builder.io/docs/caching/
     cacheControl({
@@ -16,18 +16,10 @@ export const onGet: RequestHandler = async ({ cacheControl }) => {
 };
 
 export default component$(() => {
+    const session = useAuthSession()
+
     return <>
-        <nav class={"p-8 w-full flex"}>
-            <Link href={"/"} prefetch={true}>
-                <Image
-                    class={"pointer-events-none"}
-                    src={"/images/logo.svg"}
-                    width={80}
-                    height={53}
-                    alt={"Teacher Digital Agency Logo"}
-                />
-            </Link>
-        </nav>
+        <Navigation user={session.value?.user}/>
 
         <Slot/>
 

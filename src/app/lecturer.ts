@@ -8,7 +8,7 @@ import {ApiError} from "~/app/apiError";
 import sanitizeHtml from 'sanitize-html';
 import type {EnvGetter} from "@builder.io/qwik-city/middleware/request-handler";
 import {getMeilisearch} from "~/app/meilisearch";
-import { createHash } from "crypto";
+import bcrypt from "bcryptjs"
 
 export class Lecturer {
     index: Index<LecturerType>
@@ -64,6 +64,16 @@ export class Lecturer {
         return url
     }
 
+    static encryptPassword(password: string): Promise<string> {
+        return bcrypt.genSalt(10)
+            .then((salt => bcrypt.hash(password, salt)))
+            .then(hash => hash)
+    }
+
+    static async comparePassword(password: string, hashPassword: string): Promise<boolean> {
+        return await bcrypt.compare(password, hashPassword);
+    }
+
     static getName(lecturer: LecturerType) {
         return [lecturer.title_before, lecturer.first_name, lecturer.middle_name, lecturer.last_name, lecturer.title_after].filter(i => i).join(" ")
     }
@@ -74,10 +84,11 @@ export class Lecturer {
 
             const lecturer: LecturerType = {
                 ...data,
-                password: createHash('sha256').update(data.password).digest('hex'),
                 tags: [],
                 uuid: crypto.randomUUID(),
             }
+
+            if (lecturer.password) lecturer.password = await Lecturer.encryptPassword(lecturer.password)
 
             lecturer.route_url = await this.createUrl(lecturer)
 
@@ -144,6 +155,8 @@ export class Lecturer {
                 ...data
             } as LecturerType
 
+            if (lecturer.password) lecturer.password = await Lecturer.encryptPassword(lecturer.password)
+
             if (!data.route_url) {
                 lecturer.route_url = await this.createUrl(lecturer)
             } else {
@@ -180,6 +193,10 @@ export class Lecturer {
         }
     }
 
+    /**
+     * Only for simple non-computation updates
+     * @param lecturers
+     */
     async updateBulk(lecturers: LecturerType[]): Promise<ApiError | { success: true }> {
         try {
             await this.meilisearch.tasks.waitForTasks((await this.index.updateDocumentsInBatches(lecturers, 20)).map(i => i.taskUid))

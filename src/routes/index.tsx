@@ -28,6 +28,7 @@ import {getMeilisearch} from "~/app/meilisearch";
 import {forI} from "~/app/utils";
 import {Modal, ModalContent, ModalFooter, ModalHeader} from "@qwik-ui/headless";
 import {Hero} from "~/components/hero/hero";
+import {useAuthSession} from "~/routes/plugin@auth";
 
 export const SearchForm = object({
     query: string(),

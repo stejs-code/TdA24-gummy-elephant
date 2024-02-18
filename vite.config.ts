@@ -30,5 +30,15 @@ export default defineConfig(() => {
                 "Cache-Control": "public, max-age=600",
             },
         },
+        build: {
+            rollupOptions: {
+                // caused by https://github.com/fabian-hiller/modular-forms/issues/182
+                onLog(level, log, handler) {
+                    if (log.message.includes("has been externalized for browser compatibility, imported by")) return
+                    handler(level, log);
+                },
+            },
+            chunkSizeWarningLimit: 2000
+        },
     };
 });

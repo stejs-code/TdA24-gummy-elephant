@@ -28,3 +28,9 @@ export function forI<T>(i: number, func: (i: number) => T): T[] {
 
     return returnVal
 }
+
+export function addOneDay(date = new Date()) {
+    date.setDate(date.getDate() + 1);
+
+    return date;
+}
