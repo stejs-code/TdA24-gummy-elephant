@@ -78,7 +78,7 @@ export class Lecturer {
         return [lecturer.title_before, lecturer.first_name, lecturer.middle_name, lecturer.last_name, lecturer.title_after].filter(i => i).join(" ")
     }
 
-    async create(rawData: z.infer<typeof createBody>): Promise<LecturerType | ApiError> {
+    async create(rawData: LecturerType): Promise<LecturerType | ApiError> {
         try {
             const data = createBody.parse(rawData)
 
