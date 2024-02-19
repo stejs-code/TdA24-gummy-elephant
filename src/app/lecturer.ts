@@ -1,13 +1,12 @@
 import {z} from "zod";
 import type {MeiliSearch, SearchParams, SearchResponse} from "meilisearch";
 import {MeiliSearchApiError} from "meilisearch";
-import {Tag} from "~/app/tag";
 import type {LecturerType, TagType} from "~/app/zod";
 import {createBody, lecturerZod, updateLectureBodyZod, zodErrorToString} from "~/app/zod";
 import {ApiError} from "~/app/apiError";
 import sanitizeHtml from 'sanitize-html';
 import bcrypt from "bcryptjs"
-import { Context } from "./context";
+import type { Context } from "./context";
 import { assureTagExistence } from "./tag";
 
 function getIndex(meili: MeiliSearch){
@@ -64,7 +63,7 @@ async function comparePassword(password: string, hashPassword: string): Promise<
         return await bcrypt.compare(password, hashPassword);
 }
 
-async function getLecturerName(lecturer: LecturerType) {
+export async function getLecturerName(lecturer: LecturerType) {
         return [lecturer.title_before, lecturer.first_name, lecturer.middle_name, lecturer.last_name, lecturer.title_after].filter(i => i).join(" ")
     }
 
