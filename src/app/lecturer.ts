@@ -167,7 +167,10 @@ export class Lecturer {
 
             if (data.tags) lecturer.tags = await this.processTags(data.tags)
 
-            await this.index.updateDocuments([lecturer])
+            await this.index.updateDocuments([{
+                ...lecturer,
+                password: (!lecturer.password || lecturer.password === "") ? undefined : lecturer.password
+            }])
 
             return {...lecturer, password: ""}
         } catch (e) {

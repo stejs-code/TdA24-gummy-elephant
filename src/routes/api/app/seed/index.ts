@@ -15,6 +15,8 @@ export const onPost: RequestHandler = ({env, json}) => {
 
         for (let i = 0; i < 200; i++) {
             await LecturerResource.create({
+                login: null,
+                password: null,
                 claim: faker.lorem.sentences(1),
                 location: faker.helpers.arrayElement([
                     "Brno",

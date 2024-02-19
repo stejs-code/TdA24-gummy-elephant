@@ -1,5 +1,7 @@
 import type {AbortMessage} from "@builder.io/qwik-city/middleware/request-handler";
 import {ApiError} from "~/app/apiError";
+import {twMerge} from "tailwind-merge"
+import {type ClassValue, clsx} from "clsx"
 
 export function defer(func: () => any) {
     setTimeout(func, 1)
@@ -27,6 +29,10 @@ export function forI<T>(i: number, func: (i: number) => T): T[] {
     }
 
     return returnVal
+}
+
+export function cn(...inputs: ClassValue[]) {
+    return twMerge(clsx(inputs))
 }
 
 export function addOneDay(date = new Date()) {
