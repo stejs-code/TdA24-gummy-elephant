@@ -36,10 +36,10 @@ export async function getNotification({meili}: Context, id: string): Promise<Not
     }
 }
 
-export async function makeReadNotification(context: Context, id: string): Promise<ApiError | true> {
+export async function makeReadNotification(ctx: Context, id: string): Promise<ApiError | true> {
    try{
-        const index = getIndex(context.meili);
-        const notification = await getNotification(context, id)
+        const index = getIndex(ctx.meili);
+        const notification = await getNotification(ctx, id)
         await index.updateDocuments([{...notification, read: true}])
         return true;
     }
