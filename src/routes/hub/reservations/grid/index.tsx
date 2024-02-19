@@ -4,9 +4,7 @@ import {LuChevronLeft, LuChevronRight} from "@qwikest/icons/lucide";
 import {Table} from "~/components/reservations/table";
 
 export default component$(() => {
-
-
-
+    const workDays = ["Pondělí", "Úterý", "Středa", "Čtvrtek", "Pátek"];
     return(
         <div class={"w-full max-w-5xl m-auto px-4"}>
             <div class={"flex w-full justify-between items-center"}>
@@ -30,11 +28,13 @@ export default component$(() => {
                 </div>
             </div>
             <div class={"flex gap-6 justify-center "}>
-                <Table day={"Pondělí"}/>
-                <Table day={"Úterý"} isCurrentDay={true}/>
-                <Table day={"Středa"}/>
-                <Table day={"Čtvrtek"}/>
-                <Table day={"Pátek"}/>
+                {
+                    workDays.map((day, index) => (
+
+                        <Table key={index} day={day} isCurrentDay={(new Date()).getDay() == index+1}/>
+                    ))
+                }
+                
             </div>
 
         </div>
