@@ -28,13 +28,13 @@ export const Navigation = component$<{ user: LecturerType | undefined }>(({user}
                                     <div
                                         class={"aspect-square w-9 flex items-center justify-center rounded-md bg-primary-50 text-primary-300 font-semibold mr-4"}>
                                         {user
-                                            ? ((user?.first_name[0] || "") + (user?.last_name[0] || "")).toUpperCase()
+                                            ? ((user.first_name[0] || "") + (user.last_name[0] || "")).toUpperCase()
                                             : <LuUser class={"text-lg"}/>}
                                     </div>
                                     <p class={"leading-tight text-left"}>
                                     <span class={"font-semibold"}>
                                         {user
-                                            ? [user?.title_before, user?.first_name, user?.middle_name, user?.last_name, user?.title_after].join(" ")
+                                            ? [user.title_before, user.first_name, user.middle_name, user.last_name, user.title_after].join(" ")
                                             : "Nepřihlášen"}
                                     </span>
 

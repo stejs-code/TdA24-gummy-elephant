@@ -1,7 +1,8 @@
 import type {RequestHandler} from "@builder.io/qwik-city";
 import {routeLoader$} from "@builder.io/qwik-city";
 import {initializeRedisIfItIsUndefined} from "~/app/redis";
-import {deleteSession, getSession, Session} from "~/app/session";
+import type {Session} from "~/app/session";
+import {deleteSession, getSession} from "~/app/session";
 
 export const onRequest: RequestHandler = async (ev) => {
     // TODO: secured paths

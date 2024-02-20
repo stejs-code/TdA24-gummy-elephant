@@ -1,6 +1,8 @@
-import MeiliSearch, { MeiliSearchApiError, SearchParams, SearchResponse } from "meilisearch";
+import type { SearchParams, SearchResponse } from "meilisearch";
+import type MeiliSearch from "meilisearch";
+import { MeiliSearchApiError } from "meilisearch";
 import { ApiError } from "./apiError";
-import { Context } from "./context"
+import type { Context } from "./context"
 import { notificationZod, type NotificationType } from "./zod";
 
 
