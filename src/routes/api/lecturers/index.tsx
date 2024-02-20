@@ -28,8 +28,8 @@ export const onPost: RequestHandler = async ({json, env, request}) => {
             const response = await createLecturer(ctx, await request.json())
             if (response instanceof ApiError) return response.sendResponse(json)
             json(200, response)
-
         }
+        i++;
         
     } catch (e) {
         handleRequestHandlingError(e, json)
