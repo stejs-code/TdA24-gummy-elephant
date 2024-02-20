@@ -43,17 +43,17 @@ export const onGet: RequestHandler = (ev) => {
 
 export const useAuthSignIn = routeAction$(async (data, event) => {
     const ctx = new Context(event)
-    const login = data.username
+    const username = data.username
     const password = data.password
 
-    if (!login || !password) return {
+    if (!username || !password) return {
         status: "fail",
         message: "Neznámý kód"
     }
 
 
     const response = await getLecturerIndex(ctx.meili).search("", {
-        filter: [`login = ${login}`]
+        filter: [`username = ${username}`]
     })
 
     const user = response.hits[0]

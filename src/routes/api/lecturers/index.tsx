@@ -21,14 +21,9 @@ export const onGet: RequestHandler = async ({env, json}) => {
 
 export const onPost: RequestHandler = async ({json, env, request}) => {
     try {
-        if(i < 3){
-            json(401,  json(401, {error: 401, message: "auth required"})) 
-        }
         const req = await request.json()
-        const editedReq = {...req, login: req.username}
         const ctx = new Context({env})
-        const response = await createLecturer(ctx, editedReq)
-        if(!(editedReq.password == null && editedReq.login)) json(401, {error: 401, message: "auth required"})
+        const response = await createLecturer(ctx, req)
         if (response instanceof ApiError) return response.sendResponse(json)
         json(200, response)
         i++;
