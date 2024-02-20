@@ -39,7 +39,7 @@ export default component$(() => {
                     </div>
                     <div class={"mb-5"}>
                         <p class={"mb-1"}>Telelefon:</p>
-                        <input type="tel" value={"+420 696 969 996"} disabled={true}  class={"px-3 py-1.5 border rounded-lg border-gray-300 bg-white w-full"}/>
+                        <input type="tel" value={"+420 676 989 296"} disabled={true}  class={"px-3 py-1.5 border rounded-lg border-gray-300 bg-white w-full"}/>
                     </div>
                     <div class={"flex items-center gap-5 mb-5"}>
                         <div class={"w-1/2"}>
