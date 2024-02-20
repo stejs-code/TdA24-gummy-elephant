@@ -1,14 +1,13 @@
 import type {RequestHandler} from "@builder.io/qwik-city";
-import {getMeilisearch} from "~/app/meilisearch";
 import {ApiError} from "~/app/apiError";
-import {Lecturer} from "~/app/lecturer";
 import {handleRequestHandlingError} from "~/app/utils";
+import {Context} from "~/app/context";
+import {createLecturer, listLecturers} from "~/app/lecturer";
 
 export const onGet: RequestHandler = async ({env, json}) => {
     try {
-        const LecturerResource = new Lecturer(getMeilisearch(env))
-
-        const response = await LecturerResource.list()
+        const ctx = new Context({env})
+        const response = await listLecturers(ctx)
 
         if (response instanceof ApiError) return response.sendResponse(json)
 
@@ -21,9 +20,9 @@ export const onGet: RequestHandler = async ({env, json}) => {
 
 export const onPost: RequestHandler = async ({env, json, request}) => {
     try {
-        const LecturerResource = new Lecturer(getMeilisearch(env))
+        const ctx = new Context({env})
 
-        const response = await LecturerResource.create(await request.json())
+        const response = await createLecturer(ctx, await request.json())
 
         if (response instanceof ApiError) return response.sendResponse(json)
 

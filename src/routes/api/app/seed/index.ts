@@ -1,20 +1,17 @@
 import type {RequestHandler} from "@builder.io/qwik-city";
-import {getMeilisearch} from "~/app/meilisearch";
 import {defer} from "~/app/utils";
-import {Lecturer} from "~/app/lecturer";
 import {faker} from "@faker-js/faker/locale/cs_CZ";
+import {createLecturer} from "~/app/lecturer";
+import {Context} from "~/app/context";
 
 export const onPost: RequestHandler = ({env, json}) => {
     const start = performance.now()
 
-    const meilisearch = getMeilisearch(env)
-
-    const LecturerResource = new Lecturer(meilisearch)
-
+    const ctx = new Context({env})
     defer(async () => {
 
         for (let i = 0; i < 200; i++) {
-            await LecturerResource.create({
+            await createLecturer(ctx, {
                 claim: faker.lorem.sentences(1),
                 location: faker.helpers.arrayElement([
                     "Brno",
@@ -22,8 +19,6 @@ export const onPost: RequestHandler = ({env, json}) => {
                     "Ostrava",
                     "Olomouc"
                 ]),
-                middle_name: null,
-                route_url: null,
                 picture_url: faker.image.urlLoremFlickr({
                     width: 300,
                     height: 300,
@@ -44,8 +39,6 @@ export const onPost: RequestHandler = ({env, json}) => {
                     "Hledaný kriminálník",
                     "Milovník mašinek 🚂"
                 ], faker.number.int(9)).map(i => ({name: i})),
-                title_after: null,
-                title_before: null,
                 first_name: faker.person.firstName(),
                 last_name: faker.person.lastName(),
                 bio: faker.lorem.sentences(4),

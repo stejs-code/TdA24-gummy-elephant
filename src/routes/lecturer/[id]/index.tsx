@@ -4,9 +4,9 @@ import {routeLoader$} from "@builder.io/qwik-city";
 import {Profile} from "~/components/lecturer/profile";
 import {Info} from "~/components/lecturer/info";
 import {IoCallOutline, IoCashOutline, IoMailOutline, IoMapOutline} from "@qwikest/icons/ionicons";
-import {Lecturer} from "~/app/lecturer";
-import {getMeilisearch} from "~/app/meilisearch";
 import {ApiError} from "~/app/apiError";
+import {Context} from "~/app/context";
+import {getLecturer, getLecturerName, searchLecturer} from "~/app/lecturer";
 
 export default component$(() => {
     const document = useDocument()
@@ -77,9 +77,9 @@ export default component$(() => {
 });
 
 export const useDocument = routeLoader$(async ({params, env, error}) => {
-    const LecturerResource = new Lecturer(getMeilisearch(env))
+    const ctx = new Context({env})
 
-    const searchResponse = await LecturerResource.search("", {
+    const searchResponse = await searchLecturer(ctx, "", {
         filter: [
             `route_url = ${params.id}`
         ]
@@ -88,11 +88,11 @@ export const useDocument = routeLoader$(async ({params, env, error}) => {
     if (!(searchResponse instanceof ApiError || searchResponse.hits.length === 0)) {
         return {
             ...searchResponse.hits[0],
-            name: Lecturer.getName(searchResponse.hits[0])
+            name: getLecturerName(searchResponse.hits[0])
         }
     }
 
-    const response = await LecturerResource.get(params.id)
+    const response = await getLecturer(ctx, params.id)
 
     if (response instanceof ApiError) {
         throw error(404, "Lektor neexistuje")
@@ -100,7 +100,7 @@ export const useDocument = routeLoader$(async ({params, env, error}) => {
 
     return {
         ...response,
-        name: Lecturer.getName(response)
+        name: getLecturerName(response)
     }
 })
 
