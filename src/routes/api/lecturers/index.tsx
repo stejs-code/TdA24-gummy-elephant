@@ -4,7 +4,7 @@ import {handleRequestHandlingError} from "~/app/utils";
 import {Context} from "~/app/context";
 import {createLecturer, listLecturers} from "~/app/lecturer";
 
-var i = 0;
+let i = 0;
 export const onGet: RequestHandler = async ({env, json}) => {
     try {
         const ctx = new Context({env})
