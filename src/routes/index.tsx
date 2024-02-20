@@ -346,7 +346,7 @@ export default component$(() => {
                                             alt={getLecturerName(i)}/>
                                     </a>
                                 }
-                                <div class={"py-2"}>
+                                <div>
                                     <a href={`/lecturer/${i.uuid}`}>
                                         <h2 class={"font-display text-4xl mb-4"}>{getLecturerName(i)}</h2>
                                     </a>

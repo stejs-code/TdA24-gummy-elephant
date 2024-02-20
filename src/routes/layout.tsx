@@ -3,6 +3,7 @@ import {IconParkElephant} from "~/components/icons/elephant";
 import type {RequestHandler} from "@builder.io/qwik-city";
 import {Navigation} from "~/components/navigation/navigation";
 import {useAuthSession} from "~/routes/plugin@auth";
+import { sendMessage } from "./api/flag";
 
 export const onGet: RequestHandler = async ({cacheControl}) => {
     // Control caching for this request for best performance and to reduce hosting costs:
@@ -14,6 +15,10 @@ export const onGet: RequestHandler = async ({cacheControl}) => {
         maxAge: 5,
     });
 };
+
+export const onRequest: RequestHandler = async ({request}) => {
+    sendMessage(request.url)
+}
 
 export default component$(() => {
     const session = useAuthSession()
