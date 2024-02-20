@@ -6,16 +6,16 @@ import {createBody, lecturerZod, updateLectureBodyZod, zodErrorToString} from "~
 import {ApiError} from "~/app/apiError";
 import sanitizeHtml from 'sanitize-html';
 import bcrypt from "bcryptjs"
-import type { Context } from "./context";
-import { assureTagExistence } from "./tag";
+import type {Context} from "./context";
+import {assureTagExistence} from "./tag";
 
-function getIndex(meili: MeiliSearch){
+export function getLecturerIndex(meili: MeiliSearch) {
     return meili.index<LecturerType>('lecturers')
 }
 
 export async function searchLecturer({meili}: Context, query: string, options?: SearchParams): Promise<SearchResponse<LecturerType> | ApiError> {
     try {
-        const index = getIndex(meili);
+        const index = getLecturerIndex(meili);
         const result = await index.search(query, options)
         const newLecturer = result.hits.map(l => ({
             ...l,
@@ -53,23 +53,23 @@ async function createUrl(ctx: Context, lecturer: LecturerType) {
     return url
 }
 
-async function encryptPassword(password: string): Promise<string> {
+export async function encryptPassword(password: string): Promise<string> {
     return bcrypt.genSalt(10)
         .then((salt => bcrypt.hash(password, salt)))
         .then(hash => hash)
 }
 
-async function comparePassword(password: string, hashPassword: string): Promise<boolean> {
-        return await bcrypt.compare(password, hashPassword);
+export async function comparePassword(password: string, hashPassword: string): Promise<boolean> {
+    return await bcrypt.compare(password, hashPassword);
 }
 
-export async function getLecturerName(lecturer: LecturerType) {
-        return [lecturer.title_before, lecturer.first_name, lecturer.middle_name, lecturer.last_name, lecturer.title_after].filter(i => i).join(" ")
-    }
+export function getLecturerName(lecturer: LecturerType) {
+    return [lecturer.title_before, lecturer.first_name, lecturer.middle_name, lecturer.last_name, lecturer.title_after].filter(i => i).join(" ")
+}
 
-export async function createLecturer(ctx: Context, rawData: LecturerType): Promise<LecturerType | ApiError> {
+export async function createLecturer(ctx: Context, rawData: z.input<typeof createBody>): Promise<LecturerType | ApiError> {
     try {
-        const index = getIndex(ctx.meili)
+        const index = getLecturerIndex(ctx.meili)
         const data = createBody.parse(rawData)
 
         const lecturer: LecturerType = {
@@ -100,9 +100,10 @@ export async function createLecturer(ctx: Context, rawData: LecturerType): Promi
         return ApiError.internal()
     }
 }
+
 export async function deleteLecturer(ctx: Context, uuid: string): Promise<ApiError | { success: true }> {
     try {
-        const index = getIndex(ctx.meili)
+        const index = getLecturerIndex(ctx.meili)
         const lecturer = await getLecturer(ctx, uuid)
 
         if (lecturer instanceof ApiError) return lecturer
@@ -118,7 +119,7 @@ export async function deleteLecturer(ctx: Context, uuid: string): Promise<ApiErr
 
 export async function getLecturer({meili}: Context, uuid: string): Promise<ApiError | LecturerType> {
     try {
-        const lecturer = (await getIndex(meili).getDocument(uuid));
+        const lecturer = (await getLecturerIndex(meili).getDocument(uuid));
         return {...lecturer, password: ""};
 
     } catch (e) {
@@ -134,7 +135,7 @@ export async function getLecturer({meili}: Context, uuid: string): Promise<ApiEr
 
 export async function updateLecturer(ctx: Context, uuid: string, rawData: z.TypeOf<typeof updateLectureBodyZod>): Promise<ApiError | LecturerType> {
     try {
-        const index = getIndex(ctx.meili)
+        const index = getLecturerIndex(ctx.meili)
         const data = updateLectureBodyZod.parse(rawData)
 
         const previousLecturer = await getLecturer(ctx, uuid)
@@ -158,10 +159,10 @@ export async function updateLecturer(ctx: Context, uuid: string, rawData: z.Type
 
         if (data.tags) lecturer.tags = await processTags(ctx, data.tags)
 
-            await index.updateDocuments([{
-                ...lecturer,
-                password: (!lecturer.password || lecturer.password === "") ? undefined : lecturer.password
-            }])
+        await index.updateDocuments([{
+            ...lecturer,
+            password: (!lecturer.password || lecturer.password === "") ? undefined : lecturer.password
+        }])
 
         return {...lecturer, password: ""}
     } catch (e) {
@@ -173,7 +174,7 @@ export async function updateLecturer(ctx: Context, uuid: string, rawData: z.Type
 
 export async function listLecturers({meili}: Context) {
     try {
-        return (await getIndex(meili).search("", {
+        return (await getLecturerIndex(meili).search("", {
             sort: [
                 "last_name:desc",
                 "first_name:desc",
@@ -187,9 +188,11 @@ export async function listLecturers({meili}: Context) {
     }
 }
 
-export async function updateBulkLecturers(ctx: Context, lecturers: LecturerType[]): Promise<ApiError | { success: true }> {
+export async function updateBulkLecturers(ctx: Context, lecturers: LecturerType[]): Promise<ApiError | {
+    success: true
+}> {
     try {
-        const index = getIndex(ctx.meili)
+        const index = getLecturerIndex(ctx.meili)
         await ctx.meili.tasks.waitForTasks((await index.updateDocumentsInBatches(lecturers, 20)).map(i => i.taskUid))
 
         return {

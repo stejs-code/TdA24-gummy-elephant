@@ -22,10 +22,12 @@ import {
 import {DefaultButton, PrimaryButton, PrimaryButtonLink} from "~/components/ui/button";
 import {useDebounce} from "~/components/ui/debounce";
 import type {SearchParams, SearchResponse} from "meilisearch";
-import {getMeilisearch} from "~/app/meilisearch";
 import {forI} from "~/app/utils";
 import {Modal, ModalContent, ModalFooter, ModalHeader} from "@qwik-ui/headless";
 import {Hero} from "~/components/hero/hero";
+import {getLecturerName, searchLecturer} from "~/app/lecturer";
+import {Context} from "~/app/context";
+import {listTags} from "~/app/tag";
 
 export const SearchForm = object({
     query: string(),
@@ -341,12 +343,12 @@ export default component$(() => {
                                             width={225}
                                             height={225}
                                             src={i.picture_url}
-                                            alt={Lecturer.getName(i)}/>
+                                            alt={getLecturerName(i)}/>
                                     </a>
                                 }
                                 <div class={"py-2"}>
                                     <a href={`/lecturer/${i.uuid}`}>
-                                        <h2 class={"font-display text-4xl mb-4"}>{Lecturer.getName(i)}</h2>
+                                        <h2 class={"font-display text-4xl mb-4"}>{getLecturerName(i)}</h2>
                                     </a>
                                     <div class={"mb-4"}>
                                         <Tags tags={i.tags || []}/>
@@ -407,9 +409,9 @@ export function getSearchOptions(input: SearchForm): SearchParams {
     }
 }
 
-export const searchAction = formAction$<SearchForm, ActionResponse>(async (values, event) => {
-    const lecturerResource = new Lecturer(getMeilisearch(event.env))
-    const response = await lecturerResource.search(values.query, getSearchOptions(values))
+export const searchAction = formAction$<SearchForm, ActionResponse>(async (values, {env}) => {
+    const ctx = new Context({env})
+    const response = await searchLecturer(ctx, values.query, getSearchOptions(values))
 
     if (response instanceof ApiError) {
         return {
@@ -428,7 +430,8 @@ export const searchAction = formAction$<SearchForm, ActionResponse>(async (value
 }, valiForm$(SearchForm))
 
 export const useMaxPrice = routeLoader$(async ({env}) => {
-    const response = await Lecturer.use(env).search("", {
+    const ctx = new Context({env})
+    const response = await searchLecturer(ctx, "", {
         sort: ["price_per_hour:desc"],
         limit: 1
     })
@@ -454,7 +457,8 @@ export const useFormLoader = routeLoader$<SearchForm>(async ({resolveValue, quer
 });
 
 export const useTags = routeLoader$<TagType[]>(async ({env}) => {
-    const response = await Tag.use(env).list()
+    const ctx = new Context({env})
+    const response = await listTags(ctx)
 
     if (response instanceof ApiError) {
         return []
@@ -467,7 +471,8 @@ export const useLocations = routeLoader$<{
     name: string,
     count: number
 }[]>(async ({env}) => {
-    const response = await Lecturer.use(env).search("", {
+    const ctx = new Context({env})
+    const response = await searchLecturer(ctx, "", {
         limit: 0,
         facets: ["location"]
     })
@@ -483,9 +488,10 @@ export const useLocations = routeLoader$<{
 });
 
 export const useLecturers = routeLoader$(async ({env, error, resolveValue}) => {
+    const ctx = new Context({env})
     const input = await resolveValue(useFormLoader)
-    const response = await Lecturer.use(env).search(input.query, getSearchOptions(input))
-    
+    const response = await searchLecturer(ctx, input.query, getSearchOptions(input))
+
     if (response instanceof ApiError) {
         throw error(500, "Chyba při načítání lektorů")
     }

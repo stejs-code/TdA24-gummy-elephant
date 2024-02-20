@@ -3,11 +3,11 @@ import type {RequestHandler} from "@builder.io/qwik-city";
 import {Form, routeAction$, useNavigate} from "@builder.io/qwik-city";
 import {isDev} from "@builder.io/qwik/build";
 import {PrimaryButton} from "~/components/ui/button";
-import {Lecturer} from "~/app/lecturer";
 import {postSession} from "~/app/session";
-import {ApiError} from "~/app/apiError";
 import {addOneDay} from "~/app/utils";
 import {TextInput} from "~/components/ui/form";
+import {comparePassword, getLecturerIndex} from "~/app/lecturer";
+import {Context} from "~/app/context";
 
 export default component$(() => {
     const action = useAuthSignIn()
@@ -43,6 +43,7 @@ export const onGet: RequestHandler = (ev) => {
 }
 
 export const useAuthSignIn = routeAction$(async (data, event) => {
+    const ctx = new Context(event)
     const login = data.username
     const password = data.password
 
@@ -51,23 +52,16 @@ export const useAuthSignIn = routeAction$(async (data, event) => {
         message: "Neznámý kód"
     }
 
-    const lecturer = Lecturer.use(event.env)
 
-    const response = await lecturer.search("", {
+    const response = await getLecturerIndex(ctx.meili).search("", {
         filter: [`login = ${login}`]
     })
-
-
-    if (response instanceof ApiError || !response.hits.length) return {
-        status: "fail",
-        message: "Neznámý uživatel"
-    }
 
     const user = response.hits[0]
     console.log(user)
     console.log(1, user.password)
     console.log(2, password)
-    const isMatch = user.password ? await Lecturer.comparePassword(String(password), user.password) : false
+    const isMatch = user.password ? await comparePassword(String(password), user.password) : false
 
     if (!isMatch)  return {
         status: "fail",

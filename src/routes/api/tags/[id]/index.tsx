@@ -1,5 +1,4 @@
 import type {RequestHandler} from "@builder.io/qwik-city";
-import {Tag} from "~/app/tag";
 import {getMeilisearch} from "~/app/meilisearch";
 import {ApiError} from "~/app/apiError";
 import {handleRequestHandlingError} from "~/app/utils";
