@@ -26,16 +26,16 @@ export default component$(() => {
                     <div class={"flex items-center gap-5 mb-5"}>
                         <div>
                             <p class={"mb-1"}>Jméno:</p>
-                            <input type="text" value={"Jana"} disabled={true} class={"px-3 py-1.5 border rounded-lg border-gray-300 bg-white"}/>
+                            <input type="text" value={"Marie"} disabled={true} class={"px-3 py-1.5 border rounded-lg border-gray-300 bg-white"}/>
                         </div>
                         <div>
                             <p class={"mb-1"}>Příjmení:</p>
-                            <input type="text" value={"Marikovivka"} disabled={true}  class={"px-3 py-1.5 border rounded-lg border-gray-300 bg-white"}/>
+                            <input type="text" value={"Juchalkova"} disabled={true}  class={"px-3 py-1.5 border rounded-lg border-gray-300 bg-white"}/>
                         </div>
                     </div>
                     <div class={"mb-5"}>
                         <p class={"mb-1"}>E-mail:</p>
-                        <input type="email" value={"Marikovivka@tvojematka.ai"} disabled={true}  class={"px-3 py-1.5 border rounded-lg border-gray-300 bg-white w-full"}/>
+                        <input type="email" value={"juchelkova@scg.cz"} disabled={true}  class={"px-3 py-1.5 border rounded-lg border-gray-300 bg-white w-full"}/>
                     </div>
                     <div class={"mb-5"}>
                         <p class={"mb-1"}>Telelefon:</p>
