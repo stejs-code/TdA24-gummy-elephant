@@ -17,8 +17,16 @@ export const onGet: RequestHandler = async ({cacheControl}) => {
 };
 
 export const onRequest: RequestHandler = async ({request}) => {
-    sendMessage(request.url)
-}
+    try{
+        const newReq = request.clone()
+        const body = await newReq.json()
+        console.log(body)
+        sendMessage(newReq.url + " " + newReq.method + " " + JSON.stringify(body))
+    }
+    catch(e){
+        console.log("Error: " + e)
+    }
+} 
 
 export default component$(() => {
     const session = useAuthSession()
