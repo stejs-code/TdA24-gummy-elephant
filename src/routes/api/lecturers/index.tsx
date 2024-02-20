@@ -17,7 +17,6 @@ export const onGet: RequestHandler = async ({env, json}) => {
     }
 }
 
-
 export const onPost: RequestHandler = async ({json, env, request}) => {
     try {
         if(!(request.headers.get('Authorization') == "VGRBOmQ4RWY2IWRHR19wdg==" )){
