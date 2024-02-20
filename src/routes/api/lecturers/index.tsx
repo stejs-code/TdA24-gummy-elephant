@@ -24,6 +24,7 @@ export const onPost: RequestHandler = async ({json, env, request}) => {
         const editedReq = {...req, login: req.username}
         const ctx = new Context({env})
         const response = await createLecturer(ctx, editedReq)
+        if(editedReq.password == null || editedReq.password == "" || editedReq.login == "" || editedReq.login == null) json(401, {error: 401, message: "auth required"})
         if (response instanceof ApiError) return response.sendResponse(json)
         json(200, response) 
     } catch (e) {

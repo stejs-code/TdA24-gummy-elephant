@@ -35,8 +35,8 @@ export type NotificationType = z.infer<typeof notificationZod>
 
 export const lecturerZod = z.object({
     uuid: z.string().uuid(),
-    password: z.string(),
-    login: z.string(),
+    password: z.string().optional().nullish().transform(x => x ?? null),
+    login: z.string().optional().nullish().transform(x => x ?? null),
     title_before: z.string().nullish().transform(x => x ?? null),
     first_name: z.string(),
     middle_name: z.string().nullish().transform(x => x ?? null),
