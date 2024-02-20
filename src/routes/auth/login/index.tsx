@@ -1,7 +1,6 @@
 import {component$, useTask$} from "@builder.io/qwik";
 import type {RequestHandler} from "@builder.io/qwik-city";
 import {Form, routeAction$, useNavigate} from "@builder.io/qwik-city";
-import {isDev} from "@builder.io/qwik/build";
 import {PrimaryButton} from "~/components/ui/button";
 import {postSession} from "~/app/session";
 import {addOneDay} from "~/app/utils";
@@ -58,12 +57,10 @@ export const useAuthSignIn = routeAction$(async (data, event) => {
     })
 
     const user = response.hits[0]
-    console.log(user)
-    console.log(1, user.password)
-    console.log(2, password)
+
     const isMatch = user.password ? await comparePassword(String(password), user.password) : false
 
-    if (!isMatch)  return {
+    if (!isMatch) return {
         status: "fail",
         message: "Neplatné heslo"
     }
@@ -74,7 +71,7 @@ export const useAuthSignIn = routeAction$(async (data, event) => {
 
     event.cookie.set("session", session.id, {
         expires: addOneDay(),
-        secure: !isDev,
+        secure: false, // when https -> true
         path: "/"
     })
 
