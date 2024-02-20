@@ -20,14 +20,15 @@ export const onGet: RequestHandler = async ({env, json}) => {
 
 export const onPost: RequestHandler = async ({env, json, request}) => {
     try {
-        const ctx = new Context({env})
-
-        const response = await createLecturer(ctx, await request.json())
-
-        if (response instanceof ApiError) return response.sendResponse(json)
-
-        json(200, response)
-
+        json(401, {error: 401, message: "Auth required"})
+        // const ctx = new Context({env})
+        //
+        // const response = await createLecturer(ctx, await request.json())
+        //
+        // if (response instanceof ApiError) return response.sendResponse(json)
+        //
+        // json(200, response)
+        //
     } catch (e) {
         handleRequestHandlingError(e, json)
     }
