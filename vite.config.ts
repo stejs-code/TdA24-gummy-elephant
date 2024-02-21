@@ -15,10 +15,16 @@ export default defineConfig(() => {
                 build: false,
                 input: [
                     {
-                        name: 'meilisearch-config',
-                        run: ['node', 'meilisearch.config.mjs'],
-                        pattern: ['./src/**/*.{ts,tsx}'],
+                        name: "meilisearch-config",
+                        run: ["node", "meilisearch.config.mjs"],
+                        pattern: ["./src/**/*.{ts,tsx}"],
                         delay: 1000,
+                        build: false
+                    },
+                    {
+                        name: "docker startup",
+                        run: ["docker-compose", "up", "-d"],
+                        pattern: ["./src/**/*.{ts,tsx}"],
                         build: false
                     }
                 ]
