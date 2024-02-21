@@ -21,7 +21,7 @@ export const Navigation = component$<{ user: LecturerType | undefined }>(({user}
                         />
                     </Link>
                     <ul class={"flex ml-auto"}>
-                        {(location.url.pathname.startsWith("/hub")|| location.url.pathname.startsWith("/auth")) &&
+                        {(location.url.pathname.startsWith("/hub") || location.url.pathname.startsWith("/auth") || user) &&
                             <li>
                                 <a href={(user ? "/auth/logout" : "/auth/login")}
                                    class={"flex items-center transition-colors hover:bg-slate-50/70 p-2 pr-4 rounded-xl"}>
