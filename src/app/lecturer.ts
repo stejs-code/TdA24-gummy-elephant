@@ -1,13 +1,13 @@
 import {z} from "zod";
 import type {MeiliSearch, SearchParams, SearchResponse} from "meilisearch";
 import {MeiliSearchApiError} from "meilisearch";
-import type {LecturerType, TagType} from "~/app/zod";
-import {createBody, lecturerZod, updateLectureBodyZod, zodErrorToString} from "~/app/zod";
+import type {LecturerType} from "~/app/zod";
+import {createLecturerBody, lecturerZod, updateLectureBodyZod, zodErrorToString} from "~/app/zod";
 import {ApiError} from "~/app/apiError";
 import sanitizeHtml from 'sanitize-html';
 import bcrypt from "bcryptjs"
 import type {Context} from "./context";
-import {assureTagExistence} from "./tag";
+import {processTags} from "./tag";
 
 export function getLecturerIndex(meili: MeiliSearch) {
     return meili.index<LecturerType>('lecturers')
@@ -67,10 +67,10 @@ export function getLecturerName(lecturer: LecturerType) {
     return [lecturer.title_before, lecturer.first_name, lecturer.middle_name, lecturer.last_name, lecturer.title_after].filter(i => i).join(" ")
 }
 
-export async function createLecturer(ctx: Context, rawData: z.input<typeof createBody>): Promise<LecturerType | ApiError> {
+export async function createLecturer(ctx: Context, rawData: z.input<typeof createLecturerBody>): Promise<LecturerType | ApiError> {
     try {
         const index = getLecturerIndex(ctx.meili)
-        const data = createBody.parse(rawData)
+        const data = createLecturerBody.parse(rawData)
 
         const lecturer: LecturerType = {
             ...data,
@@ -203,14 +203,4 @@ export async function updateBulkLecturers(ctx: Context, lecturers: LecturerType[
 
         return ApiError.internal()
     }
-}
-
-export async function processTags(ctx: Context, tags: Omit<TagType, "uuid" | "alias">[]): Promise<TagType[]> {
-    // assure unique values
-    const uniqueTags = [...new Set(tags.map(i => i.name))].map(i => ({name: i}))
-
-    // create unregistered tags
-    return (await Promise.all(uniqueTags
-        .map(i => assureTagExistence(ctx, i))))
-        .filter((i): i is TagType => !(i instanceof ApiError));
 }

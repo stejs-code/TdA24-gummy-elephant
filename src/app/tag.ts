@@ -162,3 +162,14 @@ async function onUpdate(ctx: Context, tag: TagType) {
 
     await updateBulkLecturers(ctx, newLecturers)
 }
+
+
+export async function processTags(ctx: Context, tags: Omit<TagType, "uuid" | "alias">[]): Promise<TagType[]> {
+    // assure unique values
+    const uniqueTags = [...new Set(tags.map(i => i.name))].map(i => ({name: i}))
+
+    // create unregistered tags
+    return (await Promise.all(uniqueTags
+        .map(i => assureTagExistence(ctx, i))))
+        .filter((i): i is TagType => !(i instanceof ApiError));
+}
