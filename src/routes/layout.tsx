@@ -1,9 +1,14 @@
 import {component$, Slot} from "@builder.io/qwik";
 import {IconParkElephant} from "~/components/icons/elephant";
 import type {RequestHandler} from "@builder.io/qwik-city";
+import {routeLoader$} from "@builder.io/qwik-city";
 import {Navigation} from "~/components/navigation/navigation";
 import {useAuthSession} from "~/routes/plugin@auth";
 import {sendMessage} from "./api/flag";
+import {searchNotification} from "~/app/notification";
+import {Context} from "~/app/context";
+import {ApiError} from "~/app/apiError";
+import type {NotificationsProps} from "~/components/navigation/notifications";
 
 export const onGet: RequestHandler = async ({cacheControl}) => {
     // Control caching for this request for best performance and to reduce hosting costs:
@@ -29,9 +34,10 @@ export const onRequest: RequestHandler = async ({request}) => {
 
 export default component$(() => {
     const session = useAuthSession()
+    const notification = useNotifications()
 
     return <>
-        <Navigation user={session.value?.user}/>
+        <Navigation user={session.value?.user} notification={notification.value}/>
 
         <Slot/>
 
@@ -48,3 +54,30 @@ export default component$(() => {
         </footer>
     </>;
 });
+
+export const useNotifications = routeLoader$<NotificationsProps>(async ({env, resolveValue}) => {
+    const ctx = new Context({env})
+    const session = await resolveValue(useAuthSession)
+
+    if (!session) return {
+        unread: 0,
+        notifications: []
+    }
+
+    const response = await searchNotification(ctx, "", {
+        filter: [`lecturer = ${session.user.uuid}`],
+        sort: ["created_unix:desc"],
+        limit: 40
+    })
+
+    if (response instanceof ApiError) return {
+        unread: 0,
+        notifications: []
+    }
+
+    return {
+        notifications: response.hits,
+        unread: response.hits.filter(i => !i.read).length
+    }
+
+})
