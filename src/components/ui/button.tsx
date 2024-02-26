@@ -5,7 +5,7 @@ export const PrimaryButton = component$((props: ButtonHTMLAttributes<any>) => {
     return <button
         {...({
             ...props,
-            class: "px-6 py-2 bg-primary-300 text-white rounded-md transition-colors hover:bg-primary-400 focus:bg-primary-500 " + props.class
+            class: "px-5 py-1.5 bg-primary-300 text-white rounded-md transition-colors hover:bg-primary-400 focus:bg-primary-500 " + props.class
         })}
     >
         <Slot/>
