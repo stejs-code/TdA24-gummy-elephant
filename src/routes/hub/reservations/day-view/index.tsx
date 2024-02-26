@@ -78,7 +78,7 @@ export default component$(() => {
                         <div class="w-14 flex-none bg-white ring-1 ring-gray-100"></div>
                         <div class="grid flex-auto grid-cols-1 grid-rows-1">
                             <div class="col-start-1 col-end-2 row-start-1 grid divide-y divide-gray-100" style="grid-template-rows: repeat(48, minmax(3.5rem, 1fr))">
-                                <div class="row-end-1 h-7"></div>
+                                <div class="h-7"></div>
                                 <div>
                                     <div class="-ml-14 -mt-2.5 w-14 pr-2 text-right text-xs leading-5 text-gray-400">12AM</div>
                                 </div>
