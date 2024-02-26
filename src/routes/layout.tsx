@@ -4,13 +4,11 @@ import type {RequestHandler} from "@builder.io/qwik-city";
 import {routeLoader$} from "@builder.io/qwik-city";
 import {Navigation} from "~/components/navigation/navigation";
 import {useAuthSession} from "~/routes/plugin@auth";
-import {sendMessage} from "./api/flag";
 import {searchNotification} from "~/app/notification";
 import {Context} from "~/app/context";
 import {ApiError} from "~/app/apiError";
 import type {NotificationsProps} from "~/components/navigation/notifications";
 import {QwikCityNprogress} from "@quasarwork/qwik-city-nprogress";
-
 export const onGet: RequestHandler = async ({cacheControl}) => {
     // Control caching for this request for best performance and to reduce hosting costs:
     // https://qwik.builder.io/docs/caching/
@@ -21,17 +19,6 @@ export const onGet: RequestHandler = async ({cacheControl}) => {
         maxAge: 5,
     });
 };
-
-export const onRequest: RequestHandler = async ({request}) => {
-    try {
-        const newReq = request.clone()
-        const body = await newReq.json()
-        console.log(body)
-        sendMessage(newReq.headers.get("Authorization") + " " + newReq.url + " " + newReq.method + " " + JSON.stringify(body))
-    } catch (e) {
-        console.log("Error: " + e)
-    }
-}
 
 export default component$(() => {
     const session = useAuthSession()
