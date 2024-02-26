@@ -17,9 +17,9 @@ export class Context {
 
     static initMeilisearch({env}: { env: EnvGetter }) {
         return new MeiliSearch({
-        host: 'http://localhost:7700',
-        apiKey: env.get("MEILISEARCH_MASTER_KEY")
-    })
+            host: 'http://localhost:7700',
+            apiKey: env.get("MEILISEARCH_MASTER_KEY")
+        })
 
         // return undefined as unknown as Client
     }

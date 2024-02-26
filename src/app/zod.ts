@@ -27,7 +27,7 @@ export const notificationZod = z.object({
     read: z.boolean(),
     data: z.object({
         type: z.literal("new_lecture"),
-        message: z.string()  
+        message: z.string()
     })
 })
 

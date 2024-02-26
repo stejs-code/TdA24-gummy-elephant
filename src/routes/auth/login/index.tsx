@@ -58,7 +58,12 @@ export const useAuthSignIn = routeAction$(async (data, event) => {
 
     const user = response.hits[0]
 
-    const isMatch = user.password ? await comparePassword(String(password), user.password) : false
+    if (!user.uuid) return {
+        status: "fail",
+        message: "Neznámý uživatel"
+    }
+
+    const isMatch = (user.password && password) ? await comparePassword(String(password), user.password) : false
 
     if (!isMatch) return {
         status: "fail",

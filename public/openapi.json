@@ -308,6 +308,27 @@
     "/app/seed": {
       "post": {
         "tags": ["App"],
+        "parameters": [
+          {
+            "name": "type",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lecturer",
+                "notification"
+              ]
+            }
+          },
+          {
+            "name": "notificationLecturerUuid",
+            "in": "query",
+            "description": "Specifies for which lecturer (uuid) to create the notification.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "summary": "Vytvoří 200 lektorů",
         "responses": {
           "202": {
