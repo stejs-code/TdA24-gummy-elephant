@@ -59,6 +59,7 @@
   },
   "dependencies": {
     "@modular-forms/qwik": "^0.21.1",
+    "@quasarwork/qwik-city-nprogress": "^0.0.3",
     "@qwikest/icons": "^0.0.13",
     "@types/bcryptjs": "^2.4.6",
     "@types/morgan": "^1.9.9",

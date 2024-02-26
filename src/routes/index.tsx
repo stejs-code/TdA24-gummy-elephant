@@ -2,7 +2,7 @@ import {$, component$, useSignal, useStore, useTask$} from "@builder.io/qwik";
 import type {FormStore} from "@modular-forms/qwik";
 import {formAction$, getValue, reset, setValue, submit, useForm, valiForm$} from "@modular-forms/qwik";
 import type {DocumentHead} from "@builder.io/qwik-city";
-import {routeLoader$} from "@builder.io/qwik-city";
+import {Link, routeLoader$} from "@builder.io/qwik-city";
 import type {Input} from "valibot";
 import {array, number, object, string} from "valibot";
 import {ApiError} from "~/app/apiError";
@@ -337,19 +337,19 @@ export default component$(() => {
                             <div class={"flex flex-col content-center items-center sm:items-start sm:flex-row"}
                                  key={i.uuid + data.processingTimeMs}>
                                 {i.picture_url &&
-                                    <a class={"shrink-0 mr-8 mb-4"} href={`/lecturer/${i.uuid}`}>
+                                    <Link class={"shrink-0 mr-8 mb-4"} href={`/lecturer/${i.uuid}`}>
                                         <img
                                             loading={index > 3 ? "lazy" : "eager"}
                                             width={225}
                                             height={225}
                                             src={i.picture_url}
                                             alt={getLecturerName(i)}/>
-                                    </a>
+                                    </Link>
                                 }
                                 <div class={"py-2"}>
-                                    <a href={`/lecturer/${i.uuid}`}>
+                                    <Link href={`/lecturer/${i.uuid}`}>
                                         <h2 class={"font-display text-4xl mb-4"}>{getLecturerName(i)}</h2>
-                                    </a>
+                                    </Link>
                                     <div class={"mb-4"}>
                                         <Tags tags={i.tags || []}/>
                                     </div>
@@ -381,10 +381,10 @@ export default component$(() => {
                     <ul class={"flex mt-14 mb-8 gap-2 flex-wrap justify-center"}>
                         {!!data.totalPages && forI(data.totalPages, (i) => (
                             <li key={i}>
-                                <a href={`?${exportFormToUrl(searchForm, i) || i}`}
+                                <Link href={`?${exportFormToUrl(searchForm, i) || i}`}
                                    class={`w-8 text-center py-1 rounded-md bg-slate-100 hover:bg-slate-200 transition-colors block ${data.page === i && "bg-slate-200 hover:bg-slate-300"}`}>
                                     {i}
-                                </a>
+                                </Link>
                             </li>
                         ))}
                     </ul>

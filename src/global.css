@@ -275,3 +275,7 @@ input[type="search"]::-webkit-search-results-decoration {
         scrollbar-width: none; /* Firefox */
     }
 }
+
+#nprogress .spinner-icon {
+    display: none;
+}

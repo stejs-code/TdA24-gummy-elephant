@@ -9,6 +9,7 @@ import {searchNotification} from "~/app/notification";
 import {Context} from "~/app/context";
 import {ApiError} from "~/app/apiError";
 import type {NotificationsProps} from "~/components/navigation/notifications";
+import {QwikCityNprogress} from "@quasarwork/qwik-city-nprogress";
 
 export const onGet: RequestHandler = async ({cacheControl}) => {
     // Control caching for this request for best performance and to reduce hosting costs:
@@ -37,6 +38,14 @@ export default component$(() => {
     const notification = useNotifications()
 
     return <>
+        <QwikCityNprogress
+            options={{
+                color: "#72c7d3",
+                height: "2px",
+                showSpinner: false
+            }}
+        />
+
         <Navigation user={session.value?.user} notification={notification.value}/>
 
         <Slot/>
@@ -44,7 +53,7 @@ export default component$(() => {
         <footer
             class={"text-slate-300 flex justify-center py-4 2xl:justify-end px-6 mt-8 2xl:fixed 2xl:right-0 2xl:bottom-0"}>
             {/*Made by <IconParkElephant style={{display: "inline", fontSize: 24, transform: "translateY(-2px)"}} color={"#cbd5e1"}/> gummy elephant team.*/}
-            <a href="https://github.com/stejs-code/TdA24-gummy-elephant"
+            <a href="https://youtu.be/dQw4w9WgXcQ"
                aria-label={"github repository of this site"}
                class={"block hover:scale-110 hover:-rotate-12 transition-all"}>
                 <IconParkElephant

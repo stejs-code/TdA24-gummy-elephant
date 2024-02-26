@@ -37,7 +37,7 @@ export const Notifications = component$<NotificationsProps>(({notifications}) =>
                         <LuBell class={"text-xl inline mr-3"}/>
                         Notifikace
                     </h3>
-                    <div class={"max-h-80 overflow-y-scroll no-scrollbar"}>
+                    <div class={"h-80 overflow-y-scroll no-scrollbar"}>
                         {notifications.map(i => (
                             <div key={i.uuid} class={"border-b border-slate-200 py-4 flex"}>
                                 <div class={"w-4 pt-2 mr-2"}>
@@ -53,6 +53,9 @@ export const Notifications = component$<NotificationsProps>(({notifications}) =>
                                 </div>
                             </div>
                         ))}
+                        {!notifications.length && <p class={"w-full text-slate-600"}>
+                            Stále žádné notifikace {" 😢"}
+                        </p>}
                     </div>
                 </div>
             </div>

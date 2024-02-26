@@ -1,5 +1,6 @@
 import type {AnchorHTMLAttributes, ButtonHTMLAttributes} from "@builder.io/qwik";
 import {component$, Slot} from "@builder.io/qwik";
+import {Link} from "@builder.io/qwik-city";
 
 export const PrimaryButton = component$((props: ButtonHTMLAttributes<any>) => {
     return <button
@@ -26,12 +27,12 @@ export const DefaultButton = component$((props: ButtonHTMLAttributes<any>) => {
 
 
 export const PrimaryButtonLink = component$((props: AnchorHTMLAttributes<any>) => {
-    return <a
+    return <Link
         {...({
             ...props,
             class: "px-6 py-2 bg-primary-300 text-white rounded-md transition-colors hover:bg-primary-400 focus:bg-primary-500 " + props.class
         })}
     >
         <Slot/>
-    </a>
+    </Link>
 })
