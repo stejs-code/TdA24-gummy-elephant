@@ -71,7 +71,7 @@ export const updateLectureBodyZod = createLecturerBody.partial()
 
 export const reservationZod = z.object({
     uuid: z.string().uuid(),
-    name: z.string(),
+    lecturer: z.string().uuid(),
     note: z.string(),
     meetingType: z.union([z.literal("online"), z.literal("offline")]),
     dateAt: z.date(),
