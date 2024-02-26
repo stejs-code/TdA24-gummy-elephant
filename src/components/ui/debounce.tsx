@@ -8,7 +8,7 @@ export function useDebounce<T>(
     // create the debounced Signal
     const debouncedSig = useSignal('');
 
-    useTask$(({ track, cleanup }) => {
+    useTask$(({track, cleanup}) => {
         // track the signal
         track(() => signal.value);
 

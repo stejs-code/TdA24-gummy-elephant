@@ -20,10 +20,9 @@ export const onGet: RequestHandler = async ({env, json}) => {
 export const onPost: RequestHandler = async ({json, env, request}) => {
     try {
         const auth = request.headers.get("Authorization")
-        if(!(auth == "Basic VGRBOmQ4RWY2IWRHR19wdg==" || auth == "Basic VGRBOmQ4RWY2IWRHR19wdg")){
+        if (!(auth == "Basic VGRBOmQ4RWY2IWRHR19wdg==" || auth == "Basic VGRBOmQ4RWY2IWRHR19wdg")) {
             json(401, {error: 401, message: "Auth required"})
-        }        
-        else{
+        } else {
             const req = await request.json()
             const ctx = new Context({env})
             const response = await createLecturer(ctx, req)
