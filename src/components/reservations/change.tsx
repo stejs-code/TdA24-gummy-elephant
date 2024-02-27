@@ -2,9 +2,11 @@ import {component$, Signal, useSignal} from "@builder.io/qwik";
 import {ChangeView} from "~/components/reservations/changeView";
 import {PrimaryButton} from "~/components/ui/button";
 
+interface Props {
+    type:string
+}
 
-
-export const Change =  component$(() => {
+export const Change =  component$(({type}:Props) => {
 
     const buttonshow = useSignal(false)
 
@@ -16,7 +18,7 @@ export const Change =  component$(() => {
                     onClick$={() => {
                         buttonshow.value = !buttonshow.value
                     }}>
-                Měsíční
+                {type}
                 <svg class="-mr-1 h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor"
                      aria-hidden="true">
                     <path fill-rule="evenodd"

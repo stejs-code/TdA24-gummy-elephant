@@ -12,64 +12,7 @@ export default component$(() => {
     const workDays = ["Pondělí", "Úterý", "Středa", "Čtvrtek", "Pátek"];
     return(
         <>
-            <Modal bind:show={modalVisible}
-                class={"sheet shadow-dark-medium overflow-y-hidden max-h-[100vh] fixed right-0 inset-y-0 my-0 mr-0 h-[100vh] max-w-[60rem] rounded-l-md border-0 bg-white p-6 text-slate-950 backdrop:backdrop-blur backdrop:backdrop-brightness-100"}>
 
-                <div class={"px-6 py-2.5"}>
-                    <div class={"flex items-center justify-between mb-6"}>
-                        <h2 class={"text-2xl font-bold"}>Rezervace 16 - 19</h2>
-                        <div class="p-1 cursor-pointer"
-                             onClick$={() => {
-                                 modalVisible.value = false
-                             }}><LuX/></div>
-                    </div>
-                    <div class={"flex items-center gap-5 mb-5"}>
-                        <div>
-                            <p class={"mb-1"}>Jméno:</p>
-                            <input type="text" value={"Marie"} disabled={true} class={"px-3 py-1.5 border rounded-lg border-gray-300 bg-white"}/>
-                        </div>
-                        <div>
-                            <p class={"mb-1"}>Příjmení:</p>
-                            <input type="text" value={"Juchalkova"} disabled={true}  class={"px-3 py-1.5 border rounded-lg border-gray-300 bg-white"}/>
-                        </div>
-                    </div>
-                    <div class={"mb-5"}>
-                        <p class={"mb-1"}>E-mail:</p>
-                        <input type="email" value={"juchelkova@scg.cz"} disabled={true}  class={"px-3 py-1.5 border rounded-lg border-gray-300 bg-white w-full"}/>
-                    </div>
-                    <div class={"mb-5"}>
-                        <p class={"mb-1"}>Telelefon:</p>
-                        <input type="tel" value={"+420 676 989 296"} disabled={true}  class={"px-3 py-1.5 border rounded-lg border-gray-300 bg-white w-full"}/>
-                    </div>
-                    <div class={"flex items-center gap-5 mb-5"}>
-                        <div class={"w-1/2"}>
-                            <p class={"mb-1"}>Datum:</p>
-                            <input type="date" value={"Jana"} disabled={false} class={"px-3 py-1.5 border rounded-lg border-gray-300 bg-white w-full "}/>
-                        </div>
-                        <div class={"w-1/2"}>
-                            <p class={"mb-1"}>Čas:</p>
-                            <select id={"time"} class={"px-3 py-1.5 border rounded-lg border-gray-300 bg-white w-full cursor-pointer"}>
-                                <option value="16-19">16-19</option>
-                                <option value="9-10">9-10</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class={"mb-5"}>
-                        <p class={"mb-1"}>Poznámka:</p>
-                        <textarea name="note" id="note" cols={50} rows={6} class={"px-3 py-1.5 border rounded-lg border-gray-300 bg-white w-full resize-none text-sm"} value={"Prosím tě, dopřej mi radost z chutného pokrmu, který mi zahřeje srdce a okoření můj den. Tvá kulinářská kouzla mi přinesou nejen fyzickou sytost, ale i kulturní dobrodružství prostřednictvím vůně a chuťových zážitků. Děkuji ti za každý laskavý okamžik sdílený skrze výtečné jídlo."}></textarea>
-                    </div>
-                    <div>
-                        <PrimaryButton type="submit" class={"flex-shrink-0 w-sm cursor-pointer"}>
-                            <span class={"hidden sm:inline"}
-                            onClick$={() => {
-                                modalVisible.value = false
-                            }}
-                            >Uložit</span>
-                        </PrimaryButton>
-                    </div>
-                </div>
-
-            </Modal>
             <div class={"w-full max-w-5xl m-auto px-4"}>
                 <div class={"flex w-full justify-between items-center"}>
                     <div><h2 class={"text-3xl font-bold"}>Rezervace</h2></div>
