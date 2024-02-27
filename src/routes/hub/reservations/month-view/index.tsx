@@ -8,9 +8,6 @@ export default component$(() => {
 
     return (
         <div class={"px-4 "}>
-            <div class={"font-bold text-3xl px-3"}>
-                <h2>Rezervace</h2>
-            </div>
             <div class="lg:flex lg:h-full lg:flex-col">
                 <header class="flex items-center justify-between border-b border-gray-200 px-3 py-4 lg:flex-none">
                     <h1 class="text-base font-semibold leading-6 text-gray-900">
