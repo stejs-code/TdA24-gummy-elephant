@@ -44,7 +44,8 @@ const client = new MeiliSearch({
 
 
     await client.index("notifications").updateSettings({
-        sortableAttributes: ["created_unix"]
+        sortableAttributes: ["created_unix"],
+        filterableAttributes: ["lecturer"]
     })
 })()
 

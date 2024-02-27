@@ -5,9 +5,7 @@ import type {EnvGetter} from "@builder.io/qwik-city/middleware/request-handler";
 let _redis: RedisClientType | undefined
 
 export function redis() {
-    if (!_redis) throw new Error("Redis not set")
-
-    return _redis
+    return _redis as RedisClientType
 }
 
 export async function initializeRedisIfItIsUndefined(env: EnvGetter) {

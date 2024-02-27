@@ -3,10 +3,17 @@ import {Link, useLocation} from "@builder.io/qwik-city";
 import {Image} from "@unpic/qwik";
 import type {LecturerType} from "~/app/zod";
 import {LuUser} from "@qwikest/icons/lucide";
+import type {NotificationsProps} from "~/components/navigation/notifications";
+import {Notifications} from "~/components/navigation/notifications";
 
+interface NavigationProps {
+    user: LecturerType | undefined,
+    notification: NotificationsProps
+}
 
-export const Navigation = component$<{ user: LecturerType | undefined }>(({user}) => {
+export const Navigation = component$<NavigationProps>(({user, notification}) => {
     const location = useLocation()
+
     return (
         <>
             <nav class={"w-full bg-white border-b border-slate-200 mb-20"}>
@@ -20,7 +27,7 @@ export const Navigation = component$<{ user: LecturerType | undefined }>(({user}
                             alt={"Teacher Digital Agency Logo"}
                         />
                     </Link>
-                    <ul class={"flex ml-auto"}>
+                    <ul class={"flex ml-auto items-center mr-2"}>
                         {(location.url.pathname.startsWith("/hub") || location.url.pathname.startsWith("/auth") || user) &&
                             <li>
                                 <a href={(user ? "/auth/logout" : "/auth/login")}
@@ -46,6 +53,10 @@ export const Navigation = component$<{ user: LecturerType | undefined }>(({user}
                                 </a>
                             </li>
                         }
+
+                        {user && <li class={"ml-4"}>
+                            <Notifications notifications={notification.notifications} unread={notification.unread}/>
+                        </li>}
                     </ul>
                 </div>
 

@@ -5,10 +5,10 @@ import * as crypto from "crypto";
 import {ApiError} from "~/app/apiError";
 import type {TagType} from "~/app/zod";
 import {tagZod, zodErrorToString} from "~/app/zod";
-import type { Context } from "./context";
-import { searchLecturer, updateBulkLecturers } from "~/app/lecturer";
+import type {Context} from "./context";
+import {searchLecturer, updateBulkLecturers} from "~/app/lecturer";
 
-function getIndex(meili: MeiliSearch){
+function getIndex(meili: MeiliSearch) {
     return meili.index<TagType>('tags')
 }
 

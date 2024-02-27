@@ -31,9 +31,7 @@ export const onPost: RequestHandler = async ({json, env, request}) => {
     try {
         if(!authRequest(request.headers)){
             json(401, {error: "Missing authorization headers."})
-        }
-        else{
-            
+        } else {
             const req = await request.json()
             const ctx = new Context({env})
             const response = await createLecturer(ctx, req)
