@@ -7,7 +7,7 @@ import {reservationZod, zodErrorToString} from "~/app/zod";
 import {ApiError} from "~/app/apiError";
 import sanitizeHtml from 'sanitize-html';
 import type {Context} from "./context";
-import {processTags} from "~/app/tag";
+import {removeUnknownTag} from "~/app/tag";
 import { createNotification } from "./notification";
 
 export function getReservationIndex(meili: MeiliSearch) {
@@ -39,7 +39,7 @@ export async function createReservation(ctx: Context, rawData: z.input<typeof cr
 
         if (data.note) reservation.note = sanitizeHtml(data.note)
 
-        if (data.tags) reservation.tags = await processTags(ctx, data.tags)
+        if (data.tags) reservation.tags = await removeUnknownTag(ctx, data.tags)
 
         await ctx.meili.tasks.waitForTask((await index.addDocuments([reservation])).taskUid)
 
@@ -112,7 +112,7 @@ export async function updateReservation(ctx: Context, uuid: string, rawData: z.T
             ...data
         } as ReservationType
 
-        if (data.tags) reservation.tags = await processTags(ctx, data.tags)
+        if (data.tags) reservation.tags = await removeUnknownTag(ctx, data.tags)
 
         await index.updateDocuments([{
             ...reservation,
