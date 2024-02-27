@@ -9,7 +9,7 @@ interface Props {
 export const ReservationsHeader =  component$(({type}:Props) => {
 
     return(
-        <header class="flex flex-none items-center justify-between  border-gray-200 px-6 py-4 border rounded-t-md bg-gray-100">
+        <header class="flex flex-none items-center justify-between  border-gray-200 px-6 py-4 border rounded-t-md bg-gray-50">
             <div>
                 <h1 class="text-base font-semibold leading-6 text-gray-900">
                     <time dateTime="2022-01-22" class="sm:hidden">Jan 22, 2022</time>
