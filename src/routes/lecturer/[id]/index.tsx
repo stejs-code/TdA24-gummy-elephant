@@ -7,6 +7,7 @@ import {IoCallOutline, IoCashOutline, IoMailOutline, IoMapOutline} from "@qwikes
 import {ApiError} from "~/app/apiError";
 import {Context} from "~/app/context";
 import {getLecturer, getLecturerName, searchLecturer} from "~/app/lecturer";
+import {PrimaryButton} from "~/components/ui/button";
 
 export default component$(() => {
     const document = useDocument()
@@ -28,6 +29,13 @@ export default component$(() => {
                         {document.value.claim &&
                             <h2 class="text-default mt-4 text-xl font-normal">{document.value.claim}</h2>
                         }
+                    </div>
+
+                    <div>
+                        {/* TODO: Reservation modal */}
+                        <PrimaryButton class={"mt-8"}>
+                            Zarezervovat
+                        </PrimaryButton>
                     </div>
 
                     <div class="mt-10 flex sm:max-w-sm flex-wrap sm:flex-nowrap w-full gap-x-14">

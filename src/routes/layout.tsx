@@ -9,6 +9,7 @@ import {Context} from "~/app/context";
 import {ApiError} from "~/app/apiError";
 import type {NotificationsProps} from "~/components/navigation/notifications";
 import {QwikCityNprogress} from "@quasarwork/qwik-city-nprogress";
+
 export const onGet: RequestHandler = async ({cacheControl}) => {
     // Control caching for this request for best performance and to reduce hosting costs:
     // https://qwik.builder.io/docs/caching/

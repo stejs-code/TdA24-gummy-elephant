@@ -58,7 +58,7 @@ export function zodErrorToString(zodError: z.ZodError) {
     return zodError.issues.map(i => "\"" + i.path.join(".") + "\": " + i.message).join("; ")
 }
 
-export const createBody = lecturerZod.merge(z.object({
+export const createLecturerBody = lecturerZod.merge(z.object({
     tags: z.array(tagZod.omit({
         uuid: true,
         alias: true
@@ -67,4 +67,36 @@ export const createBody = lecturerZod.merge(z.object({
     uuid: true
 })
 
-export const updateLectureBodyZod = createBody.partial()
+export const updateLectureBodyZod = createLecturerBody.partial()
+
+export const reservationZod = z.object({
+    uuid: z.string().uuid(),
+    lecturer: z.string().uuid(),
+    note: z.string(),
+    meetingType: z.union([z.literal("online"), z.literal("offline")]),
+    dateAt: z.date(),
+    dateUnix: z.number().describe("seconds"),
+    createdAt: z.date(),
+    createdUnix: z.number().describe("seconds"),
+    hour: z.number().min(8).max(19),
+    tags: z.array(tagZod),
+    student: z.object({
+        first_name: z.string(),
+        last_name: z.string(),
+        email: z.string(),
+        telephone: z.string(),
+    }),
+})
+
+export type ReservationType = z.infer<typeof reservationZod>
+
+export const createReservationBody = reservationZod.merge(z.object({
+    tags: z.array(tagZod.omit({
+        uuid: true,
+        alias: true
+    })).optional()
+})).omit({
+    uuid: true
+})
+
+export const updateReservationBodyZod = createReservationBody.partial()
