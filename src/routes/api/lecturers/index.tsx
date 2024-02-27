@@ -1,14 +1,13 @@
 import type {RequestHandler} from "@builder.io/qwik-city";
-import {getMeilisearch} from "~/app/meilisearch";
 import {ApiError} from "~/app/apiError";
-import {Lecturer} from "~/app/lecturer";
 import {handleRequestHandlingError} from "~/app/utils";
+import {Context} from "~/app/context";
+import {createLecturer, listLecturers} from "~/app/lecturer";
 
 export const onGet: RequestHandler = async ({env, json}) => {
     try {
-        const LecturerResource = new Lecturer(getMeilisearch(env))
-
-        const response = await LecturerResource.list()
+        const ctx = new Context({env})
+        const response = await listLecturers(ctx)
 
         if (response instanceof ApiError) return response.sendResponse(json)
 
@@ -18,17 +17,18 @@ export const onGet: RequestHandler = async ({env, json}) => {
     }
 }
 
-
-export const onPost: RequestHandler = async ({env, json, request}) => {
+export const onPost: RequestHandler = async ({json, env, request}) => {
     try {
-        const LecturerResource = new Lecturer(getMeilisearch(env))
-
-        const response = await LecturerResource.create(await request.json())
-
-        if (response instanceof ApiError) return response.sendResponse(json)
-
-        json(200, response)
-
+        const auth = request.headers.get("Authorization")
+        if (!(auth == "Basic VGRBOmQ4RWY2IWRHR19wdg==" || auth == "Basic VGRBOmQ4RWY2IWRHR19wdg")) {
+            json(401, {error: 401, message: "Auth required"})
+        } else {
+            const req = await request.json()
+            const ctx = new Context({env})
+            const response = await createLecturer(ctx, req)
+            if (response instanceof ApiError) return response.sendResponse(json)
+            json(200, response)
+        }
     } catch (e) {
         handleRequestHandlingError(e, json)
     }

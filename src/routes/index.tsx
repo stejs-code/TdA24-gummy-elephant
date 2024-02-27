@@ -2,12 +2,10 @@ import {$, component$, useSignal, useStore, useTask$} from "@builder.io/qwik";
 import type {FormStore} from "@modular-forms/qwik";
 import {formAction$, getValue, reset, setValue, submit, useForm, valiForm$} from "@modular-forms/qwik";
 import type {DocumentHead} from "@builder.io/qwik-city";
-import {routeLoader$} from "@builder.io/qwik-city";
+import {Link, routeLoader$} from "@builder.io/qwik-city";
 import type {Input} from "valibot";
 import {array, number, object, string} from "valibot";
-import {Lecturer} from "~/app/lecturer";
 import {ApiError} from "~/app/apiError";
-import {Tag} from "~/app/tag";
 import type {LecturerType, TagType} from "~/app/zod";
 import {MultiRangeSlider} from "~/components/ui/multiRange";
 import {InputLabel, SearchInput, SelectInput} from "~/components/ui/form";
@@ -24,10 +22,12 @@ import {
 import {DefaultButton, PrimaryButton, PrimaryButtonLink} from "~/components/ui/button";
 import {useDebounce} from "~/components/ui/debounce";
 import type {SearchParams, SearchResponse} from "meilisearch";
-import {getMeilisearch} from "~/app/meilisearch";
 import {forI} from "~/app/utils";
 import {Modal, ModalContent, ModalFooter, ModalHeader} from "@qwik-ui/headless";
 import {Hero} from "~/components/hero/hero";
+import {getLecturerName, searchLecturer} from "~/app/lecturer";
+import {Context} from "~/app/context";
+import {listTags} from "~/app/tag";
 
 export const SearchForm = object({
     query: string(),
@@ -337,19 +337,19 @@ export default component$(() => {
                             <div class={"flex flex-col content-center items-center sm:items-start sm:flex-row"}
                                  key={i.uuid + data.processingTimeMs}>
                                 {i.picture_url &&
-                                    <a class={"shrink-0 mr-8 mb-4"} href={`/lecturer/${i.uuid}`}>
+                                    <Link class={"shrink-0 mr-8 mb-4"} href={`/lecturer/${i.uuid}`}>
                                         <img
                                             loading={index > 3 ? "lazy" : "eager"}
                                             width={225}
                                             height={225}
                                             src={i.picture_url}
-                                            alt={Lecturer.getName(i)}/>
-                                    </a>
+                                            alt={getLecturerName(i)}/>
+                                    </Link>
                                 }
                                 <div class={"py-2"}>
-                                    <a href={`/lecturer/${i.uuid}`}>
-                                        <h2 class={"font-display text-4xl mb-4"}>{Lecturer.getName(i)}</h2>
-                                    </a>
+                                    <Link href={`/lecturer/${i.uuid}`}>
+                                        <h2 class={"font-display text-4xl mb-4"}>{getLecturerName(i)}</h2>
+                                    </Link>
                                     <div class={"mb-4"}>
                                         <Tags tags={i.tags || []}/>
                                     </div>
@@ -381,10 +381,10 @@ export default component$(() => {
                     <ul class={"flex mt-14 mb-8 gap-2 flex-wrap justify-center"}>
                         {!!data.totalPages && forI(data.totalPages, (i) => (
                             <li key={i}>
-                                <a href={`?${exportFormToUrl(searchForm, i) || i}`}
+                                <Link href={`?${exportFormToUrl(searchForm, i) || i}`}
                                    class={`w-8 text-center py-1 rounded-md bg-slate-100 hover:bg-slate-200 transition-colors block ${data.page === i && "bg-slate-200 hover:bg-slate-300"}`}>
                                     {i}
-                                </a>
+                                </Link>
                             </li>
                         ))}
                     </ul>
@@ -409,9 +409,9 @@ export function getSearchOptions(input: SearchForm): SearchParams {
     }
 }
 
-export const searchAction = formAction$<SearchForm, ActionResponse>(async (values, event) => {
-    const lecturerResource = new Lecturer(getMeilisearch(event.env))
-    const response = await lecturerResource.search(values.query, getSearchOptions(values))
+export const searchAction = formAction$<SearchForm, ActionResponse>(async (values, {env}) => {
+    const ctx = new Context({env})
+    const response = await searchLecturer(ctx, values.query, getSearchOptions(values))
 
     if (response instanceof ApiError) {
         return {
@@ -430,7 +430,8 @@ export const searchAction = formAction$<SearchForm, ActionResponse>(async (value
 }, valiForm$(SearchForm))
 
 export const useMaxPrice = routeLoader$(async ({env}) => {
-    const response = await Lecturer.use(env).search("", {
+    const ctx = new Context({env})
+    const response = await searchLecturer(ctx, "", {
         sort: ["price_per_hour:desc"],
         limit: 1
     })
@@ -456,7 +457,8 @@ export const useFormLoader = routeLoader$<SearchForm>(async ({resolveValue, quer
 });
 
 export const useTags = routeLoader$<TagType[]>(async ({env}) => {
-    const response = await Tag.use(env).list()
+    const ctx = new Context({env})
+    const response = await listTags(ctx)
 
     if (response instanceof ApiError) {
         return []
@@ -469,7 +471,8 @@ export const useLocations = routeLoader$<{
     name: string,
     count: number
 }[]>(async ({env}) => {
-    const response = await Lecturer.use(env).search("", {
+    const ctx = new Context({env})
+    const response = await searchLecturer(ctx, "", {
         limit: 0,
         facets: ["location"]
     })
@@ -485,8 +488,9 @@ export const useLocations = routeLoader$<{
 });
 
 export const useLecturers = routeLoader$(async ({env, error, resolveValue}) => {
+    const ctx = new Context({env})
     const input = await resolveValue(useFormLoader)
-    const response = await Lecturer.use(env).search(input.query, getSearchOptions(input))
+    const response = await searchLecturer(ctx, input.query, getSearchOptions(input))
 
     if (response instanceof ApiError) {
         throw error(500, "Chyba při načítání lektorů")

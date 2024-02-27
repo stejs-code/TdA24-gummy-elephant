@@ -1,10 +1,15 @@
 import {component$, Slot} from "@builder.io/qwik";
 import {IconParkElephant} from "~/components/icons/elephant";
-import {Image} from "@unpic/qwik";
 import type {RequestHandler} from "@builder.io/qwik-city";
-import {Link} from "@builder.io/qwik-city";
-
-export const onGet: RequestHandler = async ({ cacheControl }) => {
+import {routeLoader$} from "@builder.io/qwik-city";
+import {Navigation} from "~/components/navigation/navigation";
+import {useAuthSession} from "~/routes/plugin@auth";
+import {searchNotification} from "~/app/notification";
+import {Context} from "~/app/context";
+import {ApiError} from "~/app/apiError";
+import type {NotificationsProps} from "~/components/navigation/notifications";
+import {QwikCityNprogress} from "@quasarwork/qwik-city-nprogress";
+export const onGet: RequestHandler = async ({cacheControl}) => {
     // Control caching for this request for best performance and to reduce hosting costs:
     // https://qwik.builder.io/docs/caching/
     cacheControl({
@@ -16,25 +21,26 @@ export const onGet: RequestHandler = async ({ cacheControl }) => {
 };
 
 export default component$(() => {
+    const session = useAuthSession()
+    const notification = useNotifications()
+
     return <>
-        <nav class={"p-8 w-full flex"}>
-            <Link href={"/"} prefetch={true}>
-                <Image
-                    class={"pointer-events-none"}
-                    src={"/images/logo.svg"}
-                    width={80}
-                    height={53}
-                    alt={"Teacher Digital Agency Logo"}
-                />
-            </Link>
-        </nav>
+        <QwikCityNprogress
+            options={{
+                color: "#72c7d3",
+                height: "2px",
+                showSpinner: false
+            }}
+        />
+
+        <Navigation user={session.value?.user} notification={notification.value}/>
 
         <Slot/>
 
         <footer
             class={"text-slate-300 flex justify-center py-4 2xl:justify-end px-6 mt-8 2xl:fixed 2xl:right-0 2xl:bottom-0"}>
             {/*Made by <IconParkElephant style={{display: "inline", fontSize: 24, transform: "translateY(-2px)"}} color={"#cbd5e1"}/> gummy elephant team.*/}
-            <a href="https://github.com/stejs-code/TdA24-gummy-elephant"
+            <a href="https://youtu.be/dQw4w9WgXcQ"
                aria-label={"github repository of this site"}
                class={"block hover:scale-110 hover:-rotate-12 transition-all"}>
                 <IconParkElephant
@@ -44,3 +50,30 @@ export default component$(() => {
         </footer>
     </>;
 });
+
+export const useNotifications = routeLoader$<NotificationsProps>(async ({env, resolveValue}) => {
+    const ctx = new Context({env})
+    const session = await resolveValue(useAuthSession)
+
+    if (!session) return {
+        unread: 0,
+        notifications: []
+    }
+
+    const response = await searchNotification(ctx, "", {
+        filter: [`lecturer = ${session.user.uuid}`],
+        sort: ["created_unix:desc"],
+        limit: 40
+    })
+
+    if (response instanceof ApiError) return {
+        unread: 0,
+        notifications: []
+    }
+
+    return {
+        notifications: response.hits,
+        unread: response.hits.filter(i => !i.read).length
+    }
+
+})

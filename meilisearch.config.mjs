@@ -16,7 +16,7 @@ const client = new MeiliSearch({
 
 
     await client.index("lecturers").updateSettings({
-        filterableAttributes: ["tags.uuid", "tags.alias", "route_url", "location", "price_per_hour"],
+        filterableAttributes: ["tags.uuid", "tags.alias", "route_url", "location", "price_per_hour", "username"],
         sortableAttributes: ["first_name", "last_name", "uuid", "price_per_hour"]
     })
 
@@ -32,6 +32,20 @@ const client = new MeiliSearch({
     await client.index("tags").updateSettings({
         filterableAttributes: ["name"],
         sortableAttributes: ["name"]
+    })
+
+    try {
+        await client.createIndex("notifications", {
+            primaryKey: "uuid"
+        })
+    } catch (e) {
+        /* EMPTY */
+    }
+
+
+    await client.index("notifications").updateSettings({
+        sortableAttributes: ["created_unix"],
+        filterableAttributes: ["lecturer"]
     })
 })()
 

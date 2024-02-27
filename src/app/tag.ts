@@ -1,180 +1,164 @@
 import {z} from "zod";
-import type {Index, MeiliSearch, SearchParams, SearchResponse} from "meilisearch";
+import type {MeiliSearch, SearchParams, SearchResponse} from "meilisearch";
 import {MeiliSearchApiError} from "meilisearch";
 import * as crypto from "crypto";
 import {ApiError} from "~/app/apiError";
 import type {TagType} from "~/app/zod";
 import {tagZod, zodErrorToString} from "~/app/zod";
-import type {EnvGetter} from "@builder.io/qwik-city/middleware/request-handler";
-import {getMeilisearch} from "~/app/meilisearch";
+import type {Context} from "./context";
+import {searchLecturer, updateBulkLecturers} from "~/app/lecturer";
 
+function getIndex(meili: MeiliSearch) {
+    return meili.index<TagType>('tags')
+}
 
-export class Tag {
-    private index: Index<TagType>
-
-    constructor(
-        private meilisearch: MeiliSearch
-    ) {
-        this.index = meilisearch.index<TagType>("tags")
-    }
-
-    static use(env: EnvGetter): Tag {
-        return new Tag(getMeilisearch(env))
-    }
-
-    async create(data: Omit<TagType, "uuid" | "alias">): Promise<ApiError | TagType> {
-        try {
-
-            const tag = {
-                ...tagZod.omit({uuid: true, alias: true}).parse(data),
-                uuid: crypto.randomUUID(),
-                alias: crypto.randomBytes(2).toString("hex")
-            }
-
-            await this.meilisearch.tasks.waitForTask((await this.index.addDocuments([tag])).taskUid)
-
-            return tag
-
-        } catch (e) {
-            if (e instanceof z.ZodError) {
-                return new ApiError(400, `parse error: ${zodErrorToString(e)}`)
-            }
-
-            console.error("Error while creating tag", data, e)
-
-            return ApiError.internal()
+export async function createTag({meili}: Context, data: Omit<TagType, "uuid" | "alias">): Promise<ApiError | TagType> {
+    try {
+        const index = getIndex(meili)
+        const tag = {
+            ...tagZod.omit({uuid: true, alias: true}).parse(data),
+            uuid: crypto.randomUUID(),
+            alias: crypto.randomBytes(2).toString("hex")
         }
-    }
+        await meili.tasks.waitForTask((await index.addDocuments([tag])).taskUid)
 
-    async get(uuid: string): Promise<TagType | ApiError> {
-        try {
-            return await this.index.getDocument(uuid)
-        } catch (e) {
-            if (e instanceof MeiliSearchApiError) {
-                return new ApiError(404, "Not found")
-            }
+        return tag
 
-            console.error("Error while getting tag", uuid, e)
-
-            return ApiError.internal()
+    } catch (e) {
+        if (e instanceof z.ZodError) {
+            return new ApiError(400, `parse error: ${zodErrorToString(e)}`)
         }
+
+        console.error("Error while creating tag", data, e)
+
+        return ApiError.internal()
     }
+}
 
-    async list(): Promise<TagType[] | ApiError> {
-        try {
-            const response = await this.index.search("", {
-                limit: 1000,
-                sort: ["name:desc"]
-            });
-
-            return response.hits.map((i) => ({name: i.name, uuid: i.uuid, alias: i.alias}))
-
-        } catch (e) {
-            console.error("Error while listing tag", e)
-
-            return ApiError.internal()
+export async function getTag({meili}: Context, uuid: string): Promise<TagType | ApiError> {
+    try {
+        return await getIndex(meili).getDocument(uuid)
+    } catch (e) {
+        if (e instanceof MeiliSearchApiError) {
+            return new ApiError(404, "Not found")
         }
+
+        console.error("Error while getting tag", uuid, e)
+
+        return ApiError.internal()
     }
+}
 
-    async search(query: string, options?: SearchParams): Promise<SearchResponse<TagType> | ApiError> {
-        try {
-            return await this.index.search(query, options)
+export async function listTags({meili}: Context): Promise<TagType[] | ApiError> {
+    try {
+        const response = await getIndex(meili).search("", {
+            limit: 1000,
+            sort: ["name:desc"]
+        });
 
-        } catch (e) {
-            console.error("Error while searching tag", options, e)
+        return response.hits.map((i) => ({name: i.name, uuid: i.uuid, alias: i.alias}))
 
-            return ApiError.internal()
-        }
+    } catch (e) {
+        console.error("Error while listing tag", e)
+
+        return ApiError.internal()
     }
+}
 
-    async update(uuid: string, rawData: Omit<TagType, "uuid" | "alias">): Promise<ApiError | TagType> {
-        try {
-            const previousTag = await this.get(uuid)
+export async function searchTag({meili}: Context, query: string, options?: SearchParams): Promise<SearchResponse<TagType> | ApiError> {
+    try {
+        return await getIndex(meili).search(query, options)
 
-            if (previousTag instanceof ApiError) return previousTag
+    } catch (e) {
+        console.error("Error while searching tag", options, e)
 
-            const data = tagZod.omit({uuid: true, alias: true}).parse(rawData)
-
-            const tag = {
-                uuid,
-                ...data,
-                alias: previousTag.alias
-            };
-
-            await Promise.allSettled([
-                (async () => {
-                    await this.meilisearch.tasks.waitForTask((await this.index.updateDocuments([tag])).taskUid)
-                })(),
-                this.onUpdate(tag)
-            ])
-
-            return tag
-        } catch (e) {
-            console.error("Error while updating tag", uuid, rawData, e)
-
-            return ApiError.internal()
-        }
+        return ApiError.internal()
     }
+}
 
-    async delete(uuid: string): Promise<ApiError | {
-        success: true
-    }> {
-        try {
-            const getResponse = await this.get(uuid)
-            if (getResponse instanceof ApiError) return getResponse
+export async function updateTag(ctx: Context, uuid: string, rawData: Omit<TagType, "uuid" | "alias">): Promise<ApiError | TagType> {
+    try {
+        const previousTag = await getTag(ctx, uuid)
 
-            await this.meilisearch.tasks.waitForTask((await this.index.deleteDocument(uuid)).taskUid)
+        if (previousTag instanceof ApiError) return previousTag
 
-            const lecturer = new (await import("~/app/lecturer")).Lecturer(this.meilisearch)
+        const data = tagZod.omit({uuid: true, alias: true}).parse(rawData)
 
-            const lecturers = await lecturer.search("", {
-                filter: [`tags.uuid = ${uuid}`],
-                limit: 1000
-            })
+        const tag = {
+            uuid,
+            ...data,
+            alias: previousTag.alias
+        };
 
-            if (lecturers instanceof ApiError) {
-                console.error("Error while deleting tag in lecturers", lecturer)
-                return {success: true}
-            }
+        await Promise.allSettled([
+            (async () => {
+                await ctx.meili.tasks.waitForTask((await getIndex(ctx.meili).updateDocuments([tag])).taskUid)
+            })(),
+            onUpdate(ctx, tag)
+        ])
 
-            const newLecturers = lecturers.hits.map(lecturer => ({
-                ...lecturer,
-                tags: lecturer.tags?.filter(i => (i.uuid !== uuid))
-            }))
+        return tag
+    } catch (e) {
+        console.error("Error while updating tag", uuid, rawData, e)
 
-            await lecturer.updateBulk(newLecturers)
-
-            return {success: true}
-        } catch (e) {
-            console.error("Error while deleting tag", uuid, e)
-
-            return ApiError.internal()
-        }
+        return ApiError.internal()
     }
+}
 
-    async assureTagExistence(tag: Omit<TagType, "uuid" | "alias">): Promise<ApiError | TagType> {
-        const searchResults = await this.search("", {filter: [`name = "${tag.name}"`]})
+export async function deleteTag(ctx: Context, uuid: string): Promise<ApiError | {
+    success: true
+}> {
+    try {
+        const getResponse = await getTag(ctx, uuid)
+        if (getResponse instanceof ApiError) return getResponse
 
-        if (!(searchResults instanceof ApiError) && searchResults.hits.length > 0) return searchResults.hits[0]
+        await ctx.meili.tasks.waitForTask((await getIndex(ctx.meili).deleteDocument(uuid)).taskUid)
 
-        return await this.create(tag)
-    }
-
-    private async onUpdate(tag: TagType) {
-        const lecturer = new (await import("~/app/lecturer")).Lecturer(this.meilisearch)
-
-        const lecturers = await lecturer.search("", {
-            filter: [`tags.uuid = ${tag.uuid}`],
+        const lecturers = await searchLecturer(ctx, "", {
+            filter: [`tags.uuid = ${uuid}`],
             limit: 1000
         })
 
-        if (lecturers instanceof ApiError) return lecturers
+        if (lecturers instanceof ApiError) {
+            console.error("Error while deleting tag in lecturers", uuid)
+            return {success: true}
+        }
 
         const newLecturers = lecturers.hits.map(lecturer => ({
             ...lecturer,
-            tags: lecturer.tags?.map(i => (i.uuid === tag.uuid) ? tag : i)
+            tags: lecturer.tags?.filter(i => (i.uuid !== uuid))
         }))
 
-        await lecturer.updateBulk(newLecturers)
+        await updateBulkLecturers(ctx, newLecturers)
+
+        return {success: true}
+    } catch (e) {
+        console.error("Error while deleting tag", uuid, e)
+
+        return ApiError.internal()
     }
+}
+
+export async function assureTagExistence(ctx: Context, tag: Omit<TagType, "uuid" | "alias">): Promise<ApiError | TagType> {
+    const searchResults = await searchTag(ctx, "", {filter: [`name = "${tag.name}"`]})
+
+    if (!(searchResults instanceof ApiError) && searchResults.hits.length > 0) return searchResults.hits[0]
+
+    return await createTag(ctx, tag)
+}
+
+async function onUpdate(ctx: Context, tag: TagType) {
+    const lecturers = await searchLecturer(ctx, "", {
+        filter: [`tags.uuid = ${tag.uuid}`],
+        limit: 1000
+    })
+
+    if (lecturers instanceof ApiError) return lecturers
+
+    const newLecturers = lecturers.hits.map(lecturer => ({
+        ...lecturer,
+        tags: lecturer.tags?.map(i => (i.uuid === tag.uuid) ? tag : i)
+    }))
+
+    await updateBulkLecturers(ctx, newLecturers)
 }

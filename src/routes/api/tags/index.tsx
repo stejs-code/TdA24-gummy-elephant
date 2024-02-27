@@ -1,14 +1,14 @@
 import type {RequestHandler} from "@builder.io/qwik-city";
-import {getMeilisearch} from "~/app/meilisearch";
-import {Tag} from "~/app/tag";
 import {ApiError} from "~/app/apiError";
 import {handleRequestHandlingError} from "~/app/utils";
+import {Context} from "~/app/context";
+import {createTag, listTags} from "~/app/tag";
 
 export const onGet: RequestHandler = async ({env, json}) => {
     try {
-        const TagResource = new Tag(getMeilisearch(env))
+        const ctx = new Context({env})
 
-        const response = await TagResource.list()
+        const response = await listTags(ctx)
 
         if (response instanceof ApiError) return response.sendResponse(json)
 
@@ -21,9 +21,9 @@ export const onGet: RequestHandler = async ({env, json}) => {
 
 export const onPost: RequestHandler = async ({env, json, request}) => {
     try {
-        const TagResource = new Tag(getMeilisearch(env))
+        const ctx = new Context({env})
 
-        const response = await TagResource.create(await request.json())
+        const response = await createTag(ctx, await request.json())
 
         if (response instanceof ApiError) return response.sendResponse(json)
 

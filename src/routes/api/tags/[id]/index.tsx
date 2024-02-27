@@ -1,14 +1,14 @@
 import type {RequestHandler} from "@builder.io/qwik-city";
-import {Tag} from "~/app/tag";
-import {getMeilisearch} from "~/app/meilisearch";
 import {ApiError} from "~/app/apiError";
 import {handleRequestHandlingError} from "~/app/utils";
+import {Context} from "~/app/context";
+import {deleteTag, getTag, updateTag} from "~/app/tag";
 
 export const onGet: RequestHandler = async ({env, json, params}) => {
     try {
-        const TagResource = new Tag(getMeilisearch(env))
+        const ctx = new Context({env})
 
-        const response = await TagResource.get(params.id)
+        const response = await getTag(ctx, params.id)
 
         if (response instanceof ApiError) return response.sendResponse(json)
 
@@ -20,9 +20,9 @@ export const onGet: RequestHandler = async ({env, json, params}) => {
 
 export const onPut: RequestHandler = async ({env, json, params, request}) => {
     try {
-        const TagResource = new Tag(getMeilisearch(env))
+        const ctx = new Context({env})
 
-        const response = await TagResource.update(params.id, await request.json())
+        const response = await updateTag(ctx, params.id, await request.json())
 
         if (response instanceof ApiError) return response.sendResponse(json)
 
@@ -34,9 +34,9 @@ export const onPut: RequestHandler = async ({env, json, params, request}) => {
 
 export const onDelete: RequestHandler = async ({env, json, params, send}) => {
     try {
-        const TagResource = new Tag(getMeilisearch(env))
+        const ctx = new Context({env})
 
-        const response = await TagResource.delete(params.id)
+        const response = await deleteTag(ctx, params.id)
 
         if (response instanceof ApiError) return response.sendResponse(json)
 
