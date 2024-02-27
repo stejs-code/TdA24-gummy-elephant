@@ -10,6 +10,7 @@ export function redis() {
 
 export async function initializeRedisIfItIsUndefined(env: EnvGetter) {
     // Making possible for the program to exit after building static pages
+    return ":)"
     if (process.argv.includes("build")) {
         return console.log("skipping initializing redis, because build process was detected in arguments")
     }
