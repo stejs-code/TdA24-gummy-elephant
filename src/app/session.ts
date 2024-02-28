@@ -55,6 +55,6 @@ export async function deleteSession(id: string) {
 
 export const authenticateRoute: RequestHandler = (ev) => {
     if (!ev.sharedMap.get("session")) {
-        throw ev.redirect(302, "/auth/login")
+        throw ev.redirect(302, "/login")
     }
 }
