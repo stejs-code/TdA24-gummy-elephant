@@ -1,5 +1,6 @@
-import {component$, Signal, useSignal} from "@builder.io/qwik";
-import {LuChevronLeft, LuChevronRight, LuX} from "@qwikest/icons/lucide";
+import type { Signal } from "@builder.io/qwik";
+import {component$} from "@builder.io/qwik";
+import {LuX} from "@qwikest/icons/lucide";
 import {PrimaryButton} from "~/components/ui/button";
 import {Modal} from "@qwik-ui/headless";
 

@@ -1,4 +1,4 @@
-import { component$, Slot } from "@builder.io/qwik";
+import { component$ } from "@builder.io/qwik";
 
 export default component$(() => {
     const weekdays = ["Pondělí", "Úterý", "st, ct", "paye"]; // Example weekdays

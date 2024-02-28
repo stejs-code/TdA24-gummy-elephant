@@ -1,4 +1,4 @@
-import {component$, Signal} from "@builder.io/qwik";
+import {component$} from "@builder.io/qwik";
 import {Change, ChangeMobile} from "~/components/reservations/change";
 import {PrimaryButton} from "~/components/ui/button";
 
