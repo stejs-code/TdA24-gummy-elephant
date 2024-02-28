@@ -16,8 +16,8 @@ export const Navigation = component$<NavigationProps>(({user, notification}) => 
 
     return (
         <>
-            <nav class={"w-full bg-white border-b border-slate-200 mb-20"}>
-                <div class={"flex mx-auto max-w-6xl p-6 items-center"}>
+            <nav class={"w-full bg-white border-b border-slate-200 mb-5"}>
+                <div class={"flex mx-auto max-w-6xl p-4 pb-3 items-center"}>
                     <Link href={"/"} prefetch={true}>
                         <Image
                             class={"pointer-events-none"}
