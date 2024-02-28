@@ -1,4 +1,4 @@
-import type {QRL, Signal} from "@builder.io/qwik";
+import {QRL, Signal, Slot} from "@builder.io/qwik";
 import {$, component$, useSignal, useTask$, useVisibleTask$} from "@builder.io/qwik";
 import {isBrowser} from "@builder.io/qwik/build";
 
@@ -8,9 +8,13 @@ export interface MultiRangeSliderProps {
     onChange: QRL<(data: { min: number, max: number }) => void>,
     minValue: Signal<number>,
     maxValue: Signal<number>,
+    suffixLabel?: string,
+    id?: string
 }
 
-export const MultiRangeSlider = component$(({min, max, onChange, minValue, maxValue}: MultiRangeSliderProps) => {
+export const MultiRangeSlider = component$<MultiRangeSliderProps>(
+    ({suffixLabel, id, min, max, onChange, minValue, maxValue}
+    ) => {
     const range = useSignal<HTMLDivElement>();
 
     // Convert to percentage
@@ -54,6 +58,7 @@ export const MultiRangeSlider = component$(({min, max, onChange, minValue, maxVa
     return (
         <div class="container">
             <input
+                id={id}
                 type="range"
                 min={min}
                 max={max}
@@ -95,8 +100,9 @@ export const MultiRangeSlider = component$(({min, max, onChange, minValue, maxVa
             }}>
                 <div class="slider__track"/>
                 <div ref={range} class="slider__range"/>
-                <div class="slider__left-value">{minValue.value}</div>
-                <div class="slider__right-value">{maxValue.value}</div>
+                <div class="slider__left-value">{minValue.value}{suffixLabel}</div>
+                <div class="slider__right-value">{maxValue.value}{suffixLabel}</div>
+                <Slot/>
             </div>
         </div>
     );

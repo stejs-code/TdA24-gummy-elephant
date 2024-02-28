@@ -23,25 +23,44 @@ export const SelectInput = component$((props: SelectHTMLAttributes<any>) => {
     )
 })
 
-export const TextInput = component$(({class: className, type, ...props}: InputHTMLAttributes<any>) => {
+export const TextInput = component$<InputHTMLAttributes<any> & {
+    error?: string,
+    label?: string,
+    required?: boolean
+}>((props) => {
+    const {
+        class: className,
+        error,
+        label,
+        type,
+        required,
+        ...other
+    } = props
+
     return (
-        <input
-            class={cn(`border appearance-none py-2 transition-colors w-full rounded-md border-slate-200 outline-0 px-4 focus:border-primary-300`, className)}
-            type={type || "text"}
-            {...props}
-        />
+        <>
+            {label && <InputLabel required={required} label={label}  name={props.name || ""}/>}
+            <input
+                class={cn(`border appearance-none py-2 transition-colors w-full rounded-md border-slate-200 outline-0 px-4 focus:border-primary-300`, className)}
+                type={type || "text"}
+                {...other}
+            />
+            <p class={"text-xs mt-1 text-red-500"}>
+                {error || <span>&nbsp;</span>}
+            </p>
+        </>
     )
 })
 
-export const InputLabel = component$(
-    ({name, label}: { name: string, label: string }) => (
+export const InputLabel = component$<{ name: string, label: string, required?:boolean }>(
+    ({name, label, required}) => (
         <>
             {label && (
                 <label
                     class={"inline-block text-sm mb-2"}
                     for={name}
                 >
-                    {label}{': '}
+                    {label}{': '} {required&& <span class={"text-red-600"}>*</span>}
                 </label>
             )}
         </>
