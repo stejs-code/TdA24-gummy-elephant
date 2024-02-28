@@ -1,9 +1,7 @@
 import {component$, useSignal} from "@builder.io/qwik";
 import { Link } from "@builder.io/qwik-city";
-import {LuChevronLeft, LuChevronRight, LuX} from "@qwikest/icons/lucide";
+import {LuChevronLeft, LuChevronRight} from "@qwikest/icons/lucide";
 import {Table} from "~/components/reservations/table";
-import {Modal, ModalContent, ModalFooter, ModalHeader} from "@qwik-ui/headless";
-import {PrimaryButton} from "~/components/ui/button";
 
 export default component$(() => {
 

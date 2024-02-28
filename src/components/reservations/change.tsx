@@ -1,4 +1,4 @@
-import {component$, Signal, useSignal} from "@builder.io/qwik";
+import {component$, useSignal} from "@builder.io/qwik";
 import {ChangeView} from "~/components/reservations/changeView";
 import {PrimaryButton} from "~/components/ui/button";
 

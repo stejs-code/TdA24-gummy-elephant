@@ -175,9 +175,9 @@ export default component$(() => {
                                 <ol class="mt-2">
                                     <li>
                                         <a href="#" class="group flex"
-                                        onClick$={() => {
-                                            popupState.value = !popupState.value
-                                        }}>
+                                           onClick$={() => {
+                                               popupState.value = !popupState.value
+                                           }}>
                                             <p class="flex-auto truncate font-medium text-gray-900 group-hover:text-indigo-600">Maple
                                                 syrup museum</p>
                                             <time dateTime="2022-01-22T15:00"

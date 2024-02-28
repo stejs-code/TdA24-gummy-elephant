@@ -178,8 +178,8 @@ export async function removeUnknownTag(ctx: Context, tags: Omit<TagType, "uuid" 
     const uniqueTagNames = [...new Set(tags.map(i => i.name))]
 
     const newTags = await Promise.all(uniqueTagNames.map(async (name) => {
-            const searchResults = await searchTag(ctx, "", { filter: [`name = "${name}"`] });
-            return searchResults instanceof ApiError ? null : searchResults.hits[0];
+        const searchResults = await searchTag(ctx, "", { filter: [`name = "${name}"`] });
+        return searchResults instanceof ApiError ? null : searchResults.hits[0];
     }));
     return newTags.filter(tag=> tag !== null) as TagType[];
 }

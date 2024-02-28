@@ -1,7 +1,5 @@
-import {component$, Signal, useSignal} from "@builder.io/qwik";
+import {component$, Signal} from "@builder.io/qwik";
 import {Link} from "@builder.io/qwik-city";
-import {constants} from "os";
-
 
 interface Props {
     roundedb?:boolean,

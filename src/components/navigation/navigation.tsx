@@ -16,8 +16,8 @@ export const Navigation = component$<NavigationProps>(({user, notification}) => 
 
     return (
         <>
-            <nav class={"w-full bg-white border-b border-slate-200 mb-20"}>
-                <div class={"flex mx-auto max-w-6xl p-6 items-center"}>
+            <nav class={"w-full bg-white border-b border-slate-200 mb-2"}>
+                <div class={"flex mx-auto max-w-6xl p-4 pb-3 items-center"}>
                     <Link href={"/"} prefetch={true}>
                         <Image
                             class={"pointer-events-none"}
@@ -28,9 +28,9 @@ export const Navigation = component$<NavigationProps>(({user, notification}) => 
                         />
                     </Link>
                     <ul class={"flex ml-auto items-center mr-2"}>
-                        {(location.url.pathname.startsWith("/hub") || location.url.pathname.startsWith("/auth") || user) &&
+                        {(location.url.pathname.startsWith("/hub") || location.url.pathname.startsWith("/") || user) &&
                             <li>
-                                <a href={(user ? "/auth/logout" : "/auth/login")}
+                                <a href={(user ? "/logout" : "/login")}
                                    class={"flex items-center transition-colors hover:bg-slate-50/70 p-2 pr-4 rounded-xl"}>
                                     <div
                                         class={"aspect-square w-9 flex items-center justify-center rounded-md bg-primary-50 text-primary-300 font-semibold mr-4"}>
