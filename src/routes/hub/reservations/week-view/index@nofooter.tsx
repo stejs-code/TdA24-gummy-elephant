@@ -6,8 +6,8 @@ export default component$(() => {
 
 
     return(
-        <div class={"px-4"}>
-            <div class="flex h-[100vh] flex-col border-b border-gray-200 rounded-md">
+        <div class={"px-3"}>
+            <div class="flex  h-[80vh] md:h-[70vh] lg:h-[75vh] 2xl:h-[80vh] flex-col border-b border-gray-200 rounded-md">
                 <ReservationsHeader type={"Týdenní"}/>
                 <div class="isolate flex flex-auto flex-col overflow-auto bg-white border border-t-0 border-b-0 border-gray-200 rounded-b-md">
                     <div style="width: 165%" class="flex max-w-full flex-none flex-col sm:max-w-none md:max-w-full">

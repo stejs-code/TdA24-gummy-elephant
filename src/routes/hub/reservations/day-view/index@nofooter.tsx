@@ -5,10 +5,10 @@ import {ReservationsHeader} from "~/components/reservations/reservationsHeader";
 export default component$(() => {
 
     return(
-        <div class={"px-4"}>
+        <div class={"px-3"}>
             <div class="flex h-full flex-col">
                 <ReservationsHeader type={"Denní"}/>
-                <div class="isolate flex flex-auto overflow-hidden bg-white h-[100vh] md:h-[80vh] border border-gray-200 border-t-0 rounded-b-md">
+                <div class="isolate flex flex-auto overflow-hidden bg-white h-[80vh] md:h-[70vh] lg:h-[75vh] 2xl:h-[80vh] border border-gray-200 border-t-0 rounded-b-md">
                     <div class="flex flex-auto flex-col overflow-y-scroll">
                         <div class="sticky top-0 z-10 grid flex-none grid-cols-7 bg-white text-xs text-gray-500 shadow ring-1 ring-black ring-opacity-5 md:hidden">
                             <button type="button" class="flex flex-col items-center pb-1.5 pt-3">

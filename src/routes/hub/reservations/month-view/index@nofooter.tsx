@@ -8,9 +8,9 @@ export default component$(() => {
     const popupState = useSignal(false)
 
     return (
-        <div class={"px-4 "}>
+        <div class={"px-3 "}>
             <Popup name={""} surname={""} mail={""} phone={2} date={3} time={1} comment={""} modalVisible={popupState}/>
-            <div class="lg:flex lg:h-full lg:flex-col">
+            <div class="lg:flex  lg:flex-col  h-[80vh] md:h-[70vh] lg:h-[75vh] 2xl:h-[85vh]">
                 <ReservationsHeader type={"Měsíční"}/>
                 <div class="shadow ring-1 ring-black ring-opacity-5 lg:flex lg:flex-auto lg:flex-col">
                     <div
