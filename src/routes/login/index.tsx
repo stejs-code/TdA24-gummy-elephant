@@ -21,7 +21,7 @@ export default component$(() => {
     })
 
     return <>
-        <div class={"px-4 mx-auto w-full max-w-lg"}>
+        <div class={"mt-20 px-4 mx-auto w-full max-w-lg"}>
             <h1 class={"text-5xl sm:text-6xl font-display mb-4 sm:mb-10"}>Přihlášení</h1>
             <Form action={action} class={"flex flex-col"}>
                 <TextInput name={"username"} placeholder={"Přihlašovací jméno"} autocomplete={"username"}/>
