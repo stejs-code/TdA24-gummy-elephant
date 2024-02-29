@@ -31,8 +31,13 @@ export const Navigation = component$<NavigationProps>(({user, notification}) => 
                             alt={"Teacher Digital Agency Logo"}
                         />
                     </Link>
+                    <ul class={"flex items-center ml-8"}>
+                        {user && <li>
+                            <Link href={"/hub/reservations/month-view"}>Rezervace</Link>
+                        </li>}
+                    </ul>
                     <ul class={"flex ml-auto items-center mr-2"}>
-                        { user &&
+                        {user &&
                             <li class={"relative"}>
                                 <button
                                     onClick$={() => userPopupVisible.value = true}
@@ -53,8 +58,8 @@ export const Navigation = component$<NavigationProps>(({user, notification}) => 
                                         </span>
 
                                         {/*{user && <>*/}
-                                            <br/>
-                                            <span class={"text-slate-500"}>Lektor</span>
+                                        <br/>
+                                        <span class={"text-slate-500"}>Lektor</span>
                                         {/*</>}*/}
                                     </p>
                                 </button>
