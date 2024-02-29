@@ -14,7 +14,7 @@ export default component$(() => {
 
 
     return (
-        <>
+        <div class={"mt-20"}>
             <div class={"max-w-7xl sm:flex sm:flex-col md:mx-8 lg:mt-5 lg:flex-row sm:justify-center lg:mx-auto"}>
                 {document.value.picture_url &&
                     <div class={"sm:mx-auto lg:mx-10"}>
@@ -80,7 +80,7 @@ export default component$(() => {
                     </ul>}
                 </div>
             </div>
-        </>
+        </div>
     );
 });
 
