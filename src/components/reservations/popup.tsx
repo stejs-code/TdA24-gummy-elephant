@@ -1,10 +1,8 @@
-import type {PropsOf, Signal} from "@builder.io/qwik";
-import {$, component$, useSignal} from "@builder.io/qwik";
+import type {Signal} from "@builder.io/qwik";
+import {component$, useSignal} from "@builder.io/qwik";
 import {LuArrowBigLeft, LuX} from "@qwikest/icons/lucide";
 import {PrimaryButton} from "~/components/ui/button";
 import {Modal, ModalContent, ModalFooter, ModalHeader} from "@qwik-ui/headless";
-import {MultiRangeSlider} from "~/components/ui/multiRange";
-import {ArrowLeft} from "lucide-react";
 
 
 interface Props {
@@ -73,7 +71,7 @@ export const Popup = component$((props: Props) => {
                         <div class={"w-1/2"}>
                             <p class={"mb-1"}>Způsob setkání:</p>
                             <input type="text" value={"Offline"} disabled={true}
-                                   className={"px-3 py-1.5 border rounded-lg border-gray-300 bg-gray-50 w-full "}/>
+                                   class={"px-3 py-1.5 border rounded-lg border-gray-300 bg-gray-50 w-full "}/>
                         </div>
                     </div>
                     <div class={"flex items-center gap-5 mb-5"}>

@@ -39,12 +39,7 @@ export async function createReservation(ctx: Context, rawData: z.input<typeof cr
             tags: [],
             uuid: crypto.randomUUID(),
         }
-        
-        const currentUnixT = getUnix(new Date())
-        if(reservation.dateUnix - currentUnixT < 86400){
-            throw new ApiError(400, "Make the reservation at least a day ahead.")
-        }
-
+    
         if (data.note) reservation.note = sanitizeHtml(data.note)
 
         if (data.tags) reservation.tags = await removeUnknownTag(ctx, data.tags)
@@ -70,7 +65,7 @@ export async function createReservation(ctx: Context, rawData: z.input<typeof cr
             return new ApiError(400, `parse error: ${zodErrorToString(e)}`)
         }
 
-        console.error("Error while creating user", rawData, e)
+        console.error("Error while creating user", rawData)
 
         return ApiError.internal()
     }
