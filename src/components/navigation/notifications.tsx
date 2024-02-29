@@ -1,15 +1,17 @@
-import {$, component$, useSignal} from "@builder.io/qwik";
+import {$, component$, useContext, useSignal} from "@builder.io/qwik";
 import type {NotificationType} from "~/app/zod";
 import {LuBell} from "@qwikest/icons/lucide";
 import {cn, formatTimeAgo} from "~/app/utils";
 import {useOutsideAlerter} from "~/components/hooks/outsideClick";
+import {NavContext} from "~/components/navigation/navigation";
 
 export interface NotificationsProps {
     notifications: NotificationType[],
     unread: number
 }
 
-export const Notifications = component$<NotificationsProps>(({notifications, unread}) => {
+export const Notifications = component$(() => {
+    const store = useContext(NavContext);
     const notificationsPopup = useSignal<HTMLElement>()
     const popupVisible = useSignal(false)
 
@@ -19,10 +21,10 @@ export const Notifications = component$<NotificationsProps>(({notifications, unr
 
     return <div class={"relative"} ref={notificationsPopup}>
         <button class={"p-2 rounded-lg transition-colors hover:bg-slate-50"}
-                onClick$={() => popupVisible.value = true}>
+                onClick$={() => popupVisible.value = !popupVisible.value}>
                 <span class={"relative"}>
-                    {unread
-                        ? <span class={"block absolute -top-1 -right-0 bg-red-500 aspect-square rounded-full w-2 h-2"}/>
+                    {store.notification.unread
+                        ? <span class={"block absolute -top-1 translate-x-4 bg-red-500 aspect-square rounded-full w-2 h-2"}/>
                         : ""
                     }
                     <LuBell class={"text-2xl"}/>
@@ -30,13 +32,13 @@ export const Notifications = component$<NotificationsProps>(({notifications, unr
         </button>
 
         <div
-            class={cn("absolute z-50 top-8 -right-0 w-80 rounded-2xl border-2 border-slate-100 shadow-2xl flex flex-col bg-white pt-8 px-6 transition-all ", popupVisible.value ? "visible opacity-100 translate-y-1" : "invisible opacity-0 -translate-y-2")}>
+            class={cn("fixed sm:absolute z-50 top-18 sm:top-8 right-4 left-4 sm:left-auto sm:right-0 sm:w-80 rounded-2xl border-2 border-slate-100 shadow-2xl flex flex-col bg-white pt-8 px-6 transition-all ", popupVisible.value ? "visible opacity-100 translate-y-1" : "invisible opacity-0 -translate-y-2")}>
             <h3 class={"font-display text-3xl mb-2"}>
                 <LuBell class={"text-xl inline mr-3"}/>
                 Notifikace
             </h3>
             <div class={"h-80 overflow-y-scroll no-scrollbar"}>
-                {notifications.map(i => (
+                {store.notification.notifications.map(i => (
                     <div key={i.uuid} class={"border-b border-slate-200 py-4 flex"}>
                         <div class={"w-4 pt-2 mr-2"}>
                             {!i.read && <span
@@ -51,7 +53,7 @@ export const Notifications = component$<NotificationsProps>(({notifications, unr
                         </div>
                     </div>
                 ))}
-                {!notifications.length && <p class={"w-full text-slate-600"}>
+                {!store.notification.notifications.length && <p class={"w-full text-slate-600"}>
                     Stále žádné notifikace {" 😢"}
                 </p>}
             </div>

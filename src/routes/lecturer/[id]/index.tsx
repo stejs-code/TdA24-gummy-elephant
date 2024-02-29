@@ -1,4 +1,4 @@
-import {$, component$, useSignal, useTask$, useVisibleTask$} from "@builder.io/qwik";
+import {$, component$, useSignal, useTask$} from "@builder.io/qwik";
 import type {DocumentHead} from "@builder.io/qwik-city";
 import {routeLoader$, server$} from "@builder.io/qwik-city";
 import {Profile} from "~/components/lecturer/profile";
@@ -90,12 +90,6 @@ export default component$(() => {
 
     })
 
-    
-
-    useVisibleTask$(() => {
-        modalVisible.value = true
-    })
-
     useTask$(async ({track}) => {
         track(() => modalVisible.value)
         if (isBrowser && modalVisible.value && reservationForm.internal.fields.date?.value) {
@@ -103,7 +97,7 @@ export default component$(() => {
         }
 
     })
-    
+
     const handleSliderChange = $((data: {
         min: number,
         max: number
@@ -293,7 +287,7 @@ export default component$(() => {
                             </Field>
                         </div>
 
-                        </div>
+                    </div>
                     <div class={"flex items-start gap-5"}>
                         <div class={"w-1/2"}>
                             <Field type={"Date"} name={"date"}>
@@ -397,7 +391,7 @@ export default component$(() => {
     );
 });
 
-export const useFormAction = formAction$<ReservationFormType>(async(values, event) => {
+export const useFormAction = formAction$<ReservationFormType>(async (values, event) => {
     const ctx = new Context(event);
     const date = new Date();
     const dateAt = new Date(values.date.toString().split("T")[0])
@@ -421,9 +415,9 @@ export const useFormAction = formAction$<ReservationFormType>(async(values, even
         },
     }
 
-    if(values.tagId){
+    if (values.tagId) {
         const tag = await getTag(ctx, values.tagId)
-        if(!(tag instanceof ApiError)) {
+        if (!(tag instanceof ApiError)) {
             reservation.tags.push(tag)
         }
     }
@@ -516,8 +510,8 @@ export const useFormLoader = routeLoader$<InitialValues<ReservationFormType>>(as
         tagId: "",
         meetingType: "online",
         date: new Date(),
-        hourStart: 8,
-        hourEnd: 20,
+        hourStart: 12,
+        hourEnd: 16,
         note: "amogu",
         lecturer: document.uuid,
     }
@@ -539,10 +533,10 @@ export const getRanges = server$(async function (lecturerId: string, date: Date)
     const lectures: any[] = [];
 
     const reservations = await getLecturerReservations(ctx, lecturerId, date)
-    if(!(reservations instanceof ApiError)){
+    if (!(reservations instanceof ApiError)) {
         reservations.map(r => {
             let end = r.hourEnd
-            if(r.hourEnd != 20) end += 0.1
+            if (r.hourEnd != 20) end += 0.1
             lectures.push([r.hourStart, end])
         })
     }
