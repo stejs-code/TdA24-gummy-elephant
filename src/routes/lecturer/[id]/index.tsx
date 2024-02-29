@@ -510,8 +510,8 @@ export const useFormLoader = routeLoader$<InitialValues<ReservationFormType>>(as
         tagId: "",
         meetingType: "online",
         date: new Date(),
-        hourStart: 8,
-        hourEnd: 20,
+        hourStart: 12,
+        hourEnd: 16,
         note: "amogu",
         lecturer: document.uuid,
     }
