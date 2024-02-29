@@ -23,7 +23,7 @@ export default component$(() => {
     return <>
         <div class={"px-4 mx-auto max-w-lg"}>
             <h1 class={"text-5xl sm:text-6xl font-display mb-4 sm:mb-12"}>Přihlášení</h1>
-            <Form action={action} class={"flex flex-col gap-y-4"}>
+            <Form action={action} class={"flex flex-col"}>
                 <TextInput name={"username"} placeholder={"Login"} autocomplete={"username"}/>
                 <TextInput type={"password"} name={"password"} placeholder={"Heslo"} autocomplete={"current-password"}/>
                 {action.value?.status === "fail" && <p class={"text-sm text-red-600"}>{action.value.message}</p>}

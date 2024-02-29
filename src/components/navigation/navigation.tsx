@@ -28,7 +28,7 @@ export const Navigation = component$<NavigationProps>(({user, notification}) => 
                         />
                     </Link>
                     <ul class={"flex ml-auto items-center mr-2"}>
-                        {(location.url.pathname.startsWith("/hub") || location.url.pathname.startsWith("/") || user) &&
+                        {(location.url.pathname.startsWith("/hub") || location.url.pathname.startsWith("/login") || user) &&
                             <li>
                                 <a href={(user ? "/logout" : "/login")}
                                    class={"flex items-center transition-colors hover:bg-slate-50/70 p-2 pr-4 rounded-xl"}>
