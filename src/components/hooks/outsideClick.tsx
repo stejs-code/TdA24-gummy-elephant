@@ -4,7 +4,7 @@ import {$, useOnDocument} from "@builder.io/qwik";
 /**
  * Hook that alerts clicks outside the passed ref
  */
-export function useOutsideAlerter(ref: Signal<HTMLElement | undefined>, handler: QRL<() => void>) {
+export function useOutsideAlerter(ref: Signal<HTMLElement | undefined>, handler: QRL<() => unknown>) {
     /**
      * Alert if clicked on outside of element
      */

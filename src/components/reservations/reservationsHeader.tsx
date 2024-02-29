@@ -46,9 +46,11 @@ export const ReservationsHeader = component$(({type}: Props) => {
                 <div class="hidden md:ml-4 md:flex md:items-center">
                     <Change type={type}/>
                     <div class="ml-3 mr-3 h-6 w-px bg-gray-300"></div>
+                    <a href={"/exportCal"}>
                     <PrimaryButton>
                         Exportovat
                     </PrimaryButton>
+                    </a>
                 </div>
                 <ChangeMobile/>
             </div>

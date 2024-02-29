@@ -49,7 +49,7 @@ export async function createReservation(ctx: Context, rawData: z.input<typeof cr
             read: false,
             data: {
                 type: "new_lecture",
-                message: `${reservation.createdAt.getDate()}. ${reservation.createdAt.getMonth()}. ${reservation.createdAt.getFullYear()} ${reservation.hourStart}:00-${reservation.hourEnd}:00`
+                message: `${reservation.dateAt.getDate()}. ${reservation.dateAt.getMonth()+1}. ${reservation.dateAt.getFullYear()} ${reservation.hourStart}:00-${reservation.hourEnd}:00`
             }
         }
         await createNotification(ctx, notification);
@@ -156,13 +156,14 @@ export async function updateBulkReservations(ctx: Context, reservations: Reserva
     }
 }
 
-export async function getLecturerReservations(ctx: Context, lecturer: string): Promise<ApiError | ReservationType[]> {
+export async function getLecturerReservations(ctx: Context, lecturer: string, date: Date | undefined = undefined): Promise<ApiError | ReservationType[]> {
     try {
         const index = getReservationIndex(ctx.meili)
-        return (await index.getDocuments({filter: `lecturer = ${lecturer}`})).results
+        if(date === undefined) return (await index.getDocuments({filter: `lecturer = ${lecturer}`})).results
+        else return (await index.getDocuments({filter: `lecturer = ${lecturer} AND dateAt = "${date.toISOString()}"`})).results
 
     } catch (e) {
-        console.error("Error while get lecturer reservations.")
+        console.error("Error while get lecturer reservations.", e)
 
         return ApiError.internal()
     }

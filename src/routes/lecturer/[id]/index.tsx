@@ -14,10 +14,11 @@ import {InputLabel, SelectInput, TextInput} from "~/components/ui/form";
 import * as v from 'valibot';
 import type {InitialValues} from "@modular-forms/qwik";
 import {formAction$, setValues, useForm, valiForm$} from "@modular-forms/qwik";
-import type {TagType} from "~/app/zod";
-import {listTags} from "~/app/tag";
+import type {ReservationType, TagType} from "~/app/zod";
+import {getTag, listTags} from "~/app/tag";
 import {MultiRangeSlider} from "~/components/ui/multiRange";
 import {isBrowser} from "@builder.io/qwik/build";
+import {createReservation, getLecturerReservations} from "~/app/reservation";
 
 export const ReservationFormSchema = v.object({
     email: v.string([
@@ -89,10 +90,20 @@ export default component$(() => {
 
     })
 
+    
+
     useVisibleTask$(() => {
         modalVisible.value = true
     })
 
+    useTask$(async ({track}) => {
+        track(() => modalVisible.value)
+        if (isBrowser && modalVisible.value && reservationForm.internal.fields.date?.value) {
+            ranges.value = await getRanges(document.value.uuid, new Date(new Date(reservationForm.internal.fields.date.value).toISOString().split("T")[0]))
+        }
+
+    })
+    
     const handleSliderChange = $((data: {
         min: number,
         max: number
@@ -368,10 +379,38 @@ export default component$(() => {
     );
 });
 
-export const useFormAction = formAction$<ReservationFormType>((values) => {
-    // TODO: matysku uwu
+export const useFormAction = formAction$<ReservationFormType>(async(values, event) => {
+    const ctx = new Context(event);
+    const date = new Date();
+    const dateAt = new Date(values.date.toString().split("T")[0])
 
-    console.log(v.parse(ReservationFormSchema, values))
+    const reservation: Omit<ReservationType, "uuid"> = {
+        lecturer: values.lecturer,
+        note: values.note,
+        meetingType: "offline",
+        dateAt: dateAt,
+        dateUnix: Math.floor(dateAt.getTime() / 1000),
+        createdAt: date,
+        createdUnix: Math.floor(date.getTime() / 1000),
+        hourStart: values.hourStart,
+        hourEnd: values.hourEnd,
+        tags: [],
+        student: {
+            first_name: values.first_name,
+            last_name: values.last_name,
+            email: values.email,
+            telephone: values.telephone,
+        },
+    }
+
+    if(values.tagId){
+        const tag = await getTag(ctx, values.tagId)
+        if(!(tag instanceof ApiError)) {
+            reservation.tags.push(tag)
+        }
+    }
+
+    await createReservation(ctx, reservation)
 
 }, valiForm$(ReservationFormSchema));
 
@@ -477,18 +516,15 @@ export const useTags = routeLoader$<TagType[]>(async ({env}) => {
 
 export const getRanges = server$(async function (lecturerId: string, date: Date): Promise<[number, number][]> {
     const ctx = new Context(this)
+    const lectures: any[] = [];
 
-    // TODO: matysku uwu
-    console.log(ctx, lecturerId, date)
-
-    return [
-        // [
-        //     Math.round(Math.random() * 2) + 8,
-        //     Math.round(Math.random() * 2) + 10
-        // ],
-        // [
-        //     Math.round(Math.random() * 2) + 15,
-        //     Math.round(Math.random() * 2) + 18
-        // ]
-    ]
+    const reservations = await getLecturerReservations(ctx, lecturerId, date)
+    if(!(reservations instanceof ApiError)){
+        reservations.map(r => {
+            let end = r.hourEnd
+            if(r.hourEnd != 20) end += 0.1
+            lectures.push([r.hourStart, end])
+        })
+    }
+    return lectures;
 })
