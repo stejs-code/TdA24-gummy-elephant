@@ -49,7 +49,7 @@ export async function createReservation(ctx: Context, rawData: z.input<typeof cr
             read: false,
             data: {
                 type: "new_lecture",
-                message: `${reservation.createdAt.getDate()}. ${reservation.createdAt.getMonth()}. ${reservation.createdAt.getFullYear()} ${reservation.hourStart}:00-${reservation.hourEnd}:00`
+                message: `${reservation.dateAt.getDate()}. ${reservation.dateAt.getMonth()+1}. ${reservation.dateAt.getFullYear()} ${reservation.hourStart}:00-${reservation.hourEnd}:00`
             }
         }
         await createNotification(ctx, notification);

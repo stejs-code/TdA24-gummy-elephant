@@ -518,7 +518,6 @@ export const getRanges = server$(async function (lecturerId: string, date: Date)
     const ctx = new Context(this)
     const lectures: any[] = [];
 
-    // TODO: matysku uwu
     const reservations = await getLecturerReservations(ctx, lecturerId, date)
     if(!(reservations instanceof ApiError)){
         reservations.map(r => {
