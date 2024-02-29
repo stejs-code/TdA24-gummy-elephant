@@ -84,24 +84,31 @@ export default component$(() => {
             }
             return {...response}
         }),
-    action: useFormAction()
-});
+        action: useFormAction()
+    });
 
-useTask$(async ({track}) => {
-    track(() => reservationForm.internal.fields.date?.value)
-    if (isBrowser && reservationForm.internal.fields.date?.value) {
+    useTask$(async ({track}) => {
+        track(() => reservationForm.internal.fields.date?.value)
+        if (isBrowser && reservationForm.internal.fields.date?.value) {
         ranges.value = await getRanges(document.value.uuid, reservationForm.internal.fields.date.value)
     }
 
-})
+    })
 
-useTask$(async ({track}) => {
-    track(() => modalVisible.value)
-    if (isBrowser && modalVisible.value && reservationForm.internal.fields.date?.value) {
-        ranges.value = await getRanges(document.value.uuid, new Date(new Date(reservationForm.internal.fields.date.value).toISOString().split("T")[0]))
-    }
+    useTask$(async ({track}) => {
+        track(() => modalVisible.value)
+        if (isBrowser && modalVisible.value && reservationForm.internal.fields.date?.value) {
+            ranges.value = await getRanges(document.value.uuid, new Date(new Date(reservationForm.internal.fields.date.value).toISOString().split("T")[0]))
+        }
+    })
 
-})
+    useTask$(async ({track}) => {
+        track(() => reservationForm.response.status)
+        if(reservationForm.response.status === "success"){
+            modalVisible.value = false;
+        }
+    })
+
 
 const handleSliderChange = $((data: {
     min: number,
@@ -185,9 +192,7 @@ return (
         <Modal bind:show={modalVisible}
                class={"overflow-y-scroll sheet shadow-dark-medium max-h-[100vh] fixed right-0 inset-y-0 my-0 mr-0 h-[100vh] max-w-full md:max-w-[90rem] rounded-l-md border-0 bg-white p-0 sm:p-6 text-slate-950 backdrop:backdrop-blur backdrop:backdrop-brightness-100"}>
 
-            <Form onSubmit$={() => {
-                    modalVisible.value = false;
-                }} autoComplete={"on"} class={"px-3 pt-3 sm:px-6 sm:py-2.5 flex flex-col gap-y-1"}>
+            <Form autoComplete={"on"} class={"px-3 pt-3 sm:px-6 sm:py-2.5 flex flex-col gap-y-1"}>
                     <div class={"flex items-center justify-between mb-6"}>
                         <h2 class={"text-2xl font-bold"}>Nová rezervace</h2>
                         <div class="p-1 cursor-pointer"
@@ -430,7 +435,9 @@ export const useFormAction = formAction$<ReservationFormType>(async (values, eve
         }
     }
 
-    await createReservation(ctx, reservation)
+    const res = await createReservation(ctx, reservation)
+    if(res instanceof ApiError) return {status: "error", message: res.message}
+    return {status: "success", message: "Reserved!"}
     
 }, valiForm$(ReservationFormSchema));
 
