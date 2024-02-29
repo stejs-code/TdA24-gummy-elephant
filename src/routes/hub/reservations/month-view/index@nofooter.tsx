@@ -295,8 +295,14 @@ export default component$(() => {
                                     class="flex h-14 flex-col bg-white px-3 py-2 text-gray-900 hover:bg-gray-100 focus:z-10">
                                 <time dateTime="2022-01-03" class="ml-auto">3</time>
                                 <span class="sr-only">2 events</span>
+                                //kulicky
                                 <span class="-mx-0.5 mt-auto flex flex-wrap-reverse">
             <span class="mx-0.5 mb-1 h-1.5 w-1.5 rounded-full bg-gray-400"></span>
+            <span class="mx-0.5 mb-1 h-1.5 w-1.5 rounded-full bg-gray-400"></span><span class="mx-0.5 mb-1 h-1.5 w-1.5 rounded-full bg-gray-400"></span>
+            <span class="mx-0.5 mb-1 h-1.5 w-1.5 rounded-full bg-gray-400"></span><span class="mx-0.5 mb-1 h-1.5 w-1.5 rounded-full bg-gray-400"></span>
+            <span class="mx-0.5 mb-1 h-1.5 w-1.5 rounded-full bg-gray-400"></span><span class="mx-0.5 mb-1 h-1.5 w-1.5 rounded-full bg-gray-400"></span>
+            <span class="mx-0.5 mb-1 h-1.5 w-1.5 rounded-full bg-gray-400"></span><span class="mx-0.5 mb-1 h-1.5 w-1.5 rounded-full bg-gray-400"></span>
+            <span class="mx-0.5 mb-1 h-1.5 w-1.5 rounded-full bg-gray-400"></span><span class="mx-0.5 mb-1 h-1.5 w-1.5 rounded-full bg-gray-400"></span>
             <span class="mx-0.5 mb-1 h-1.5 w-1.5 rounded-full bg-gray-400"></span>
           </span>
                             </button>
