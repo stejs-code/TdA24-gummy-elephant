@@ -2,13 +2,12 @@ import {z} from "zod";
 import type {MeiliSearch, SearchParams, SearchResponse} from "meilisearch";
 import {MeiliSearchApiError} from "meilisearch";
 import type {NotificationType, ReservationType} from "~/app/zod";
-import {createReservationBody, updateReservationBodyZod} from "~/app/zod";
-import {reservationZod, zodErrorToString} from "~/app/zod";
+import {createReservationBody, reservationZod, updateReservationBodyZod, zodErrorToString} from "~/app/zod";
 import {ApiError} from "~/app/apiError";
 import sanitizeHtml from 'sanitize-html';
 import type {Context} from "./context";
 import {removeUnknownTag} from "~/app/tag";
-import { createNotification } from "./notification";
+import {createNotification} from "./notification";
 
 export function getReservationIndex(meili: MeiliSearch) {
     return meili.index<ReservationType>('reservations')
@@ -157,8 +156,8 @@ export async function updateBulkReservations(ctx: Context, reservations: Reserva
     }
 }
 
-export async function getLecturerReservations(ctx: Context, lecturer: string): Promise<ApiError | ReservationType[]>{
-    try{
+export async function getLecturerReservations(ctx: Context, lecturer: string): Promise<ApiError | ReservationType[]> {
+    try {
         const index = getReservationIndex(ctx.meili)
         return (await index.getDocuments({filter: `lecturer = ${lecturer}`})).results
 

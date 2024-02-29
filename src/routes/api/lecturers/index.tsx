@@ -4,14 +4,13 @@ import {handleRequestHandlingError} from "~/app/utils";
 import {Context} from "~/app/context";
 import {createLecturer, listLecturers} from "~/app/lecturer";
 
-export function authRequest(headers: Headers): boolean{
+export function authRequest(headers: Headers): boolean {
     const auth = headers.get("Authorization")
-    if(auth == "Basic VGRBOmQ4RWY2IWRHR19wdg==" || auth == "Basic VGRBOmQ4RWY2IWRHR19wdg"){
+    if (auth == "Basic VGRBOmQ4RWY2IWRHR19wdg==" || auth == "Basic VGRBOmQ4RWY2IWRHR19wdg") {
         return true;
     }
     return false;
 }
-
 
 
 export const onGet: RequestHandler = async ({env, json}) => {
@@ -29,7 +28,7 @@ export const onGet: RequestHandler = async ({env, json}) => {
 
 export const onPost: RequestHandler = async ({json, env, request}) => {
     try {
-        if(!authRequest(request.headers)){
+        if (!authRequest(request.headers)) {
             json(401, {error: "Missing authorization headers."})
         } else {
             const req = await request.json()

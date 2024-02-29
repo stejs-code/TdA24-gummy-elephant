@@ -1,9 +1,9 @@
 import type {RequestHandler} from "@builder.io/qwik-city"
 import ical from "ical-generator";
-import { ApiError } from "~/app/apiError";
-import { Context } from "~/app/context"
-import { getLecturerReservations } from "~/app/reservation";
-import { handleRequestHandlingError } from "~/app/utils";
+import {ApiError} from "~/app/apiError";
+import {Context} from "~/app/context"
+import {getLecturerReservations} from "~/app/reservation";
+import {handleRequestHandlingError} from "~/app/utils";
 import type {Session} from "~/app/session";
 
 
@@ -12,9 +12,9 @@ export const onGet: RequestHandler = async ({env, json, send, sharedMap}) => {
         const calendar = ical({name: 'calendar'});
 
         const session = sharedMap.get("session") as Session | undefined;
-        if(session === undefined){
+        if (session === undefined) {
             json(401, {error: "Auth headers required."})
-        }else {
+        } else {
             const ctx = new Context({env})
             const lecturer = session.user.uuid;
             const reservations = await getLecturerReservations(ctx, lecturer);

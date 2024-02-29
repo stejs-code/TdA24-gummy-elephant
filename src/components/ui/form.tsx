@@ -39,7 +39,7 @@ export const TextInput = component$<InputHTMLAttributes<any> & {
 
     return (
         <>
-            {label && <InputLabel required={required} label={label}  name={props.name || ""}/>}
+            {label && <InputLabel required={required} label={label} name={props.name || ""}/>}
             <input
                 class={cn(`border appearance-none py-2 transition-colors w-full rounded-md border-slate-200 outline-0 px-4 focus:border-primary-300`, className)}
                 type={type || "text"}
@@ -52,7 +52,7 @@ export const TextInput = component$<InputHTMLAttributes<any> & {
     )
 })
 
-export const InputLabel = component$<{ name: string, label: string, required?:boolean }>(
+export const InputLabel = component$<{ name: string, label: string, required?: boolean }>(
     ({name, label, required}) => (
         <>
             {label && (
@@ -60,7 +60,7 @@ export const InputLabel = component$<{ name: string, label: string, required?:bo
                     class={"inline-block text-sm mb-2"}
                     for={name}
                 >
-                    {label}{': '} {required&& <span class={"text-red-600"}>*</span>}
+                    {label}{': '} {required && <span class={"text-red-600"}>*</span>}
                 </label>
             )}
         </>

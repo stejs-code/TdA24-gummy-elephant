@@ -3,14 +3,14 @@ import {ApiError} from "~/app/apiError";
 import {handleRequestHandlingError} from "~/app/utils";
 import {deleteLecturer, getLecturer, updateLecturer} from "~/app/lecturer";
 import {Context} from "~/app/context";
-import { authRequest } from "..";
+import {authRequest} from "..";
 
 
 export const onPut: RequestHandler = async ({env, json, params, request}) => {
     try {
-        if(!authRequest(request.headers)){
+        if (!authRequest(request.headers)) {
             json(401, {error: "Missing authorization headers."})
-        }else{
+        } else {
             const ctx = new Context({env})
 
             const response = await updateLecturer(ctx, params.id, await request.json())
@@ -41,9 +41,9 @@ export const onGet: RequestHandler = async ({env, json, params}) => {
 
 export const onDelete: RequestHandler = async ({env, json, params, send, request}) => {
     try {
-        if(!authRequest(request.headers)){
+        if (!authRequest(request.headers)) {
             json(401, {error: "Missing authorization headers."})
-        }else{
+        } else {
             const ctx = new Context({env})
             const response = await deleteLecturer(ctx, params.id)
             if (response instanceof ApiError) return response.sendResponse(json)

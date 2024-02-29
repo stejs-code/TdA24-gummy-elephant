@@ -1,7 +1,6 @@
 import {component$, Slot} from "@builder.io/qwik";
-import {IconParkElephant} from "~/components/icons/elephant";
-import {Link, RequestHandler, useLocation} from "@builder.io/qwik-city";
-import {routeLoader$} from "@builder.io/qwik-city";
+import type {RequestHandler} from "@builder.io/qwik-city";
+import {Link, routeLoader$, useLocation} from "@builder.io/qwik-city";
 import {Navigation} from "~/components/navigation/navigation";
 import {useAuthSession} from "~/routes/plugin@auth";
 import {searchNotification} from "~/app/notification";
@@ -42,9 +41,10 @@ export default component$(() => {
         <footer
             class={"text-slate-300 flex justify-center py-4 2xl:justify-end px-6 mt-8 gap-4"}>
             {/*Made by <IconParkElephant style={{display: "inline", fontSize: 24, transform: "translateY(-2px)"}} color={"#cbd5e1"}/> gummy elephant team.*/}
-            {(!session.value?.user && !location.url.pathname.startsWith("/login")) && <Link href={"/login"} class={"text-slate-300 underline"}>
-                Přihlásit se
-            </Link>}
+            {(!session.value?.user && !location.url.pathname.startsWith("/login")) &&
+                <Link href={"/login"} class={"text-slate-300 underline"}>
+                    Přihlásit se
+                </Link>}
             {/*<a href="https://youtu.be/dQw4w9WgXcQ"*/}
             {/*   aria-label={"github repository of this site"}*/}
             {/*   class={"block hover:scale-110 hover:-rotate-12 transition-all"}>*/}
