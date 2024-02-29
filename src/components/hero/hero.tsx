@@ -7,7 +7,7 @@ export const Hero = component$(() => {
 
     return (
         <>
-            <div class={"mb-14 overflow-hidden sm:pb-20"}>
+            <div class={"mb-14 mt-20 overflow-hidden sm:pb-20"}>
                 <div class={"-z-10 relative w-full max-w-4xl px-4 mx-auto"}>
                     <div class={"absolute top-0 left-20 sm:left-0"}>
                         <svg class={"sm:-translate-x-10"} width={"380px"} xmlns="http://www.w3.org/2000/svg"

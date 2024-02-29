@@ -19,7 +19,7 @@ export const Navigation = component$<NavigationProps>(({user, notification}) => 
     useOutsideAlerter(popup, $(() => userPopupVisible.value = false))
 
     return (
-        <>
+        <div class={"sticky top-0 z-30"}>
             <nav class={"w-full bg-white border-b border-slate-200 mb-2"}>
                 <div class={"flex mx-auto max-w-6xl p-4 pb-3 items-center"}>
                     <Link href={"/"} prefetch={true}>
@@ -87,6 +87,6 @@ export const Navigation = component$<NavigationProps>(({user, notification}) => 
                 </div>
 
             </nav>
-        </>
+        </div>
     )
 })
