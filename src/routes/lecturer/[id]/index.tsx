@@ -18,7 +18,7 @@ import type {ReservationType, TagType} from "~/app/zod";
 import {getTag, listTags} from "~/app/tag";
 import {MultiRangeSlider} from "~/components/ui/multiRange";
 import {isBrowser} from "@builder.io/qwik/build";
-import {createReservation, getLecturerReservations} from "~/app/reservation";
+import {createReservation, getLecturerReservations, getUnix} from "~/app/reservation";
 
 export const ReservationFormSchema = v.object({
     email: v.string([
@@ -407,9 +407,9 @@ export const useFormAction = formAction$<ReservationFormType>(async(values, even
         note: values.note,
         meetingType: values.meetingType,
         dateAt: dateAt,
-        dateUnix: Math.floor(dateAt.getTime() / 1000),
+        dateUnix: getUnix(dateAt),
         createdAt: date,
-        createdUnix: Math.floor(date.getTime() / 1000),
+        createdUnix: getUnix(date),
         hourStart: values.hourStart,
         hourEnd: values.hourEnd,
         tags: [],

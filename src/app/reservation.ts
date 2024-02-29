@@ -13,6 +13,10 @@ export function getReservationIndex(meili: MeiliSearch) {
     return meili.index<ReservationType>('reservations')
 }
 
+export function getUnix(date: Date){
+    return Math.floor(date.getTime() / 1000)
+}
+
 export async function searchReservation({meili}: Context, query: string, options?: SearchParams): Promise<SearchResponse<ReservationType> | ApiError> {
     try {
         const index = getReservationIndex(meili);
@@ -34,6 +38,11 @@ export async function createReservation(ctx: Context, rawData: z.input<typeof cr
             ...data,
             tags: [],
             uuid: crypto.randomUUID(),
+        }
+        
+        const currentUnixT = getUnix(new Date())
+        if(reservation.dateUnix - currentUnixT < 86400){
+            throw new ApiError(400, "Make the reservation at least a day ahead.")
         }
 
         if (data.note) reservation.note = sanitizeHtml(data.note)
