@@ -8,9 +8,9 @@ export default component$(() => {
     const popupState = useSignal(false)
 
     return (
-        <div class={"px-3 "}>
+        <div class={"px-4 "}>
             <Popup name={""} surname={""} mail={""} phone={2} date={3} time={1} comment={""} modalVisible={popupState}/>
-            <div class="lg:flex  lg:flex-col  h-[80vh] md:h-[70vh] lg:h-[75vh] 2xl:h-[85vh]">
+            <div class="lg:flex lg:h-full lg:flex-col">
                 <ReservationsHeader type={"Měsíční"}/>
                 <div class="shadow ring-1 ring-black ring-opacity-5 lg:flex lg:flex-auto lg:flex-col">
                     <div
@@ -175,9 +175,9 @@ export default component$(() => {
                                 <ol class="mt-2">
                                     <li>
                                         <a href="#" class="group flex"
-                                        onClick$={() => {
-                                            popupState.value = !popupState.value
-                                        }}>
+                                           onClick$={() => {
+                                               popupState.value = !popupState.value
+                                           }}>
                                             <p class="flex-auto truncate font-medium text-gray-900 group-hover:text-indigo-600">Maple
                                                 syrup museum</p>
                                             <time dateTime="2022-01-22T15:00"

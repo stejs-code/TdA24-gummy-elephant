@@ -124,7 +124,8 @@ input[type="search"]::-webkit-search-results-decoration {
 }
 
 .slider__track,
-.slider__range {
+.slider__range,
+.slider__mark {
     border-radius: 3px;
     height: 5px;
 }
@@ -172,11 +173,11 @@ input[type="search"]::-webkit-search-results-decoration {
 }
 
 .thumb--left {
-    z-index: 3;
+    z-index: 11;
 }
 
 .thumb--right {
-    z-index: 4;
+    z-index: 12;
 }
 
 /* For Chrome browsers */

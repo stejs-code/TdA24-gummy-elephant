@@ -78,7 +78,8 @@ export const reservationZod = z.object({
     dateUnix: z.number().describe("seconds"),
     createdAt: z.date(),
     createdUnix: z.number().describe("seconds"),
-    hour: z.number().min(8).max(19),
+    hourStart: z.number().min(8).max(19),
+    hourEnd: z.number().min(9).max(20),
     tags: z.array(tagZod),
     student: z.object({
         first_name: z.string(),

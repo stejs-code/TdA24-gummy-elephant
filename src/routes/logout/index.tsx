@@ -9,5 +9,5 @@ export const onRequest: RequestHandler = async (event) => {
         await deleteSession(session.id)
     }
 
-    throw event.redirect(302, "/auth/login")
+    throw event.redirect(302, "/login")
 }

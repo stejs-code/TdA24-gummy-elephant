@@ -2,13 +2,12 @@ import {z} from "zod";
 import type {MeiliSearch, SearchParams, SearchResponse} from "meilisearch";
 import {MeiliSearchApiError} from "meilisearch";
 import type {NotificationType, ReservationType} from "~/app/zod";
-import {createReservationBody, updateReservationBodyZod} from "~/app/zod";
-import {reservationZod, zodErrorToString} from "~/app/zod";
+import {createReservationBody, reservationZod, updateReservationBodyZod, zodErrorToString} from "~/app/zod";
 import {ApiError} from "~/app/apiError";
 import sanitizeHtml from 'sanitize-html';
 import type {Context} from "./context";
 import {removeUnknownTag} from "~/app/tag";
-import { createNotification } from "./notification";
+import {createNotification} from "./notification";
 
 export function getReservationIndex(meili: MeiliSearch) {
     return meili.index<ReservationType>('reservations')
@@ -46,14 +45,14 @@ export async function createReservation(ctx: Context, rawData: z.input<typeof cr
         const notification: Omit<NotificationType, "uuid"> = {
             lecturer: reservation.lecturer,
             created_at: reservation.createdAt,
-            created_unix: reservation.createdUnix, 
+            created_unix: reservation.createdUnix,
             read: false,
             data: {
                 type: "new_lecture",
-                message: `${reservation.createdAt.getDate()}. ${reservation.createdAt.getMonth()}. ${reservation.createdAt.getFullYear()} ${reservation.hour}:00-${reservation.hour+1}:00`
+                message: `${reservation.createdAt.getDate()}. ${reservation.createdAt.getMonth()}. ${reservation.createdAt.getFullYear()} ${reservation.hourStart}:00-${reservation.hourEnd}:00`
             }
         }
-        createNotification(ctx, notification);
+        await createNotification(ctx, notification);
 
         return reservation
 
@@ -155,4 +154,17 @@ export async function updateBulkReservations(ctx: Context, reservations: Reserva
 
         return ApiError.internal()
     }
+}
+
+export async function getLecturerReservations(ctx: Context, lecturer: string): Promise<ApiError | ReservationType[]> {
+    try {
+        const index = getReservationIndex(ctx.meili)
+        return (await index.getDocuments({filter: `lecturer = ${lecturer}`})).results
+
+    } catch (e) {
+        console.error("Error while get lecturer reservations.")
+
+        return ApiError.internal()
+    }
+
 }
