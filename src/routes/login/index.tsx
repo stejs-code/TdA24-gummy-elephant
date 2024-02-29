@@ -16,7 +16,7 @@ export default component$(() => {
     useTask$(({track}) => {
         track(() => action.value)
         if (action.value?.status === "success") {
-            navigate("/")
+            navigate("/", {forceReload: true})
         }
     })
 
