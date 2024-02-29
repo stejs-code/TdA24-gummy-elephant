@@ -20,13 +20,15 @@ export const onGet: RequestHandler = async ({env, json, send, sharedMap}) => {
             const reservations = await getLecturerReservations(ctx, lecturer);
             if (!(reservations instanceof ApiError)) {
                 reservations.map(res => {
-                    const end = res.dateAt;
-                    end.setHours(res.hour + 1)
+                    const end = new Date(res.dateAt);
+                    const start = new Date(res.dateAt);
+                    start.setHours(res.hourStart)
+                    end.setHours(res.hourEnd)
                     calendar.createEvent({
-                        start: res.dateAt,
+                        start: start,
                         end: end,
                         summary: `Lecturing ${res.student.first_name} ${res.student.last_name}`,
-                        description: `${res.student.first_name} ${res.student.last_name} - ${res.student.email} - ${res.student.telephone} \n ${res.note}`,
+                        description: `${res.student.first_name} ${res.student.last_name} - ${res.student.email} - ${res.student.telephone} \n${res.note}`,
                         location: res.meetingType,
                     })
                 })
