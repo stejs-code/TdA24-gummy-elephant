@@ -19,7 +19,7 @@ export default component$(() => {
                 <link rel="manifest" href="/manifest.json"/>
                 <RouterHead/>
             </head>
-            <body lang="en" class={"overflow-x-hidden"}>
+            <body lang="en" class={"overflow-x-hidden min-h-screen flex flex-col"}>
             <RouterOutlet/>
             <ServiceWorkerRegister/>
             </body>

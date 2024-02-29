@@ -39,7 +39,7 @@ export default component$(() => {
         <Slot/>
 
         <footer
-            class={"text-slate-300 flex justify-center py-4 2xl:justify-end px-6 mt-8 gap-4"}>
+            class={"text-slate-300 flex justify-center py-4 2xl:justify-end px-6 mt-auto gap-4"}>
             {/*Made by <IconParkElephant style={{display: "inline", fontSize: 24, transform: "translateY(-2px)"}} color={"#cbd5e1"}/> gummy elephant team.*/}
             {(!session.value?.user && !location.url.pathname.startsWith("/login")) &&
                 <Link href={"/login"} class={"text-slate-300 underline"}>
