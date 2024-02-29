@@ -38,14 +38,14 @@ export const ReservationFormSchema = v.object({
     date: v.coerce(v.date("Zadejte platné datum (pondělí až pátek)."), (value) => {
         if (typeof value === "string") return new Date(value)
         return value
-    })
-    ,
+    }),
     hourStart: v.number(),
     hourEnd: v.number(),
     note: v.string([
         v.maxLength(500, "Přesažen maximální limit poznámky (500 znaků)")
     ]),
-    lecturer: v.string()
+    meetingType: v.union([v.literal("online"), v.literal("offline")], "Vyberte typ meetingu."),
+    lecturer: v.string(),
 });
 
 export type ReservationFormType = v.Input<typeof ReservationFormSchema>
@@ -231,21 +231,21 @@ export default component$(() => {
                             </Field>
                         </div>
                     </div>
-                    <div>
-                        <Field type={"string"} name={"email"}>
-                            {(store, props) => (
-                                <TextInput
-                                    {...props}
-                                    value={store.value}
-                                    label={"E-mail"}
-                                    required={true}
-                                    autoComplete={"email"}
-                                    error={store.error}
-                                />
-                            )}
-                        </Field>
-                    </div>
                     <div class={"flex items-center gap-5"}>
+                        <div class={"w-1/2"}>
+                            <Field type={"string"} name={"email"}>
+                                {(store, props) => (
+                                    <TextInput
+                                        {...props}
+                                        value={store.value}
+                                        label={"E-mail"}
+                                        required={true}
+                                        autoComplete={"email"}
+                                        error={store.error}
+                                    />
+                                )}
+                            </Field>
+                        </div>
                         <div class={"w-1/2"}>
                             <Field type={"string"} name={"telephone"}>
                                 {(store, props) => (
@@ -260,6 +260,8 @@ export default component$(() => {
                                 )}
                             </Field>
                         </div>
+                    </div>
+                    <div class={"flex items-center gap-5"}>
                         <div class={"w-1/2"}>
                             <Field type={"string"} name={"tagId"}>
                                 {(store, props) => (
@@ -275,7 +277,23 @@ export default component$(() => {
                                 )}
                             </Field>
                         </div>
-                    </div>
+                        <div class={"w-1/2"}>
+                            <Field type={"string"} name={"meetingType"}>
+                                {(store, props) => (
+                                    <>
+                                        <InputLabel name={props.name} label={"Typ meetingu"}/>
+                                        <SelectInput {...props} value={store.value}>
+                                            required={true}
+                                            <option value={"online"}>Online</option>
+                                            <option value={"offline"}>Offline</option>
+
+                                        </SelectInput>
+                                    </>
+                                )}
+                            </Field>
+                        </div>
+
+                        </div>
                     <div class={"flex items-start gap-5"}>
                         <div class={"w-1/2"}>
                             <Field type={"Date"} name={"date"}>
@@ -387,7 +405,7 @@ export const useFormAction = formAction$<ReservationFormType>(async(values, even
     const reservation: Omit<ReservationType, "uuid"> = {
         lecturer: values.lecturer,
         note: values.note,
-        meetingType: "offline",
+        meetingType: values.meetingType,
         dateAt: dateAt,
         dateUnix: Math.floor(dateAt.getTime() / 1000),
         createdAt: date,
@@ -487,6 +505,7 @@ export const useFormLoader = routeLoader$<InitialValues<ReservationFormType>>(as
     //     hourEnd: 20,
     //     note: "",
     //     lecturer: document.uuid,
+    //     meetingType: "offline"
     // }
 
     return {
@@ -495,6 +514,7 @@ export const useFormLoader = routeLoader$<InitialValues<ReservationFormType>>(as
         email: "tom@balon.cu",
         telephone: "fff",
         tagId: "",
+        meetingType: "online",
         date: new Date(),
         hourStart: 8,
         hourEnd: 20,
