@@ -10,8 +10,9 @@ import {InputLabel} from "~/components/ui/form";
 import type {ReservationType} from "~/app/zod";
 import {doesIntersect, getRanges} from "~/routes/lecturer/[id]";
 import {Context} from "~/app/context";
-import {getUnix, updateReservation} from "~/app/reservation";
+import {deleteReservation, getUnix, updateReservation} from "~/app/reservation";
 import {isBrowser} from "@builder.io/qwik/build";
+import {server$} from "@builder.io/qwik-city";
 
 interface Props {
     modalVisible: Signal<boolean>,
@@ -34,6 +35,11 @@ const EditSchema = v.object({
 
 
 type EditForm = v.Input<typeof EditSchema>;
+
+const delReservation = server$(async function(id) {
+    const ctx = new Context(this);
+    return await deleteReservation(ctx, id);
+})
 
 export const Popup = component$((props: Props) => {
     const popUpVisible = useSignal(false)
@@ -274,7 +280,7 @@ export const Popup = component$((props: Props) => {
                                 >Uložit</span>
                             </PrimaryButton>
 
-                            <PrimaryButton type="submit"
+                            <PrimaryButton type="button"
                                            class={"flex-shrink-0 w-sm bg-red-500 hover:bg-red-600 active:bg-red-600 focus:bg-red-500"}
                                            onClick$={() => {
                                                popUpVisible.value = true
@@ -303,17 +309,21 @@ export const Popup = component$((props: Props) => {
                 </ModalContent>
                 <ModalFooter class="flex justify-end gap-4">
                     <button
+                        type={"button"}
                         class="bg-muted text-muted-foreground focus:ring-ring ring-offset-background focus-visible:ring-ring hover:bg-accent/90 hover:text-accent-foreground rounded-base border border-none px-4 py-[10px] outline-none transition-colors focus:ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
-                        onClick$={() => (popUpVisible.value = false)}
-                    >
+                        onClick$={ () => {popUpVisible.value = false;}}>
                         <span class={"flex items-center"}>
                             <LuArrowBigLeft/>
                             <p>Zpět</p>
                         </span>
                     </button>
                     <button
+                        type={"button"}
                         class="text-red-500 bg-destructive focus:ring-destructive text-destructive-foreground focus-visible:destructive-foreground/90 rounded-base border border-none px-4 py-[10px] outline-none focus:ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
-                        onClick$={() => (popUpVisible.value = false)}
+                        onClick$={async() => {
+                            await delReservation(props.data.uuid);
+                            popUpVisible.value = false
+                        }}
                     >
                         Zrušit schůzku
                     </button>
