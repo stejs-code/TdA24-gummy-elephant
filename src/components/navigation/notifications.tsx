@@ -99,7 +99,7 @@ export const Notification = component$<{ data: NotificationType, onClick$: QRL<(
             <div class={"w-4 pt-2 mr-2"}>
                 {!data.read && <span class={"block bg-red-500 aspect-square rounded-full w-2.5 h-2.5"}></span>}
             </div>
-            <div>
+            <div class={"flex flex-col items-start gap-1"}>
                 <h4 class={"font-bold"}>Nová rezervace</h4>
                 <p>{data.data.message}</p>
                 <span class={"text-slate-400 text-sm"}>{formatTimeAgo(new Date(data.created_at))}</span>
