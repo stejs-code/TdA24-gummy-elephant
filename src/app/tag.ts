@@ -162,3 +162,24 @@ async function onUpdate(ctx: Context, tag: TagType) {
 
     await updateBulkLecturers(ctx, newLecturers)
 }
+
+
+export async function processTags(ctx: Context, tags: Omit<TagType, "uuid" | "alias">[]): Promise<TagType[]> {
+    // assure unique values
+    const uniqueTags = [...new Set(tags.map(i => i.name))].map(i => ({name: i}))
+
+    // create unregistered tags
+    return (await Promise.all(uniqueTags
+        .map(i => assureTagExistence(ctx, i))))
+        .filter((i): i is TagType => !(i instanceof ApiError));
+}
+
+export async function removeUnknownTag(ctx: Context, tags: Omit<TagType, "uuid" | "alias">[]): Promise<TagType[]> {
+    const uniqueTagNames = [...new Set(tags.map(i => i.name))]
+
+    const newTags = await Promise.all(uniqueTagNames.map(async (name) => {
+        const searchResults = await searchTag(ctx, "", {filter: [`name = "${name}"`]});
+        return searchResults instanceof ApiError ? null : searchResults.hits[0];
+    }));
+    return newTags.filter(tag => tag !== null) as TagType[];
+}

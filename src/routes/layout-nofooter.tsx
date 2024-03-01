@@ -1,6 +1,6 @@
 import {component$, Slot} from "@builder.io/qwik";
 import type {RequestHandler} from "@builder.io/qwik-city";
-import {Link, routeLoader$, useLocation} from "@builder.io/qwik-city";
+import {routeLoader$} from "@builder.io/qwik-city";
 import {Navigation} from "~/components/navigation/navigation";
 import {useAuthSession} from "~/routes/plugin@auth";
 import {searchNotification} from "~/app/notification";
@@ -12,18 +12,11 @@ import {QwikCityNprogress} from "@quasarwork/qwik-city-nprogress";
 export const onGet: RequestHandler = async () => {
     // Control caching for this request for best performance and to reduce hosting costs:
     // https://qwik.builder.io/docs/caching/
-    // cacheControl({
-    //     // Always serve a cached response by default, up to a week stale
-    //     staleWhileRevalidate: 60 * 60 * 24 * 7,
-    //     // Max once every 5 seconds, revalidate on the server to get a fresh version of this page
-    //     maxAge: 5,
-    // });
 };
 
 export default component$(() => {
     const session = useAuthSession()
     const notification = useNotifications()
-    const location = useLocation()
 
     return <>
         <QwikCityNprogress
@@ -38,20 +31,8 @@ export default component$(() => {
 
         <Slot/>
 
-        <footer
-            class={"text-slate-300 flex justify-center py-4 2xl:justify-end px-6 mt-auto gap-4"}>
-            {/*Made by <IconParkElephant style={{display: "inline", fontSize: 24, transform: "translateY(-2px)"}} color={"#cbd5e1"}/> gummy elephant team.*/}
-            {(!session.value?.user && !location.url.pathname.startsWith("/login")) &&
-                <Link href={"/login"} class={"text-slate-300 underline"}>
-                    Přihlásit se
-                </Link>}
-            {/*<a href="https://youtu.be/dQw4w9WgXcQ"*/}
-            {/*   aria-label={"github repository of this site"}*/}
-            {/*   class={"block hover:scale-110 hover:-rotate-12 transition-all"}>*/}
-            {/*    <IconParkElephant*/}
-            {/*        style={{display: "inline", fontSize: 24, transform: "translateY(-2px)"}}*/}
-            {/*        color={"#cbd5e1"}/>*/}
-            {/*</a>*/}
+        <footer>
+
         </footer>
     </>;
 });

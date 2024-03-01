@@ -47,5 +47,19 @@ const client = new MeiliSearch({
         sortableAttributes: ["created_unix"],
         filterableAttributes: ["lecturer"]
     })
+
+    try {
+        await client.createIndex("reservations", {
+            primaryKey: "uuid"
+        })
+    } catch (e) {
+        /* EMPTY */
+    }
+
+
+    await client.index("reservations").updateSettings({
+        sortableAttributes: ["created_unix"],
+        filterableAttributes: ["lecturer", "dateAt", "dateUnix"]
+    })
 })()
 

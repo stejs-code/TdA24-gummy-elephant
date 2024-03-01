@@ -3,7 +3,6 @@ import {defer} from "~/app/utils";
 import {faker} from "@faker-js/faker/locale/cs_CZ";
 import {createLecturer} from "~/app/lecturer";
 import {Context} from "~/app/context";
-import {createNotification} from "~/app/notification";
 
 export const onPost: RequestHandler = ({env, json, url}) => {
     const seedingType = url.searchParams.get("type") || "lecturer"
@@ -13,18 +12,18 @@ export const onPost: RequestHandler = ({env, json, url}) => {
     const ctx = new Context({env})
 
     defer(async () => {
-        if (seedingType === "notification") {
-            return await createNotification(ctx, {
-                lecturer: url.searchParams.get("notificationLecturerUuid") || "e93e03af-42a3-40b0-801e-2aff1378d442",
-                created_at: new Date(),
-                created_unix: Date.now() / 100,
-                read: false,
-                data: {
-                    type: "new_lecture",
-                    message: "1. 8. 2024 9:00-10:00"
-                }
-            })
-        }
+        // if (seedingType === "notification") {
+        //     return await createNotification(ctx, {
+        //         lecturer: url.searchParams.get("notificationLecturerUuid") || "e93e03af-42a3-40b0-801e-2aff1378d442",
+        //         created_at: new Date(),
+        //         created_unix: Date.now() / 100,
+        //         read: false,
+        //         data: {
+        //             type: "new_lecture",
+        //             message: "1. 8. 2024 9:00-10:00"
+        //         }
+        //     })
+        // }
 
         if (seedingType === "lecturer") {
             for (let i = 0; i < 200; i++) {
