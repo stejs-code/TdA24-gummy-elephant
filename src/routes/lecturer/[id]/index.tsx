@@ -12,13 +12,13 @@ import {LuX} from "@qwikest/icons/lucide";
 import {Modal} from "@qwik-ui/headless";
 import {InputLabel, SelectInput, TextInput} from "~/components/ui/form";
 import * as v from 'valibot';
-import type {InitialValues} from "@modular-forms/qwik";
+import {InitialValues} from "@modular-forms/qwik";
 import {formAction$, setValues, useForm, valiForm$} from "@modular-forms/qwik";
 import type {ReservationType, TagType} from "~/app/zod";
 import {getTag, listTags} from "~/app/tag";
 import {MultiRangeSlider} from "~/components/ui/multiRange";
 import {isBrowser} from "@builder.io/qwik/build";
-import {createReservation, getLecturerReservations} from "~/app/reservation";
+import {createReservation, getLecturerReservations, getUnix} from "~/app/reservation";
 
 export const ReservationFormSchema = v.object({
     email: v.string([
@@ -46,7 +46,7 @@ export const ReservationFormSchema = v.object({
     ]),
     meetingType: v.union([v.literal("online"), v.literal("offline")], "Vyberte typ meetingu."),
     lecturer: v.string(),
-});
+}); 
 
 export type ReservationFormType = v.Input<typeof ReservationFormSchema>
 
@@ -77,109 +77,117 @@ export default component$(() => {
                 response.date = "Vyberte jiný den než sobotu a neděli."
             }
 
-            return response
-        }),
-        action: useFormAction()
-    });
-
-    useTask$(async ({track}) => {
-        track(() => reservationForm.internal.fields.date?.value)
-        if (isBrowser && reservationForm.internal.fields.date?.value) {
-            ranges.value = await getRanges(document.value.uuid, reservationForm.internal.fields.date.value)
-        }
-
-    })
-
-    useTask$(async ({track}) => {
-        track(() => modalVisible.value)
-        if (isBrowser && modalVisible.value && reservationForm.internal.fields.date?.value) {
-            ranges.value = await getRanges(document.value.uuid, new Date(new Date(reservationForm.internal.fields.date.value).toISOString().split("T")[0]))
-        }
-
-    })
-
-    const handleSliderChange = $((data: {
-        min: number,
-        max: number
-    }) => {
-        setValues(reservationForm, {
-            hourStart: data.min,
-            hourEnd: data.max
-        })
-    })
-
-    return (
-        <>
-            <div class={"max-w-7xl sm:flex sm:flex-col md:mx-8 lg:mt-5 lg:flex-row sm:justify-center lg:mx-auto"}>
-                {document.value.picture_url &&
-                    <div class={"sm:mx-auto lg:mx-10"}>
-                        <Profile
-                            imageUrl={document.value.picture_url}
-                            alt={document.value.name}/>
-                    </div>
+            if(values.date){
+                if(getUnix(new Date(values.date)) - getUnix(new Date()) < 86400){
+                    response.date = "Rezervace nejdříve 24 hodin předem."
                 }
-                <div class="flex flex-col pt-8 lg:pt-4 px-6 w-full lg:ml-4">
-                    <div>
-                        <h1 class="text-default text-5xl font-display">{document.value.name}</h1>
-                        {document.value.claim &&
-                            <h2 class="text-default mt-4 text-xl font-normal">{document.value.claim}</h2>
-                        }
-                    </div>
+            }
+            return {...response}
+        }),
+    action: useFormAction()
+});
 
-                    <div>
-                        {/* TODO: Reservation modal */}
-                        <PrimaryButton class={"mt-8"} onClick$={() => modalVisible.value = true}>
-                            Zarezervovat
-                        </PrimaryButton>
-                    </div>
+useTask$(async ({track}) => {
+    track(() => reservationForm.internal.fields.date?.value)
+    if (isBrowser && reservationForm.internal.fields.date?.value) {
+        ranges.value = await getRanges(document.value.uuid, reservationForm.internal.fields.date.value)
+    }
 
-                    <div class="mt-10 flex sm:max-w-sm flex-wrap sm:flex-nowrap w-full gap-x-14">
-                        {document.value.contact && <div>
-                            <Info content={document.value.contact.telephone_numbers.map(i => ({
-                                text: i,
-                                href: `tel:${i.replaceAll(" ", "")}`
-                            }))}>
-                                <IoCallOutline class={"text-primary-300"} style={{fontSize: "28px"}}/>
-                            </Info>
+})
 
-                            <Info content={document.value.contact.emails.map(i => ({
-                                text: i,
-                                href: `mailto:${i}`
-                            }))}>
-                                <IoMailOutline class={"text-primary-300"} style={{fontSize: "28px"}}/>
-                            </Info>
+useTask$(async ({track}) => {
+    track(() => modalVisible.value)
+    if (isBrowser && modalVisible.value && reservationForm.internal.fields.date?.value) {
+        ranges.value = await getRanges(document.value.uuid, new Date(new Date(reservationForm.internal.fields.date.value).toISOString().split("T")[0]))
+    }
 
-                        </div>}
-                        <div class={"flex-shrink-0"}>
-                            {document.value.location && <Info content={[{text: document.value.location}]}>
-                                <IoMapOutline class={"text-primary-300"} style={{fontSize: "28px"}}/>
-                            </Info>}
+})
 
-                            {document.value.price_per_hour &&
-                                <Info content={[{text: `${document.value.price_per_hour} Kč/h`}]}>
-                                    <IoCashOutline class={"text-primary-300"} style={{fontSize: "28px"}}/>
-                                </Info>}
-                        </div>
-                    </div>
+const handleSliderChange = $((data: {
+    min: number,
+    max: number
+}) => {
+    setValues(reservationForm, {
+        hourStart: data.min,
+        hourEnd: data.max
+    })
+})  
 
-                    {document.value.bio && <div class="mt-5 text-default text-s font-normal max-w-3xl "
-                                                dangerouslySetInnerHTML={document.value.bio}>
-                    </div>}
-
-
-                    {document.value.tags && <ul class={"sm:mt-10 mt-5 flex flex-wrap content-center"}>
-                        {document.value.tags.map((tag, i) => (
-                            <li class={"mr-2 text-slate-800 mb-2 px-4 text-sm py-1 bg-slate-100 rounded-lg"}
-                                key={i}>#{tag.name}</li>
-                        ))}
-                    </ul>}
+return (
+    <>
+        {reservationForm.response.status === "error" && reservationForm.response.message}
+        <div class={"max-w-7xl sm:flex sm:flex-col md:mx-8 lg:mt-5 lg:flex-row sm:justify-center lg:mx-auto"}>
+            {document.value.picture_url &&
+                <div class={"sm:mx-auto lg:mx-10"}>
+                    <Profile
+                        imageUrl={document.value.picture_url}
+                        alt={document.value.name}/>
                 </div>
+            }
+            <div class="flex flex-col pt-8 lg:pt-4 px-6 w-full lg:ml-4">
+                <div>
+                    <h1 class="text-default text-5xl font-display">{document.value.name}</h1>
+                    {document.value.claim &&
+                        <h2 class="text-default mt-4 text-xl font-normal">{document.value.claim}</h2>
+                    }
+                </div>
+
+                <div>
+                    {/* TODO: Reservation modal */}
+                    <PrimaryButton class={"mt-8"} onClick$={() => modalVisible.value = true}>
+                        Zarezervovat
+                    </PrimaryButton>
+                </div>
+
+                <div class="mt-10 flex sm:max-w-sm flex-wrap sm:flex-nowrap w-full gap-x-14">
+                    {document.value.contact && <div>
+                        <Info content={document.value.contact.telephone_numbers.map(i => ({
+                            text: i,
+                            href: `tel:${i.replaceAll(" ", "")}`
+                        }))}>
+                            <IoCallOutline class={"text-primary-300"} style={{fontSize: "28px"}}/>
+                        </Info>
+
+                        <Info content={document.value.contact.emails.map(i => ({
+                            text: i,
+                            href: `mailto:${i}`
+                        }))}>
+                            <IoMailOutline class={"text-primary-300"} style={{fontSize: "28px"}}/>
+                        </Info>
+
+                    </div>}
+                    <div class={"flex-shrink-0"}>
+                        {document.value.location && <Info content={[{text: document.value.location}]}>
+                            <IoMapOutline class={"text-primary-300"} style={{fontSize: "28px"}}/>
+                        </Info>}
+
+                        {document.value.price_per_hour &&
+                            <Info content={[{text: `${document.value.price_per_hour} Kč/h`}]}>
+                                <IoCashOutline class={"text-primary-300"} style={{fontSize: "28px"}}/>
+                            </Info>}
+                    </div>
+                </div>
+
+                {document.value.bio && <div class="mt-5 text-default text-s font-normal max-w-3xl "
+                                            dangerouslySetInnerHTML={document.value.bio}>
+                </div>}
+
+
+                {document.value.tags && <ul class={"sm:mt-10 mt-5 flex flex-wrap content-center"}>
+                    {document.value.tags.map((tag, i) => (
+                        <li class={"mr-2 text-slate-800 mb-2 px-4 text-sm py-1 bg-slate-100 rounded-lg"}
+                            key={i}>#{tag.name}</li>
+                    ))}
+                </ul>}
             </div>
+        </div>
 
-            <Modal bind:show={modalVisible}
-                   class={"overflow-y-scroll sheet shadow-dark-medium max-h-[100vh] fixed right-0 inset-y-0 my-0 mr-0 h-[100vh] max-w-full md:max-w-[90rem] rounded-l-md border-0 bg-white p-0 sm:p-6 text-slate-950 backdrop:backdrop-blur backdrop:backdrop-brightness-100"}>
+        <Modal bind:show={modalVisible}
+               class={"overflow-y-scroll sheet shadow-dark-medium max-h-[100vh] fixed right-0 inset-y-0 my-0 mr-0 h-[100vh] max-w-full md:max-w-[90rem] rounded-l-md border-0 bg-white p-0 sm:p-6 text-slate-950 backdrop:backdrop-blur backdrop:backdrop-brightness-100"}>
 
-                <Form autoComplete={"on"} class={"px-3 pt-3 sm:px-6 sm:py-2.5 flex flex-col gap-y-1"}>
+            <Form onSubmit$={() => {
+                    modalVisible.value = false;
+                }} autoComplete={"on"} class={"px-3 pt-3 sm:px-6 sm:py-2.5 flex flex-col gap-y-1"}>
                     <div class={"flex items-center justify-between mb-6"}>
                         <h2 class={"text-2xl font-bold"}>Nová rezervace</h2>
                         <div class="p-1 cursor-pointer"
@@ -319,9 +327,9 @@ export default component$(() => {
                                 {/*[10, 15],*/}
                                 {/*[19, 20]*/}
                                 {/*]*/}
-                                {ranges.value.map(([s, e]) => (
+                                {ranges.value.map(([s, e], i) => (
                                     <div
-                                        key={s}
+                                        key={i}
                                         class={"slider__mark absolute bg-red-500 "}
                                         style={{
                                             zIndex: 5,
@@ -401,9 +409,9 @@ export const useFormAction = formAction$<ReservationFormType>(async (values, eve
         note: values.note,
         meetingType: values.meetingType,
         dateAt: dateAt,
-        dateUnix: Math.floor(dateAt.getTime() / 1000),
+        dateUnix: getUnix(dateAt),
         createdAt: date,
-        createdUnix: Math.floor(date.getTime() / 1000),
+        createdUnix: getUnix(date),
         hourStart: values.hourStart,
         hourEnd: values.hourEnd,
         tags: [],
@@ -423,7 +431,7 @@ export const useFormAction = formAction$<ReservationFormType>(async (values, eve
     }
 
     await createReservation(ctx, reservation)
-
+    
 }, valiForm$(ReservationFormSchema));
 
 export function doesIntersect([startA, endA]: [number, number], [startB, endB]: [number, number]) {

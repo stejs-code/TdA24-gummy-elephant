@@ -13,6 +13,10 @@ export function getReservationIndex(meili: MeiliSearch) {
     return meili.index<ReservationType>('reservations')
 }
 
+export function getUnix(date: Date){
+    return Math.floor(date.getTime() / 1000)
+}
+
 export async function searchReservation({meili}: Context, query: string, options?: SearchParams): Promise<SearchResponse<ReservationType> | ApiError> {
     try {
         const index = getReservationIndex(meili);
@@ -35,7 +39,7 @@ export async function createReservation(ctx: Context, rawData: z.input<typeof cr
             tags: [],
             uuid: crypto.randomUUID(),
         }
-
+    
         if (data.note) reservation.note = sanitizeHtml(data.note)
 
         if (data.tags) reservation.tags = await removeUnknownTag(ctx, data.tags)
@@ -61,7 +65,7 @@ export async function createReservation(ctx: Context, rawData: z.input<typeof cr
             return new ApiError(400, `parse error: ${zodErrorToString(e)}`)
         }
 
-        console.error("Error while creating user", rawData, e)
+        console.error("Error while creating user", rawData)
 
         return ApiError.internal()
     }
