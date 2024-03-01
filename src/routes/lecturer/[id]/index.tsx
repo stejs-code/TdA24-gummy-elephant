@@ -9,7 +9,7 @@ import {Context} from "~/app/context";
 import {getLecturer, getLecturerName, searchLecturer} from "~/app/lecturer";
 import {PrimaryButton} from "~/components/ui/button";
 import {LuX} from "@qwikest/icons/lucide";
-import {Modal} from "@qwik-ui/headless";
+import {Modal, ModalContent, ModalHeader} from "@qwik-ui/headless";
 import {InputLabel, SelectInput, TextInput} from "~/components/ui/form";
 import * as v from 'valibot';
 import type {InitialValues} from "@modular-forms/qwik";
@@ -57,6 +57,7 @@ export default component$(() => {
     const currentStart = useSignal(8)
     const currentEnd = useSignal(20)
     const ranges = useSignal<[number, number][]>([])
+    const popUpVisible = useSignal(false)
 
     const [reservationForm, {Form, Field}] = useForm<ReservationFormType>({
         loader: useFormLoader(),
@@ -105,6 +106,7 @@ export default component$(() => {
         track(() => reservationForm.response.status)
         if (reservationForm.response.status === "success") {
             modalVisible.value = false;
+            popUpVisible.value = !popUpVisible.value
         }
     })
 
@@ -399,6 +401,27 @@ export default component$(() => {
                     </div>
                 </Form>
             </Modal>
+        <Modal
+            bind:show={popUpVisible}
+            class="rounded-md rounded-base max-w-[25rem] p-3 shadow-md backdrop:backdrop-blur backdrop:backdrop-brightness-50 dark:backdrop:backdrop-brightness-100 "
+        >
+            <ModalHeader>
+                <div class={"py-3 flex gap-3 items-center justify-between"}>
+                    <h2 class="pl-2 text-lg font-bold ">Lekce byla zarezervována</h2>
+                    <button
+                        type={"button"}
+                        onClick$={() => (popUpVisible.value = false)}
+                        class="px-2"
+                    >
+                        <div class="p-1 cursor-pointer"><LuX/></div>
+                    </button>
+                </div>
+            </ModalHeader>
+            <ModalContent>
+                <p class="leading-5 pl-2 pb-3">Těšíme se na vás!</p>
+            </ModalContent>
+
+        </Modal>
         </div>
     );
 });
@@ -542,13 +565,14 @@ export const useTags = routeLoader$<TagType[]>(async ({env}) => {
     return response
 });
 
-export const getRanges = server$(async function (lecturerId: string, date: Date): Promise<[number, number][]> {
+export const getRanges = server$(async function (lecturerId: string, date: Date, excludeThis: number[] | undefined = undefined): Promise<[number, number][]> {
     const ctx = new Context(this)
     const lectures: any[] = [];
 
     const reservations = await getLecturerReservations(ctx, lecturerId, date)
     if (!(reservations instanceof ApiError)) {
         reservations.map(r => {
+            if(excludeThis && (excludeThis[0] === r.hourStart && excludeThis[1] === r.hourEnd)) return;
             let end = r.hourEnd
             if (r.hourEnd !== 20) end += 0.1
             lectures.push([r.hourStart, end])
