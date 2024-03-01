@@ -554,7 +554,7 @@ export const getRanges = server$(async function (lecturerId: string, date: Date)
     if (!(reservations instanceof ApiError)) {
         reservations.map(r => {
             let end = r.hourEnd
-            if (r.hourEnd != 20) end += 0.1
+            if (r.hourEnd !== 20) end += 0.1
             lectures.push([r.hourStart, end])
         })
     }

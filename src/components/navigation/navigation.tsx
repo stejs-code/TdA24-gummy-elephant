@@ -19,7 +19,6 @@ import {cn} from "~/app/utils";
 import {useOutsideAlerter} from "~/components/hooks/outsideClick";
 import {Modal} from "@qwik-ui/headless";
 import {getLecturerName} from "~/app/lecturer";
-import {PrimaryButton} from "~/components/ui/button";
 
 interface NavigationProps {
     user?: LecturerType,
@@ -53,7 +52,7 @@ export const Navigation = component$<NavigationProps>((props) => {
                     <ul class={"items-center ml-8 hidden sm:flex"}>
                         {store.user && <li>
                             <LuCalendar class={"-translate-x-2 text-xl mb-1 inline"}/>
-                            <Link href={"/hub/reservations/month-view"} class={"text-md font-semibold underline decoration-primary-300 underline-offset-[3px] decoration-2"}>
+                            <Link href={"/hub/reservations/month-view/today"} class={"text-md font-semibold underline decoration-primary-300 underline-offset-[3px] decoration-2"}>
                                 Rezervace
                             </Link>
                         </li>}
@@ -105,20 +104,29 @@ export const UserButton = component$<{ class?: string, onClose$?: QRL<() => void
             class={cn("absolute z-50 right-0 invisible transition-all opacity-0 -translate-y-2 w-48 bg-white shadow-lg border-2 border-slate-100 rounded-xl p-2 flex flex-col items-stretch", userPopupVisible.value && "opacity-100 translate-y-1 visible")}>
             <Link
                 href={`/hub/settings`}
-                onClick$={() => onClose$ && onClose$()}
+                onClick$={() => {
+                    onClose$ && onClose$();
+                    userPopupVisible.value = false
+                }}
                 class={"hover:bg-slate-50 transition-colors px-5 py-2 rounded-lg"}>
                 <LuCog class={"-translate-x-2 text-xl mb-1 inline"}/> Nastavení
             </Link>
             <Link
                 href={`/lecturer/${store.user?.uuid}`}
-                onClick$={() => onClose$ && onClose$()}
+                onClick$={() => {
+                    onClose$ && onClose$();
+                    userPopupVisible.value = false
+                }}
                 class={"hover:bg-slate-50 transition-colors px-5 py-2 rounded-lg"}>
                 <LuUser class={"-translate-x-2 text-xl mb-1 inline"}/> Můj profil
             </Link>
             <form class={"flex"} action="/logout" method={"POST"}>
                 <button
                     type={"submit"}
-                    onClick$={() => onClose$ && onClose$()}
+                    onClick$={() => {
+                        onClose$ && onClose$();
+                        userPopupVisible.value = false
+                    }}
                     class={"w-full hover:bg-red-50 text-red-600 transition-colors rounded-lg text-left px-5 py-2"}>
                     <LuLogOut class={"-translate-x-2 text-xl mb-1 inline"}/> Odhlásit se
                 </button>
@@ -157,7 +165,7 @@ export const MobileMenu = component$(() => {
             </div>
 
             <div class={"flex w-72 flex-col mb-6"}>
-                <Link href={"/hub/reservations/month-view"} class={"mb-2 text-xl font-semibold underline decoration-primary-300 underline-offset-[3px] decoration-2 hover:bg-slate-50 transition-colors px-5 py-2 rounded-lg"}>
+                <Link href={"/hub/reservations/month-view/today"} class={"mb-2 text-xl font-semibold underline decoration-primary-300 underline-offset-[3px] decoration-2 hover:bg-slate-50 transition-colors px-5 py-2 rounded-lg"}>
                     <LuCalendar class={"-translate-x-2 text-xl mb-1 inline"}/>
                     Rezervace
                 </Link>

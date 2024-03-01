@@ -1,12 +1,14 @@
 import {component$, useSignal} from "@builder.io/qwik";
 import {ChangeView} from "~/components/reservations/changeView";
 import {PrimaryButton} from "~/components/ui/button";
+import {getDateTimeFromDate} from "~/components/calendar/calendar";
 
 interface Props {
-    type: string
+    type: string,
+    date: Date
 }
 
-export const Change = component$(({type}: Props) => {
+export const Change = component$(({type, date}: Props) => {
 
     const buttonshow = useSignal(false)
 
@@ -37,9 +39,11 @@ export const Change = component$(({type}: Props) => {
                 aria-labelledby="menu-button"
                 tabIndex={-1}>
                 <div class="py-1" role="none">
-                    <ChangeView redirect={"./day-view"} content={"Denní"}/>
-                    <ChangeView redirect={"./week-view"} content={"Týdenní"}/>
-                    <ChangeView redirect={"./month-view"} content={"Měsíční"}/>
+                    <ChangeView redirect={`/hub/reservations/day-view/${getDateTimeFromDate(date)}`} content={"Denní"}/>
+                    {/*<ChangeView redirect={"./week-view"} content={"Týdenní"}/>*/}
+                    <ChangeView
+                        redirect={`/hub/reservations/month-view/${getDateTimeFromDate(date).slice(0, 7)}`}
+                        content={"Měsíční"}/>
                 </div>
             </div>
 
@@ -47,7 +51,7 @@ export const Change = component$(({type}: Props) => {
     )
 })
 
-export const ChangeMobile = component$(() => {
+export const ChangeMobile = component$<Props>(({date}) => {
 
     const buttonshow = useSignal(false)
 
@@ -76,9 +80,11 @@ export const ChangeMobile = component$(() => {
                     </PrimaryButton>
                 </div>
                 <div class="py-1" role="none">
-                    <ChangeView redirect={"./day-view"} content={"Denní"}/>
-                    <ChangeView redirect={"./week-view"} content={"Týdenní"}/>
-                    <ChangeView redirect={"./month-view"} content={"Měsíční"}/>
+                    <ChangeView redirect={`/hub/reservations/day-view/${getDateTimeFromDate(date)}`} content={"Denní"}/>
+                    {/*<ChangeView redirect={"./week-view"} content={"Týdenní"}/>*/}
+                    <ChangeView
+                        redirect={`/hub/reservations/month-view/${getDateTimeFromDate(date).slice(0, 7)}`}
+                        content={"Měsíční"}/>
                 </div>
             </div>
 

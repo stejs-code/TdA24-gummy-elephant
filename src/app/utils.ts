@@ -66,3 +66,7 @@ export function formatTimeAgo(date: Date) {
         duration /= division.amount
     }
 }
+
+export function capitalizeFirstLetter(string: string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
