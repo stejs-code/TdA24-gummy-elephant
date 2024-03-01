@@ -18,9 +18,9 @@ export const DayViewCell = component$((props: Props) => {
             onClick$={() => props.onClick$ && props.onClick$()}
             type="button"
             class={cn(
-                "bg-white py-1.5 text-gray-900 hover:bg-gray-100 focus:z-10",
+                "bg-white py-1.5 text-gray-900 hover:bg-gray-50 focus:z-10",
                 props.classus,
-                props.ifevent && "bg-primary-100",
+                props.ifevent && "bg-primary-100 hover:bg-primary-50",
                 props.notcurrentmonth && "bg-gray-100",
             )}
         >
