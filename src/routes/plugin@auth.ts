@@ -20,6 +20,11 @@ export const onRequest: RequestHandler = async (ev) => {
             await deleteSession(sessionId)
             ev.cookie.delete("session")
         }
+    }else{
+        const url = ev.request.url
+        if(url.includes("/hub") || url.includes("/exportCal")){
+            throw ev.redirect(302, "/")
+        }
     }
 }
 
