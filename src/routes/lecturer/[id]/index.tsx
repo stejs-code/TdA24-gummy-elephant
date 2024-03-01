@@ -403,7 +403,7 @@ export default component$(() => {
             </Modal>
         <Modal
             bind:show={popUpVisible}
-            class="rounded-md rounded-base max-w-[25rem] p-3 shadow-md backdrop:backdrop-blur backdrop:backdrop-brightness-50 dark:backdrop:backdrop-brightness-100 "
+            class="rounded-lg rounded-base max-w-[25rem] p-3 shadow-md backdrop:backdrop-blur backdrop:backdrop-brightness-50 dark:backdrop:backdrop-brightness-100 "
         >
             <ModalHeader>
                 <div class={"py-3 flex gap-3 items-center justify-between"}>
