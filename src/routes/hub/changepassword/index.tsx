@@ -1,12 +1,13 @@
-import {component$, useSignal, $, useTask$} from "@builder.io/qwik";
+import {component$, useSignal, $} from "@builder.io/qwik";
 import {PrimaryButton} from "~/components/ui/button";
 import {PasswordInput} from "~/components/ui/form";
 import {Modal, ModalContent, ModalFooter, ModalHeader} from "@qwik-ui/headless";
-import {LuArrowBigLeft, LuX} from "@qwikest/icons/lucide";
+import {LuX} from "@qwikest/icons/lucide";
 import {formAction$, useForm, valiForm$} from "@modular-forms/qwik";
 import * as v from 'valibot';
 import { Context } from "~/app/context";
-import { Session, postSession } from "~/app/session";
+import type { Session} from "~/app/session";
+import { postSession } from "~/app/session";
 import { comparePassword, encryptPassword, getLecturerIndex, updateLecturer } from "~/app/lecturer";
 import { addOneDay } from "~/app/utils";
 
@@ -32,17 +33,11 @@ export default component$(() => {
             if(values.newPassword !== values.newPasswordAgain){
                 response.newPasswordAgain = "Hesla se neshodují."
             }
+
             return response;
         }),
         action: useFormAction(),
     });
-
-    useTask$(({track}) => {
-        track(() => passwordForm.response)
-        if (passwordForm.response.status === "success") {
-  
-        }
-    })
 
     return (
         <>

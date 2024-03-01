@@ -12,13 +12,14 @@ import {LuX} from "@qwikest/icons/lucide";
 import {Modal} from "@qwik-ui/headless";
 import {InputLabel, SelectInput, TextInput} from "~/components/ui/form";
 import * as v from 'valibot';
-import {InitialValues} from "@modular-forms/qwik";
+import type {InitialValues} from "@modular-forms/qwik";
 import {formAction$, setValues, useForm, valiForm$} from "@modular-forms/qwik";
 import type {ReservationType, TagType} from "~/app/zod";
 import {getTag, listTags} from "~/app/tag";
 import {MultiRangeSlider} from "~/components/ui/multiRange";
 import {isBrowser} from "@builder.io/qwik/build";
 import {createReservation, getLecturerReservations, getUnix} from "~/app/reservation";
+import { Popup } from "~/components/reservations/popup";
 
 export const ReservationFormSchema = v.object({
     email: v.string([
@@ -58,6 +59,7 @@ export default component$(() => {
     const currentEnd = useSignal(20)
     const ranges = useSignal<[number, number][]>([])
 
+    const modalV = useSignal(false)
     const [reservationForm, {Form, Field}] = useForm<ReservationFormType>({
         loader: useFormLoader(),
         validate: $(async (values) => {
@@ -145,6 +147,7 @@ return (
                         Zarezervovat
                     </PrimaryButton>
                 </div>
+                    <Popup first_name="a" last_name="b" email="abc@vzd.cz" phone={999} date={new Date()} tagName="TAG" meetingType="offline" time={[19, 20]} note="none" modalVisible={modalV}/>
 
                 <div class="mt-10 flex sm:max-w-sm flex-wrap sm:flex-nowrap w-full gap-x-14">
                     {document.value.contact && <div>
