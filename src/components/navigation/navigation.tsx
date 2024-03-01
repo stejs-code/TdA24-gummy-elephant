@@ -12,13 +12,14 @@ import {
 import {Link} from "@builder.io/qwik-city";
 import {Image} from "@unpic/qwik";
 import type {LecturerType} from "~/app/zod";
-import {LuCog, LuLogOut, LuMenu, LuUser, LuX} from "@qwikest/icons/lucide";
+import {LuCalendar, LuCog, LuLogOut, LuMenu, LuUser, LuX} from "@qwikest/icons/lucide";
 import type {NotificationsProps} from "~/components/navigation/notifications";
 import {Notifications} from "~/components/navigation/notifications";
 import {cn} from "~/app/utils";
 import {useOutsideAlerter} from "~/components/hooks/outsideClick";
 import {Modal} from "@qwik-ui/headless";
 import {getLecturerName} from "~/app/lecturer";
+import {PrimaryButton} from "~/components/ui/button";
 
 interface NavigationProps {
     user?: LecturerType,
@@ -51,7 +52,10 @@ export const Navigation = component$<NavigationProps>((props) => {
                     </Link>
                     <ul class={"items-center ml-8 hidden sm:flex"}>
                         {store.user && <li>
-                            <Link href={"/hub/reservations/month-view"}>Rezervace</Link>
+                            <LuCalendar class={"-translate-x-2 text-xl mb-1 inline"}/>
+                            <Link href={"/hub/reservations/month-view"} class={"text-md font-semibold underline decoration-primary-300 underline-offset-[3px] decoration-2"}>
+                                Rezervace
+                            </Link>
                         </li>}
                     </ul>
                     <ul class={"flex ml-auto items-center mr-2 gap-x-4"}>
@@ -93,7 +97,7 @@ export const UserButton = component$<{ class?: string, onClose$?: QRL<() => void
                     {store.user && getLecturerName(store.user)}
                 </span>
                 <br/>
-                <span class={"text-slate-500"}>Lektor</span>
+                <span class={"text-slate-500 text-sm"}>Lektor</span>
             </p>
         </button>
         <div
@@ -126,6 +130,7 @@ export const UserButton = component$<{ class?: string, onClose$?: QRL<() => void
 export const MobileMenu = component$(() => {
     const store = useContext(NavContext);
     const modalVisible = useSignal(false)
+    const linkclass = "hover:bg-slate-50 transition-colors px-5 py-2 rounded-lg text-xl"
 
     return <>
         <button onClick$={() => {
@@ -134,13 +139,14 @@ export const MobileMenu = component$(() => {
             <LuMenu class={"text-2xl"}/>
         </button>
 
+
         <Modal
             bind:show={modalVisible}
             class={"overflow-y-scroll sheet shadow-dark-medium max-h-[100vh] fixed right-0 inset-y-0 my-0 mr-0 h-[100vh] max-w-full md:max-w-[90rem] rounded-l-md border-0 " +
                 "bg-white p-0 sm:p-6 text-slate-950 backdrop:backdrop-blur backdrop:backdrop-brightness-100 px-6 py-4"}>
 
-            <div class={"flex items-center justify-between mb-4 mt-2"}>
-                <h2 class={"text-2xl font-bold"}>Menu</h2>
+            <div class={"flex items-center justify-between mb-10 mt-4"}>
+                <h2 class={"text-3xl font-bold mx-3"}>Menu</h2>
                 <button
                     class="p-4"
                     onClick$={() => {
@@ -151,16 +157,28 @@ export const MobileMenu = component$(() => {
             </div>
 
             <div class={"flex w-72 flex-col mb-6"}>
-                {store.user && <UserButton onClose$={$(() => {
-                    modalVisible.value = false
-                })} class={"w-full"}/>}
+                <Link href={"/hub/reservations/month-view"} class={"mb-2 text-xl font-semibold underline decoration-primary-300 underline-offset-[3px] decoration-2 hover:bg-slate-50 transition-colors px-5 py-2 rounded-lg"}>
+                    <LuCalendar class={"-translate-x-2 text-xl mb-1 inline"}/>
+                    Rezervace
+                </Link>
+                <Link
+                    href={`/hub/settings`}
+                    class={linkclass}>
+                    <LuCog class={"-translate-x-2 text-xl mb-1 inline"}/> Nastavení
+                </Link>
+                <Link
+                    href={`/lecturer/${store.user?.uuid}`}
+                    class={linkclass}>
+                    <LuUser class={"-translate-x-2 text-xl mb-1 inline"}/> Můj profil
+                </Link>
+                <form class={"flex"} action="/logout" method={"POST"}>
+                    <button
+                        type={"submit"}
+                        class={"w-full hover:bg-red-50 text-red-600 transition-colors rounded-lg text-left px-5 py-2 text-xl"}>
+                        <LuLogOut class={"-translate-x-2 text-xl mb-1 inline"}/> Odhlásit se
+                    </button>
+                </form>
             </div>
-
-            <ul class={"flex flex-col items-stretch"}>
-                {store.user && <li>
-                    <Link class={"text-lg"} href={"/hub/reservations/month-view"}>Rezervace</Link>
-                </li>}
-            </ul>
 
         </Modal>
     </>
