@@ -1,4 +1,4 @@
-import {component$, useContextProvider, useStore, useTask$} from "@builder.io/qwik";
+import {component$, useContextProvider, useSignal, useStore, useTask$} from "@builder.io/qwik";
 import {CalendarContext, getDateTimeFromDate, getMonthView} from "~/components/calendar/calendar";
 import {capitalizeFirstLetter, cn} from "~/app/utils";
 import {Link, routeAction$, routeLoader$, useNavigate} from "@builder.io/qwik-city";
@@ -7,10 +7,13 @@ import type {Session} from "~/app/session";
 import type {ReservationType} from "~/app/zod";
 import {PrimaryButton} from "~/components/ui/button";
 import {Change, ChangeMobile} from "~/components/reservations/change";
+import { Popup } from "~/components/reservations/popup";
 
 export default component$(() => {
     const data = useMonthView()
     const action = useGetMonthView()
+
+    const popupState = useSignal(false)
 
     const store = useStore({
         days: data.value.days,
@@ -32,7 +35,7 @@ export default component$(() => {
 
     return (
         <div class={"px-4 flex-grow flex flex-col"}>
-            {/*<Popup name={""} surname={""} mail={""} phone={2} date={3} time={1} comment={""} modalVisible={popupState}/>*/}
+            <Popup first_name={""} last_name={""} email={""} phone={"+022 022 999 643"} date={3} time={1} comment={"mam rad knedlicky se zelim"} modalVisible={popupState}/>
             <div class="flex flex-grow flex-col mt-2 pb-4">
                 <header
                     class="flex flex-none items-center justify-between py-4">
