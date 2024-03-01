@@ -1,8 +1,8 @@
 import {component$, useSignal} from "@builder.io/qwik";
 import {PrimaryButton} from "~/components/ui/button";
-import {PasswordInput, TextInput} from "~/components/ui/form";
+import {PasswordInput} from "~/components/ui/form";
 import {Modal, ModalContent, ModalFooter, ModalHeader} from "@qwik-ui/headless";
-import {LuArrowBigLeft, LuEye, LuX} from "@qwikest/icons/lucide";
+import {LuArrowBigLeft, LuX} from "@qwikest/icons/lucide";
 import {formAction$, useForm, valiForm$} from "@modular-forms/qwik";
 import * as v from 'valibot';
 
@@ -20,13 +20,12 @@ type PasswordForm = v.Input<typeof PasswordSchema>;
 export default component$(() => {
 
     const popUpVisible = useSignal(false)
-    const [nameForm, { Form, Field }] = useForm<PasswordForm>({
+    const [, { Form, Field }] = useForm<PasswordForm>({
         loader: { value: { newPasswordAgain: '', password: '', newPassword: "" } },
         validate: valiForm$(PasswordSchema),
         action: useFormAction(),
     });
 
-    const showPassword = useSignal(false)
     return (
         <>
 

@@ -114,7 +114,7 @@ const handleSliderChange = $((data: {
 })  
 
 return (
-    <>
+    <div class={"mt-20"}>
         {reservationForm.response.status === "error" && reservationForm.response.message}
         <div class={"max-w-7xl sm:flex sm:flex-col md:mx-8 lg:mt-5 lg:flex-row sm:justify-center lg:mx-auto"}>
             {document.value.picture_url &&
@@ -395,7 +395,7 @@ return (
                     </div>
                 </Form>
             </Modal>
-        </>
+        </div>
     );
 });
 
