@@ -139,8 +139,8 @@ export default component$(() => {
                             <span class="sr-only sm:not-sr-only">ota</span>
                         </div>
                         <div class="flex justify-center bg-white py-2">
-                            <span>Neď</span>
-                            <span class="sr-only sm:not-sr-only">ele</span>
+                            <span>Ned</span>
+                            <span class="sr-only sm:not-sr-only">ěle</span>
                         </div>
                     </div>
                     <div class="flex bg-gray-200 text-xs leading-6 text-gray-700 lg:flex-auto flex-grow">

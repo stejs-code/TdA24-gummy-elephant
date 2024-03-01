@@ -42,7 +42,7 @@ export const TextInput = component$<InputHTMLAttributes<any> & {
         <>
             {label && <InputLabel required={required} label={label} name={props.name || ""}/>}
             <input
-                class={cn(`border appearance-none py-2 transition-colors w-full rounded-md border-slate-200 outline-0 px-4 focus:border-primary-300`, className)}
+                class={cn(`border appearance-none py-2 transition-colors w-full rounded-md border-slate-200 outline-0 px-4 focus:border-primary-300 autofill:bg-none`, className)}
                 type={type || "text"}
                 {...other}
             />
@@ -94,7 +94,7 @@ export const PasswordInput = component$<InputHTMLAttributes<any> & {
                     name={"password"}
                     placeholder={placeholder}
                     autocomplete={"current-password"}
-                    class={cn("bg-transparent focus:outline-none w-full", className)}
+                    class={cn("bg-transparent focus:outline-none w-full autofill:bg-none", className)}
                     {...other}
                 />
                 {showPassword.value
