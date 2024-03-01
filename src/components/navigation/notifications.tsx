@@ -1,4 +1,5 @@
-import {$, component$, QRL, useContext, useSignal} from "@builder.io/qwik";
+import type { QRL} from "@builder.io/qwik";
+import {$, component$, useContext, useSignal} from "@builder.io/qwik";
 import type {NotificationType} from "~/app/zod";
 import {LuBell} from "@qwikest/icons/lucide";
 import {cn, formatTimeAgo} from "~/app/utils";
@@ -27,7 +28,6 @@ export const Notifications = component$(() => {
     const store = useContext(NavContext);
     const notificationsPopup = useSignal<HTMLElement>()
     const popupVisible = useSignal(false)
-    const modalVisible = useSignal(false)
     const navigate = useNavigate()
 
     useOutsideAlerter(notificationsPopup, $(() => {

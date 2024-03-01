@@ -2,13 +2,14 @@ import {component$, useSignal} from "@builder.io/qwik";
 import {PrimaryButton} from "~/components/ui/button";
 import {PasswordInput, TextInput} from "~/components/ui/form";
 import {Modal, ModalContent, ModalFooter, ModalHeader} from "@qwik-ui/headless";
-import {LuArrowBigLeft, LuX} from "@qwikest/icons/lucide";
+import {LuX} from "@qwikest/icons/lucide";
 import {formAction$, useForm, valiForm$} from "@modular-forms/qwik";
 import * as v from 'valibot';
-import { comparePassword, getLecturerIndex, updateLecturer } from "~/app/lecturer";
-import { Context } from "~/app/context";
-import { Session, postSession } from "~/app/session";
-import { addOneDay } from "~/app/utils";
+import {comparePassword, getLecturerIndex, updateLecturer} from "~/app/lecturer";
+import {Context} from "~/app/context";
+import type {Session} from "~/app/session";
+import {postSession} from "~/app/session";
+import {addOneDay} from "~/app/utils";
 
 const NameSchema = v.object({
     password: v.string(),
@@ -24,7 +25,7 @@ type NameForm = v.Input<typeof NameSchema>;
 
 export default component$(() => {
     const popUpVisible = useSignal(false)
-    const [nameForm, { Form, Field }] = useForm<NameForm>({
+    const [nameForm, {Form, Field}] = useForm<NameForm>({
         loader: {value: {password: '', newUsername: ''}},
         validate: valiForm$(NameSchema),
         action: useFormAction(),
@@ -33,21 +34,25 @@ export default component$(() => {
         <>
             <div class={"mt-20 px-4 mx-auto w-full max-w-lg"}>
                 <h1 class={"text-5xl sm:text-5xl font-display mb-4 sm:mb-10"}>Změnit přihlašovací jméno</h1>
-                {nameForm.response && <p>{nameForm.response.message}</p>}
+                <p>{nameForm.response.message}</p>
                 <Form>
                     <Field name="newUsername">
-                        {(field, props) => <TextInput {...props} error={field.error} type={"text"} name={"newUsername"} placeholder={"Nové přihlašovací jméno"}/>}
+                        {(field, props) => <TextInput {...props} error={field.error} type={"text"} name={"newUsername"}
+                                                      placeholder={"Nové přihlašovací jméno"}/>}
                     </Field>
                     <Field name="password">
-                        {(field, props) => <PasswordInput {...props} error={field.error} name={"password"} placeholder={"Moje stávající heslo"}/>}
+                        {(field, props) => <PasswordInput {...props} error={field.error} name={"password"}
+                                                          placeholder={"Moje stávající heslo"}/>}
                     </Field>
-                    {nameForm.response.status === "error" && <p class={"text-sm text-red-600"}>{nameForm.response.message}</p>}
-                    {nameForm.response.status === "success" && <p class={"text-sm text-green-600"}>{nameForm.response.message}</p>}
+                    {nameForm.response.status === "error" &&
+                        <p class={"text-sm text-red-600"}>{nameForm.response.message}</p>}
+                    {nameForm.response.status === "success" &&
+                        <p class={"text-sm text-green-600"}>{nameForm.response.message}</p>}
                     <PrimaryButton type={"button"} onClick$={() => {
                         popUpVisible.value = true
                     }}>
                         Změnit přihlašovací jméno
-                    </PrimaryButton> 
+                    </PrimaryButton>
                     <Modal
                         alert
                         bind:show={popUpVisible}
@@ -95,10 +100,10 @@ export default component$(() => {
 export const useFormAction = formAction$<NameForm>(async (values, event) => {
     const ctx = new Context(event)
     const newUsername = values.newUsername
-    const password = values.password 
+    const password = values.password
     const session = event.sharedMap.get("session") as Session | undefined
-    
-    if(session === undefined) return {status: "error", message: "Musíte být přihlášeni."}
+
+    if (session === undefined) return {status: "error", message: "Musíte být přihlášeni."}
 
     const response = await getLecturerIndex(ctx.meili).search("", {
         filter: [`username = ${session.user.username}`]
@@ -106,10 +111,10 @@ export const useFormAction = formAction$<NameForm>(async (values, event) => {
 
     const user = response.hits[0]
     const isMatch = (user.password && password) ? await comparePassword(String(password), user.password) : false
-    if(!isMatch){
+    if (!isMatch) {
         return {status: "error", message: "Špatné heslo."}
-    }else{
-        await updateLecturer(ctx, user?.uuid, {username: newUsername})
+    } else {
+        await updateLecturer(ctx, user.uuid, {username: newUsername})
         const session = await postSession({
             user: {...user, username: newUsername}
         })

@@ -1,4 +1,5 @@
-import {component$, useContextProvider, useSignal, useStore, useTask$} from "@builder.io/qwik";
+import type { QRL} from "@builder.io/qwik";
+import {$, component$, useContextProvider, useSignal, useStore, useTask$} from "@builder.io/qwik";
 import {CalendarContext, getDateTimeFromDate, getMonthView} from "~/components/calendar/calendar";
 import {capitalizeFirstLetter, cn} from "~/app/utils";
 import {Link, routeAction$, routeLoader$, useNavigate} from "@builder.io/qwik-city";
@@ -7,17 +8,19 @@ import type {Session} from "~/app/session";
 import type {ReservationType} from "~/app/zod";
 import {PrimaryButton} from "~/components/ui/button";
 import {Change, ChangeMobile} from "~/components/reservations/change";
-import { Popup } from "~/components/reservations/popup";
+import {Popup} from "~/components/reservations/popup";
 
 export default component$(() => {
     const data = useMonthView()
     const action = useGetMonthView()
+    const navigate = useNavigate()
 
-    const popupState = useSignal(false)
+    const modalVisible = useSignal(false)
 
     const store = useStore({
         days: data.value.days,
-        date: data.value.date
+        date: data.value.date,
+        currentModal: undefined as (undefined | ReservationType)
     }, {deep: true})
 
 
@@ -33,9 +36,23 @@ export default component$(() => {
         }
     })
 
+    const openReservation = $((reservation: ReservationType) => {
+        store.currentModal = reservation
+    })
+
     return (
         <div class={"px-4 flex-grow flex flex-col"}>
-            {/*<Popup first_name={""} last_name={""} email={""} phone={"+022 022 999 643"} date={3} time={1} comment={"mam rad knedlicky se zelim"} modalVisible={popupState}/>*/}
+            {store.currentModal && <>
+                <Popup
+                    onClose$={$(async (reload: boolean) =>{
+                        setTimeout(() => {
+                            store.currentModal = undefined
+                        }, 100)
+                        if (reload) await navigate("")
+                    })}
+                    data={store.currentModal}
+                    modalVisible={modalVisible}/>
+            </>}
             <div class="flex flex-grow flex-col mt-2 pb-4">
                 <header
                     class="flex flex-none items-center justify-between py-4">
@@ -111,7 +128,8 @@ export default component$(() => {
                 </header>
 
 
-                <div class="shadow ring-1 ring-black ring-opacity-5 flex flex-col flex-grow h-full max-h-96 lg:max-h-full">
+                <div
+                    class="shadow ring-1 ring-black ring-opacity-5 flex flex-col flex-grow h-full max-h-96 lg:max-h-full">
                     <div
                         class="grid grid-cols-7 gap-px border-b border-gray-300 bg-gray-200 text-center text-xs font-semibold leading-6 text-gray-700 lg:flex-none">
                         <div class="flex justify-center bg-white py-2">
@@ -147,6 +165,7 @@ export default component$(() => {
                         <div class="hidden w-full lg:grid lg:grid-cols-7 lg:grid-rows-6 lg:gap-px">
                             {store.days.map((day) => (
                                 <LgDayCell
+                                    openReservation$={openReservation}
                                     key={day.dateTime + day.index}
                                     dateTime={day.dateTime}
                                     dayN={day.dayIndex}
@@ -184,20 +203,22 @@ export const LgDayCell = component$<{
     dayN: number,
     disabled?: boolean,
     reservations: ReservationType[],
-    today?:boolean,
+    today?: boolean,
+    openReservation$: QRL<(reservation: ReservationType) => void>
 }>(
-    ({dateTime, disabled, dayN, reservations, today}) => {
+    ({dateTime, disabled, dayN, reservations, today, openReservation$}) => {
         const navigate = useNavigate()
         return <div
             onDblClick$={() => {
                 return navigate(`/hub/reservations/day-view/${dateTime}`)
             }}
             class={cn("relative bg-white px-3 py-2", disabled && "bg-gray-50 text-gray-500")}>
-            <time dateTime={dateTime} class={today && "bg-primary-300 text-white flex h-8 w-8 justify-center items-center rounded-full"}>{dayN}</time>
+            <time dateTime={dateTime}
+                  class={today && "bg-primary-300 text-white flex h-8 w-8 justify-center items-center rounded-full"}>{dayN}</time>
             <ol class="mt-2">
                 {reservations.map(i => (
                     <li key={i.uuid}>
-                        <button class="group flex w-full">
+                        <button onClick$={() => openReservation$(i)} class="group flex w-full">
                             <p class="truncate font-medium text-gray-900 group-hover:text-primary-300">{i.student.first_name} {i.student.last_name}</p>
                             <time dateTime={`${dateTime}T${i.hourStart}:00`}
                                   class="ml-auto hidden flex-none text-gray-500 group-hover:text-primary-300 xl:block">{i.hourStart}:00-{i.hourEnd}:00
@@ -216,13 +237,14 @@ export const SmDayCell = component$<{
     dayN: number,
     disabled?: boolean,
     reservations: ReservationType[],
-    today?:boolean,
+    today?: boolean,
 }>(
     ({dateTime, disabled, dayN, reservations, today}) => {
         return <Link
             href={`/hub/reservations/day-view/${dateTime}`}
             class={cn("flex flex-col bg-white px-3 py-2 text-gray-900 hover:bg-gray-100 focus:z-10", disabled && "bg-gray-50 text-gray-500")}>
-            <time dateTime={dateTime} class={today && "bg-primary-300 text-white flex h-6 w-6 justify-center items-center rounded-full"}>{dayN}</time>
+            <time dateTime={dateTime}
+                  class={today && "bg-primary-300 text-white flex h-6 w-6 justify-center items-center rounded-full"}>{dayN}</time>
             <span class="sr-only">0 events</span>
             <span class="-mx-0.5 mt-auto flex flex-wrap-reverse">
                 {reservations.map(i => (
