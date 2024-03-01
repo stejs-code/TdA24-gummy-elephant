@@ -26,9 +26,9 @@ export const DayViewCell = component$((props: Props) => {
         >
             <time dateTime="2022-01-21" class={cn(
                 "mx-auto flex h-7 w-7 items-center justify-center rounded-full",
-                props.selected && "bg-black shadow text-white",
-                props.today && "text-primary-300 font-bold",
-                props.today && props.selected && "bg-primary-300 text-white",
+                props.selected && "bg-gray-200 shadow text-white",
+                props.today && "bg-primary-200 text-white font-bold",
+                props.today && props.selected && "bg-primary-300 text-white font-bold",
             )}>
                 <Slot/>
             </time>
