@@ -96,14 +96,14 @@ export const Popup = component$((props: Props) => {
     useTask$(async ({track}) => {
         track(() => editForm.internal.fields.date?.value)
         if (isBrowser && editForm.internal.fields.date?.value) {
-            ranges.value = await getRanges(props.data.lecturer, editForm.internal.fields.date.value)
+            ranges.value = await getRanges(props.data.lecturer, editForm.internal.fields.date.value, [props.data.hourStart, props.data.hourEnd])
         }
     })
 
     useTask$(async ({track}) => {
         track(() => props.modalVisible.value)
         if (isBrowser && props.modalVisible.value && editForm.internal.fields.date?.value) {
-            ranges.value = await getRanges(props.data.lecturer, new Date(new Date(editForm.internal.fields.date.value).toISOString().split("T")[0]))
+            ranges.value = await getRanges(props.data.lecturer, new Date(new Date(editForm.internal.fields.date.value).toISOString().split("T")[0]), [props.data.hourStart, props.data.hourEnd])
         }
     })
 
@@ -321,8 +321,9 @@ export const Popup = component$((props: Props) => {
                         type={"button"}
                         class="text-red-500 bg-destructive focus:ring-destructive text-destructive-foreground focus-visible:destructive-foreground/90 rounded-base border border-none px-4 py-[10px] outline-none focus:ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
                         onClick$={async() => {
-                            await delReservation(props.data.uuid);
                             popUpVisible.value = false
+
+                            await delReservation(props.data.uuid);
                         }}
                     >
                         Zrušit schůzku
