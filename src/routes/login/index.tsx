@@ -4,7 +4,7 @@ import {Form, routeAction$, useNavigate} from "@builder.io/qwik-city";
 import {PrimaryButton} from "~/components/ui/button";
 import {postSession} from "~/app/session";
 import {addOneDay} from "~/app/utils";
-import {TextInput} from "~/components/ui/form";
+import {PasswordInput, TextInput} from "~/components/ui/form";
 import {comparePassword, getLecturerIndex} from "~/app/lecturer";
 import {Context} from "~/app/context";
 
@@ -25,7 +25,7 @@ export default component$(() => {
             <h1 class={"text-5xl sm:text-6xl font-display mb-4 sm:mb-10"}>Přihlášení</h1>
             <Form action={action} class={"flex flex-col"}>
                 <TextInput name={"username"} placeholder={"Přihlašovací jméno"} autocomplete={"username"}/>
-                <TextInput type={"password"} name={"password"} placeholder={"Heslo"} autocomplete={"current-password"}/>
+                <PasswordInput placeholder={"Heslo"}/>
                 {action.value?.status === "fail" && <p class={"text-sm text-red-600"}>{action.value.message}</p>}
                 <PrimaryButton type={"submit"}>
                     Přihlásit se

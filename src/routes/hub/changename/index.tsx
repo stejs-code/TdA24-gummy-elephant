@@ -4,23 +4,42 @@ import {Form} from "@builder.io/qwik-city";
 import {TextInput} from "~/components/ui/form";
 import {Modal, ModalContent, ModalFooter, ModalHeader} from "@qwik-ui/headless";
 import {LuArrowBigLeft, LuX} from "@qwikest/icons/lucide";
+import {formAction$, useForm, valiForm$} from "@modular-forms/qwik";
+import * as v from 'valibot';
 
+const NameSchema = v.object({
+    name: v.string(),
+    password: v.string(),
+    newUserName: v.string([
+        v.minLength(2, 'Vaše přihlašovací jméno musí mít alespoň 2 znaky'),
+    ]),
 
+});
+
+type NameForm = v.Input<typeof NameSchema>;
 export default component$(() => {
 
     const popUpVisible = useSignal(false)
-
+    const [nameForm, { Form, Field }] = useForm<NameForm>({
+        loader: { value: { name: '', password: '', newUserName: "" } },
+        validate: valiForm$(NameSchema),
+        action: useFormAction(),
+    });
     return (
         <>
+
             <div class={"mt-20 px-4 mx-auto w-full max-w-lg"}>
                 <h1 class={"text-5xl sm:text-5xl font-display mb-4 sm:mb-10"}>Změnit přihlašovací jméno</h1>
-                <Form  class={"flex flex-col"}>
-                    <TextInput name={"username"} placeholder={"Stávající přihlašovací jméno"} autocomplete={"username"}/>
-                    <TextInput type={"password"} name={"password"} placeholder={"Moje stávající heslo"} autocomplete={"current-password"}/>
-                    <div class={"mt-3"}>
-                        <TextInput type={"password"} name={"password"} placeholder={"Nové přihlašovací jméno"} autocomplete={"current-password"}/>
-                        <TextInput type={"password"} name={"password"} placeholder={"Nové přihlašovací jméno znovu"} autocomplete={"current-password"}/>
-                    </div>
+                <Form>
+                    <Field name="name">
+                        {(field, props) => <TextInput error={field.error} name={"username"} placeholder={"Stávající přihlašovací jméno"} autocomplete={"username"}/>}
+                    </Field>
+                    <Field name="password">
+                        {(field, props) => <TextInput error={field.error} type={"password"} name={"password"} placeholder={"Moje stávající heslo"} autocomplete={"current-password"}/>}
+                    </Field>
+                    <Field name="newUserName">
+                        {(field, props) => <TextInput error={field.error} type={"text"} name={"newUserName"} placeholder={"Nové přihlašovací jméno"}/>}
+                    </Field>
                     <PrimaryButton type={"submit"} onClick$={() => {
                         popUpVisible.value = true
                     }}>
@@ -68,3 +87,7 @@ export default component$(() => {
 
     )
 })
+
+export const useFormAction = formAction$<NameForm>((values) => {
+    // Runs on server
+}, valiForm$(NameSchema));

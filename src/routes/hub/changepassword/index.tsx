@@ -1,33 +1,55 @@
 import {component$, useSignal} from "@builder.io/qwik";
 import {PrimaryButton} from "~/components/ui/button";
-import {Form} from "@builder.io/qwik-city";
-import {TextInput} from "~/components/ui/form";
+import {PasswordInput, TextInput} from "~/components/ui/form";
 import {Modal, ModalContent, ModalFooter, ModalHeader} from "@qwik-ui/headless";
-import {LuArrowBigLeft, LuX} from "@qwikest/icons/lucide";
+import {LuArrowBigLeft, LuEye, LuX} from "@qwikest/icons/lucide";
+import {formAction$, useForm, valiForm$} from "@modular-forms/qwik";
+import * as v from 'valibot';
 
+const PasswordSchema = v.object({
+    password: v.string(),
+    newPassword: v.string([
+        v.minLength(4, 'Vaše heslo musí obsahovat minimálně 4 charaktery'),
+    ]),
+    newPasswordAgain: v.string([
+        v.minLength(4, 'Vaše heslo musí obsahovat minimálně 4 charaktery'),
+    ])
+});
 
+type PasswordForm = v.Input<typeof PasswordSchema>;
 export default component$(() => {
 
     const popUpVisible = useSignal(false)
+    const [nameForm, { Form, Field }] = useForm<PasswordForm>({
+        loader: { value: { newPasswordAgain: '', password: '', newPassword: "" } },
+        validate: valiForm$(PasswordSchema),
+        action: useFormAction(),
+    });
 
+    const showPassword = useSignal(false)
     return (
         <>
+
             <div class={"mt-20 px-4 mx-auto w-full max-w-lg"}>
-            <h1 class={"text-5xl sm:text-6xl font-display mb-4 sm:mb-10"}>Změnit Heslo</h1>
-            <Form  class={"flex flex-col"}>
-                <TextInput name={"username"} placeholder={"Přihlašovací jméno"} autocomplete={"username"}/>
-                <TextInput type={"password"} name={"password"} placeholder={"Moje stávající heslo"} autocomplete={"current-password"}/>
-               <div class={"mt-3"}>
-                   <TextInput type={"password"} name={"password"} placeholder={"Nové heslo"} autocomplete={"current-password"}/>
-                   <TextInput type={"password"} name={"password"} placeholder={"Nové heslo znovu"} autocomplete={"current-password"}/>
-               </div>
-                <PrimaryButton type={"submit"} onClick$={() => {
-                    popUpVisible.value = true
-                }}>
-                    Změnit heslo
-                </PrimaryButton>
-            </Form>
-        </div>
+                <h1 class={"text-5xl sm:text-5xl font-display mb-4 sm:mb-10"}>Změnit heslo</h1>
+                <Form>
+                    <Field name="password">
+                        {(field, props) => <PasswordInput error={field.error} label={"Aktualní heslo"} placeholder={"Aktualní heslo"}/>
+                            }
+                    </Field>
+                    <Field name="newPassword">
+                        {(field, props) => <PasswordInput error={field.error} placeholder={"Nové heslo"}/>}
+                    </Field>
+                    <Field name="newPasswordAgain">
+                        {(field, props) => <PasswordInput error={field.error} placeholder={"Nové heslo znovu"}/>}
+                    </Field>
+                    <PrimaryButton type={"submit"} onClick$={() => {
+                        popUpVisible.value = true
+                    }}>
+                        Změnit heslo
+                    </PrimaryButton>
+                </Form>
+            </div>
             <Modal
                 alert
                 bind:show={popUpVisible}
@@ -68,3 +90,7 @@ export default component$(() => {
 
     )
 })
+
+export const useFormAction = formAction$<PasswordForm>((values) => {
+    // Runs on server
+}, valiForm$(PasswordSchema));
