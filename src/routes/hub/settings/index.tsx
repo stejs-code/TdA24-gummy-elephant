@@ -1,6 +1,6 @@
 import {component$} from "@builder.io/qwik";
 import {PrimaryButton} from "~/components/ui/button";
-import {Link} from "@builder.io/qwik-city";
+import {type DocumentHead, Link} from "@builder.io/qwik-city";
 import { useAuthSession } from "~/routes/plugin@auth";
 
 export default component$(() => {
@@ -28,3 +28,13 @@ export default component$(() => {
 
     )
 })
+
+export const head: DocumentHead = {
+    title: "TdA Nastavení",
+    meta: [
+        {
+            name: "description",
+            content: "List všech lektorů Teacher Digital Agency"
+        }
+    ]
+};

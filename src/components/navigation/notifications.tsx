@@ -27,7 +27,6 @@ export const Notifications = component$(() => {
     const store = useContext(NavContext);
     const notificationsPopup = useSignal<HTMLElement>()
     const popupVisible = useSignal(false)
-    const modalVisible = useSignal(false)
     const navigate = useNavigate()
 
     useOutsideAlerter(notificationsPopup, $(() => {
@@ -36,7 +35,8 @@ export const Notifications = component$(() => {
 
 
     return <div class={"relative"} ref={notificationsPopup}>
-        <button class={"p-2 rounded-lg transition-colors hover:bg-slate-50"}
+        <button name={"notification-bell"}
+                class={"p-2 rounded-lg transition-colors hover:bg-slate-50"}
                 onClick$={() => popupVisible.value = !popupVisible.value}>
                 <span class={"relative"}>
                     {store.notification.unread

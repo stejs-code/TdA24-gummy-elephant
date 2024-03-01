@@ -1,5 +1,5 @@
 import {component$, useTask$} from "@builder.io/qwik";
-import type {RequestHandler} from "@builder.io/qwik-city";
+import type {DocumentHead, RequestHandler} from "@builder.io/qwik-city";
 import {Form, routeAction$, useNavigate} from "@builder.io/qwik-city";
 import {PrimaryButton} from "~/components/ui/button";
 import {postSession} from "~/app/session";
@@ -24,7 +24,7 @@ export default component$(() => {
         <div class={"mt-20 px-4 mx-auto w-full max-w-lg"}>
             <h1 class={"text-5xl sm:text-6xl font-display mb-4 sm:mb-10"}>Přihlášení</h1>
             <Form action={action} class={"flex flex-col"}>
-                <TextInput name={"username"} placeholder={"Přihlašovací jméno"} autocomplete={"username"}/>
+                <TextInput class={"autofill:bg-none"} name={"username"} placeholder={"Přihlašovací jméno"} autocomplete={"username"}/>
                 <PasswordInput placeholder={"Heslo"}/>
                 {action.value?.status === "fail" && <p class={"text-sm text-red-600"}>{action.value.message}</p>}
                 <PrimaryButton type={"submit"}>
@@ -84,3 +84,13 @@ export const useAuthSignIn = routeAction$(async (data, event) => {
         status: "success"
     }
 })
+
+export const head: DocumentHead = {
+    title: "TdA Login",
+    meta: [
+        {
+            name: "description",
+            content: "Přihlášení do Teacher Digital Agency"
+        }
+    ]
+};
