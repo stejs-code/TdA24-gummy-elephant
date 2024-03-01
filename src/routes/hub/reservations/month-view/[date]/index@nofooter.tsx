@@ -35,7 +35,7 @@ export default component$(() => {
 
     return (
         <div class={"px-4 flex-grow flex flex-col"}>
-            <Popup first_name={""} last_name={""} email={""} phone={"+022 022 999 643"} date={3} time={1} comment={"mam rad knedlicky se zelim"} modalVisible={popupState}/>
+            {/*<Popup first_name={""} last_name={""} email={""} phone={"+022 022 999 643"} date={3} time={1} comment={"mam rad knedlicky se zelim"} modalVisible={popupState}/>*/}
             <div class="flex flex-grow flex-col mt-2 pb-4">
                 <header
                     class="flex flex-none items-center justify-between py-4">
@@ -151,7 +151,9 @@ export default component$(() => {
                                     dateTime={day.dateTime}
                                     dayN={day.dayIndex}
                                     reservations={day.reservations}
-                                    disabled={day.disabled}/>
+                                    disabled={day.disabled}
+                                    today={day.dateTime === getDateTimeFromDate(new Date())}
+                                />
                             ))}
 
                         </div>
@@ -162,7 +164,9 @@ export default component$(() => {
                                     dateTime={day.dateTime}
                                     reservations={day.reservations}
                                     dayN={day.dayIndex}
-                                    disabled={day.disabled}/>
+                                    disabled={day.disabled}
+                                    today={day.dateTime === getDateTimeFromDate(new Date())}
+                                />
                             ))}
                         </div>
                     </div>
@@ -179,16 +183,17 @@ export const LgDayCell = component$<{
     dateTime: string,
     dayN: number,
     disabled?: boolean,
-    reservations: ReservationType[]
+    reservations: ReservationType[],
+    today?:boolean,
 }>(
-    ({dateTime, disabled, dayN, reservations}) => {
+    ({dateTime, disabled, dayN, reservations, today}) => {
         const navigate = useNavigate()
         return <div
             onDblClick$={() => {
                 return navigate(`/hub/reservations/day-view/${dateTime}`)
             }}
             class={cn("relative bg-white px-3 py-2", disabled && "bg-gray-50 text-gray-500")}>
-            <time dateTime={dateTime}>{dayN}</time>
+            <time dateTime={dateTime} class={today && "bg-primary-300 text-white flex h-8 w-8 justify-center items-center rounded-full"}>{dayN}</time>
             <ol class="mt-2">
                 {reservations.map(i => (
                     <li key={i.uuid}>
@@ -210,13 +215,14 @@ export const SmDayCell = component$<{
     dateTime: string,
     dayN: number,
     disabled?: boolean,
-    reservations: ReservationType[]
+    reservations: ReservationType[],
+    today?:boolean,
 }>(
-    ({dateTime, disabled, dayN, reservations}) => {
+    ({dateTime, disabled, dayN, reservations, today}) => {
         return <Link
             href={`/hub/reservations/day-view/${dateTime}`}
             class={cn("flex flex-col bg-white px-3 py-2 text-gray-900 hover:bg-gray-100 focus:z-10", disabled && "bg-gray-50 text-gray-500")}>
-            <time dateTime={dateTime} class="ml-auto">{dayN}</time>
+            <time dateTime={dateTime} class={today && "bg-primary-300 text-white flex h-6 w-6 justify-center items-center rounded-full"}>{dayN}</time>
             <span class="sr-only">0 events</span>
             <span class="-mx-0.5 mt-auto flex flex-wrap-reverse">
                 {reservations.map(i => (
