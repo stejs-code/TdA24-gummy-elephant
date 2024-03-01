@@ -96,14 +96,14 @@ export const Popup = component$((props: Props) => {
     useTask$(async ({track}) => {
         track(() => editForm.internal.fields.date?.value)
         if (isBrowser && editForm.internal.fields.date?.value) {
-            ranges.value = await getRanges(props.data.lecturer, editForm.internal.fields.date.value)
+            ranges.value = await getRanges(props.data.lecturer, editForm.internal.fields.date.value, [props.data.hourStart, props.data.hourEnd])
         }
     })
 
     useTask$(async ({track}) => {
         track(() => props.modalVisible.value)
         if (isBrowser && props.modalVisible.value && editForm.internal.fields.date?.value) {
-            ranges.value = await getRanges(props.data.lecturer, new Date(new Date(editForm.internal.fields.date.value).toISOString().split("T")[0]))
+            ranges.value = await getRanges(props.data.lecturer, new Date(new Date(editForm.internal.fields.date.value).toISOString().split("T")[0]), [props.data.hourStart, props.data.hourEnd])
         }
     })
 
@@ -158,7 +158,7 @@ export const Popup = component$((props: Props) => {
                     <div class={"flex items-center gap-5 mb-5"}>
                         <div class={"w-1/2"}>
                             <p class={"mb-1"}>Tag:</p>
-                            <input type="text" value={props.data.tags[0].name || "- - -"} disabled={true}
+                            <input type="text" value={props.data.tags[0]?.name || "- - -"} disabled={true}
                                    class={"px-3 py-1.5 border rounded-lg border-gray-300 bg-gray-50 w-full "}/>
                         </div>
                         <div class={"w-1/2"}>
@@ -321,8 +321,9 @@ export const Popup = component$((props: Props) => {
                         type={"button"}
                         class="text-red-500 bg-destructive focus:ring-destructive text-destructive-foreground focus-visible:destructive-foreground/90 rounded-base border border-none px-4 py-[10px] outline-none focus:ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
                         onClick$={async() => {
-                            await delReservation(props.data.uuid);
                             popUpVisible.value = false
+
+                            await delReservation(props.data.uuid);
                         }}
                     >
                         Zrušit schůzku
@@ -348,7 +349,9 @@ export const Popup = component$((props: Props) => {
 export const useFormAction = formAction$<EditForm>(async (values, {env}) => {
     const ctx = new Context({env})
     const dUnix = getUnix(new Date(values.date))
+
     await updateReservation(ctx, values.uuid, {
+        dateAt: new Date(values.date),
         dateUnix: dUnix,
         hourEnd: values.hourEnd,
         hourStart: values.hourStart,

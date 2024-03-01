@@ -118,9 +118,9 @@ export async function updateReservation(ctx: Context, uuid: string, rawData: z.T
 
         if (data.tags) reservation.tags = await removeUnknownTag(ctx, data.tags)
 
-        await index.updateDocuments([{
+        await ctx.meili.tasks.waitForTask((await index.updateDocuments([{
             ...reservation,
-        }])
+        }])).taskUid)
 
         return reservation
     } catch (e) {

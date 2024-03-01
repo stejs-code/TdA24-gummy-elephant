@@ -540,16 +540,16 @@ export const useFormLoader = routeLoader$<InitialValues<ReservationFormType>>(as
     // }
 
     return {
-        first_name: "AA",
-        last_name: "CCC",
-        email: "tom@balon.cu",
-        telephone: "fff",
+        first_name: "",
+        last_name: "",
+        email: "",
+        telephone: "",
         tagId: "",
         meetingType: "online",
         date: new Date(),
-        hourStart: 12,
-        hourEnd: 16,
-        note: "amogu",
+        hourStart: 8,
+        hourEnd: 20,
+        note: "",
         lecturer: document.uuid,
     }
 });
@@ -565,16 +565,15 @@ export const useTags = routeLoader$<TagType[]>(async ({env}) => {
     return response
 });
 
-export const getRanges = server$(async function (lecturerId: string, date: Date): Promise<[number, number][]> {
+export const getRanges = server$(async function (lecturerId: string, date: Date, excludeThis: number[] | undefined = undefined): Promise<[number, number][]> {
     const ctx = new Context(this)
     const lectures: any[] = [];
 
     const reservations = await getLecturerReservations(ctx, lecturerId, date)
     if (!(reservations instanceof ApiError)) {
         reservations.map(r => {
-            let end = r.hourEnd
-            if (r.hourEnd !== 20) end += 0.1
-            lectures.push([r.hourStart, end])
+            if(excludeThis && (excludeThis[0] === r.hourStart && excludeThis[1] === r.hourEnd)) return;
+            lectures.push([r.hourStart, r.hourEnd])
         })
     }
     return lectures;
