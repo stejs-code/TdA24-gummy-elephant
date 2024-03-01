@@ -540,16 +540,16 @@ export const useFormLoader = routeLoader$<InitialValues<ReservationFormType>>(as
     // }
 
     return {
-        first_name: "AA",
-        last_name: "CCC",
-        email: "tom@balon.cu",
-        telephone: "fff",
+        first_name: "",
+        last_name: "",
+        email: "",
+        telephone: "",
         tagId: "",
         meetingType: "online",
         date: new Date(),
-        hourStart: 12,
-        hourEnd: 16,
-        note: "amogu",
+        hourStart: 8,
+        hourEnd: 20,
+        note: "",
         lecturer: document.uuid,
     }
 });
