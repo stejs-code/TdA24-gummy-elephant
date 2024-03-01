@@ -63,49 +63,51 @@ export default component$(() => {
 
                     {passwordForm.response.status === "error" && <p class={"text-sm text-red-600"}>{passwordForm.response.message}</p>}
                     {passwordForm.response.status === "success" && <p class={"text-sm text-green-600"}>{passwordForm.response.message}</p>}
-                    <PrimaryButton type={"submit"} onClick$={() => {
+                    <PrimaryButton type={"button"} onClick$={() => {
                         popUpVisible.value = true
                     }}>
                         Změnit heslo
                     </PrimaryButton>
+
+                    <Modal
+                        alert
+                        bind:show={popUpVisible}
+                        class="rounded-md rounded-base max-w-[25rem] p-[28px] shadow-md backdrop:backdrop-blur backdrop:backdrop-brightness-50 dark:backdrop:backdrop-brightness-100"
+                    >
+                        <ModalHeader>
+                            <h2 class="mb-2 text-lg font-bold ">Změnit heslo</h2>
+                        </ModalHeader>
+                        <ModalContent class="mb-2 pb-4 pt-2">
+                            <p class="leading-5">Opravdu si přejete změnit heslo?</p>
+                        </ModalContent>
+                        <ModalFooter class="flex justify-end gap-4">
+                            <button
+                                type={"button"}
+                                class="bg-muted text-muted-foreground focus:ring-ring ring-offset-background focus-visible:ring-ring hover:bg-accent/90 hover:text-accent-foreground rounded-base border border-none px-4 py-[10px] outline-none transition-colors focus:ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+                                onClick$={() => (popUpVisible.value = false)}
+                            >
+                                <span class={"flex items-center"}>
+                                    <p>Zrušit</p>
+                                </span>
+                            </button>
+                            <PrimaryButton
+                                type={"submit"}
+                                class="text-primary-500 bg-destructive focus:ring-destructive text-destructive-foreground focus-visible:destructive-foreground/90 rounded-base border border-none px-4 py-[10px] outline-none focus:ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+                                onClick$={() => (popUpVisible.value = false)}
+                            >
+                                Změnit heslo
+                            </PrimaryButton>
+                        </ModalFooter>
+                        <button
+                            type={"button"}
+                            onClick$={() => (popUpVisible.value = false)}
+                            class="absolute right-6 top-[26px]"
+                        >
+                            <div class="p-1 cursor-pointer"><LuX/></div>
+                        </button>
+                    </Modal>
                 </Form>
             </div>
-            <Modal
-                alert
-                bind:show={popUpVisible}
-                class="rounded-md rounded-base max-w-[25rem] p-[28px] shadow-md backdrop:backdrop-blur backdrop:backdrop-brightness-50 dark:backdrop:backdrop-brightness-100"
-            >
-                <ModalHeader>
-                    <h2 class="mb-2 text-lg font-bold ">Změnit heslo</h2>
-                </ModalHeader>
-                <ModalContent class="mb-2 pb-4 pt-2">
-                    <p class="leading-5">Opravdu si přejete změnit heslo?</p>
-                </ModalContent>
-                <ModalFooter class="flex justify-end gap-4">
-                    <button
-                        class="bg-muted text-muted-foreground focus:ring-ring ring-offset-background focus-visible:ring-ring hover:bg-accent/90 hover:text-accent-foreground rounded-base border border-none px-4 py-[10px] outline-none transition-colors focus:ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
-                        onClick$={() => (popUpVisible.value = false)}
-                    >
-                        <span class={"flex items-center"}>
-                            <LuArrowBigLeft/>
-                            <p>Zpět</p>
-                        </span>
-                    </button>
-                    <button
-                        class="text-primary-500 bg-destructive focus:ring-destructive text-destructive-foreground focus-visible:destructive-foreground/90 rounded-base border border-none px-4 py-[10px] outline-none focus:ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
-                        onClick$={() => (popUpVisible.value = false)}
-                    >
-                        Změnit heslo
-                    </button>
-                </ModalFooter>
-                <button
-                    onClick$={() => (popUpVisible.value = false)}
-                    class="absolute right-6 top-[26px]"
-                >
-                    <div class="p-1 cursor-pointer"><LuX/></div>
-                </button>
-            </Modal>
-
         </>
 
     )

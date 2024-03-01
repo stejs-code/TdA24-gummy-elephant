@@ -103,7 +103,7 @@ export const PasswordInput = component$<InputHTMLAttributes<any> & {
                 }
             </div>
 
-            <p class={"text-xs mt-1 text-red-500"}>
+            <p class={"text-xs mt-1 mb-2 text-red-500"}>
                 {error || <span>&nbsp;</span>}
             </p>
         </div>
