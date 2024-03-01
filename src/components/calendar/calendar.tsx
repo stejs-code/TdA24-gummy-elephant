@@ -172,3 +172,8 @@ export function getSurroundingDaysView(date: Date): ShortDay[] {
     return array
 
 }
+
+
+export function dayKey(day: Day) {
+    return `${day.dateTime}-${day.index}-${day.reservations.map(i => i.uuid + i.student.first_name + i.student.last_name + `${i.hourStart}-${i.hourEnd}`).join(".")}}`
+}

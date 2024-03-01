@@ -152,7 +152,7 @@ export const Popup = component$((props: Props) => {
                     <div class={"flex items-center gap-5 mb-5"}>
                         <div class={"w-1/2"}>
                             <p class={"mb-1"}>Tag:</p>
-                            <input type="text" value={props.data.tags[0].name || "- - -"} disabled={true}
+                            <input type="text" value={props.data.tags[0]?.name || "- - -"} disabled={true}
                                    class={"px-3 py-1.5 border rounded-lg border-gray-300 bg-gray-50 w-full "}/>
                         </div>
                         <div class={"w-1/2"}>
@@ -338,7 +338,9 @@ export const Popup = component$((props: Props) => {
 export const useFormAction = formAction$<EditForm>(async (values, {env}) => {
     const ctx = new Context({env})
     const dUnix = getUnix(new Date(values.date))
+
     await updateReservation(ctx, values.uuid, {
+        dateAt: new Date(values.date),
         dateUnix: dUnix,
         hourEnd: values.hourEnd,
         hourStart: values.hourStart,

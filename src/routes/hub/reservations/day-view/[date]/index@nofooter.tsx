@@ -1,7 +1,7 @@
 import {$, component$, useSignal, useStore, useTask$} from "@builder.io/qwik";
-import {getDateTimeFromDate, getMonthView, getSurroundingDaysView} from "~/components/calendar/calendar";
+import {dayKey, getDateTimeFromDate, getMonthView, getSurroundingDaysView} from "~/components/calendar/calendar";
 import {capitalizeFirstLetter, cn} from "~/app/utils";
-import {routeAction$, routeLoader$, useNavigate} from "@builder.io/qwik-city";
+import {routeAction$, routeLoader$} from "@builder.io/qwik-city";
 import {Context} from "~/app/context";
 import type {Session} from "~/app/session";
 import type {ReservationType} from "~/app/zod";
@@ -17,7 +17,6 @@ import {Popup} from "~/components/reservations/popup";
 export default component$(() => {
     const data = useDayView()
     const action = useGetMonthView()
-    const navigate = useNavigate()
 
     const modalVisible = useSignal(false)
 
@@ -53,7 +52,11 @@ export default component$(() => {
                         setTimeout(() => {
                             store.currentModal = undefined
                         }, 100)
-                        if (reload) await navigate("")
+                        if (reload) {
+                            await action.submit({
+                                date: store.date
+                            })
+                        }
                     })}
                     data={store.currentModal}
                     modalVisible={modalVisible}/>
@@ -238,7 +241,7 @@ export default component$(() => {
                                 <ol class="col-start-1 col-end-2 row-start-1 grid grid-cols-1"
                                     style="grid-template-rows: repeat(12, minmax(0rem, 1fr)) 1rem">
                                     {store.dayReservations.map(i => (
-                                        <li key={i.uuid} class="relative mt-px flex"
+                                        <li key={`${i.uuid}-${i.hourStart}-${i.hourEnd}`} class="relative mt-px flex"
                                             style={`grid-row: ${i.hourStart - 7} / ${i.hourEnd - 7}`}>
                                             <button
                                                 onClick$={() => {
@@ -317,7 +320,7 @@ export default component$(() => {
                                             date: i.date
                                         })
                                     })}
-                                    key={i.dateTime + i.monthRelIndex}
+                                    key={dayKey(i)}
                                     ifevent={!!i.reservations.length}
                                     today={i.dateTime === getDateTimeFromDate(new Date())}
                                     selected={i.dateTime === getDateTimeFromDate(store.date)}
