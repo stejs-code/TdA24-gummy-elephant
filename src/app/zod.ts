@@ -21,6 +21,7 @@ export const contactZod = z.object({
 
 export const notificationZod = z.object({
     uuid: z.string().uuid(),
+    reservation: z.string().uuid(),
     lecturer: z.string().uuid(),
     created_at: z.date(),
     created_unix: z.number(),

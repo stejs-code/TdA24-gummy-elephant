@@ -12,7 +12,7 @@ import {LuX} from "@qwikest/icons/lucide";
 import {Modal} from "@qwik-ui/headless";
 import {InputLabel, SelectInput, TextInput} from "~/components/ui/form";
 import * as v from 'valibot';
-import type {InitialValues} from "@modular-forms/qwik";
+import {InitialValues} from "@modular-forms/qwik";
 import {formAction$, setValues, useForm, valiForm$} from "@modular-forms/qwik";
 import type {ReservationType, TagType} from "~/app/zod";
 import {getTag, listTags} from "~/app/tag";

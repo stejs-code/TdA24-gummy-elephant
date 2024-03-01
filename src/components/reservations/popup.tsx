@@ -1,5 +1,5 @@
-import type {Signal} from "@builder.io/qwik";
-import {component$, $, useSignal, useVisibleTask$} from "@builder.io/qwik";
+import type { Signal} from "@builder.io/qwik";
+import {component$, $, useSignal} from "@builder.io/qwik";
 import {LuArrowBigLeft, LuX} from "@qwikest/icons/lucide";
 import {PrimaryButton} from "~/components/ui/button";
 import {Modal, ModalContent, ModalFooter, ModalHeader} from "@qwik-ui/headless";
@@ -18,7 +18,8 @@ interface Props {
     note: string,
     tagName: string,
     meetingType: string,
-    modalVisible: Signal<boolean>
+    modalVisible: Signal<boolean>,
+    uuid: string
 }
 
 const EditSchema = v.object({
@@ -36,8 +37,7 @@ const EditSchema = v.object({
 type EditForm = v.Input<typeof EditSchema>;
 
 export const Popup = component$((props: Props) => {
-    const popUpVisible = useSignal(false)
-    const modalVisible = props.modalVisible
+    const popUpVisible  = useSignal(false)
     const currentStart = useSignal(8)
     const currentEnd = useSignal(20)
     const ranges = useSignal<[number, number][]>([])
@@ -67,9 +67,9 @@ export const Popup = component$((props: Props) => {
 
       });
 
-      useVisibleTask$(() => {
-        modalVisible.value = true;
-  });
+      // useVisibleTask$(() => {
+      //   modalVisible.value = true;
+      // });
 
     const handleSliderChange = $((data: {
         min: number,
@@ -82,8 +82,7 @@ export const Popup = component$((props: Props) => {
     })
     return (
         <>
-            <button onClick$={() => {modalVisible.value = true}}>Open</button>
-            <Modal bind:show={modalVisible}
+            <Modal bind:show={props.modalVisible}
                    class={"overflow-y-scroll sheet shadow-dark-medium max-h-[100vh] fixed right-0 inset-y-0 my-0 mr-0 h-[100vh] max-w-full lg:w-[600px] rounded-l-md border-0 bg-white p-0 sm:p-6 text-slate-950 backdrop:backdrop-blur backdrop:backdrop-brightness-100"}>
 
                 <div class={"px-3 pt-3 sm:px-6 sm:py-2.5"}>
@@ -91,7 +90,7 @@ export const Popup = component$((props: Props) => {
                         <h2 class={"text-2xl font-bold"}>Rezervace 16 - 19</h2>
                         <div class="p-1 cursor-pointer"
                              onClick$={() => {
-                                 modalVisible.value = false
+                                 props.modalVisible.value = false
                              }}><LuX/></div>
                     </div>
                     <div class={"flex items-center gap-5 mb-5"}>
@@ -137,7 +136,7 @@ export const Popup = component$((props: Props) => {
                                 {(store, p) => (
                                 <div class={"w-1/2"}>
                                     <p class={"mb-1"}>Datum:</p>
-                                    <input {...p} type="date" value={store.value} disabled={false}
+                                    <input {...p} type="date" disabled={false}
                                            class={"px-3 py-1.5 border rounded-lg border-gray-300 bg-white w-full cursor-pointer"}/>
                                 </div>    
                                 )}
@@ -216,7 +215,7 @@ export const Popup = component$((props: Props) => {
                         </div>
                         <div class={"w-full flex justify-between"}>
                             <PrimaryButton type="submit" class={"flex-shrink-0 w-sm"} onClick$={() => {
-                                modalVisible.value = false
+                                props.modalVisible.value = false
                             }}>
                                 <span class={"inline"}
 
@@ -271,7 +270,7 @@ export const Popup = component$((props: Props) => {
                 >
                     <div class="p-1 cursor-pointer"
                          onClick$={() => {
-                             modalVisible.value = false
+                             props.modalVisible.value = false
                          }}><LuX/></div>
                 </button>
             </Modal>
@@ -281,6 +280,6 @@ export const Popup = component$((props: Props) => {
     )
 })
 
-export const useFormAction = formAction$<EditForm>(async () => {
-
+export const useFormAction = formAction$<EditForm>(async (values) => {
+    console.log(values)
 }, valiForm$(EditSchema))

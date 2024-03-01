@@ -47,6 +47,7 @@ export async function createReservation(ctx: Context, rawData: z.input<typeof cr
         await ctx.meili.tasks.waitForTask((await index.addDocuments([reservation])).taskUid)
 
         const notification: Omit<NotificationType, "uuid"> = {
+            reservation: reservation.uuid,
             lecturer: reservation.lecturer,
             created_at: reservation.createdAt,
             created_unix: reservation.createdUnix,
