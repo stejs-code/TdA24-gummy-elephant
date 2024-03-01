@@ -34,7 +34,6 @@ export default component$(() => {
         <>
             <div class={"mt-20 px-4 mx-auto w-full max-w-lg"}>
                 <h1 class={"text-5xl sm:text-5xl font-display mb-4 sm:mb-10"}>Změnit přihlašovací jméno</h1>
-                <p>{nameForm.response.message}</p>
                 <Form>
                     <Field name="newUsername">
                         {(field, props) => <TextInput {...props} error={field.error} type={"text"} name={"newUsername"}
