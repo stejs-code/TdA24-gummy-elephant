@@ -1,10 +1,14 @@
-import {component$, useSignal} from "@builder.io/qwik";
+import {component$, useSignal, $, useTask$} from "@builder.io/qwik";
 import {PrimaryButton} from "~/components/ui/button";
 import {PasswordInput} from "~/components/ui/form";
 import {Modal, ModalContent, ModalFooter, ModalHeader} from "@qwik-ui/headless";
 import {LuArrowBigLeft, LuX} from "@qwikest/icons/lucide";
 import {formAction$, useForm, valiForm$} from "@modular-forms/qwik";
 import * as v from 'valibot';
+import { Context } from "~/app/context";
+import { Session, postSession } from "~/app/session";
+import { comparePassword, encryptPassword, getLecturerIndex, updateLecturer } from "~/app/lecturer";
+import { addOneDay } from "~/app/utils";
 
 const PasswordSchema = v.object({
     password: v.string(),
@@ -20,11 +24,25 @@ type PasswordForm = v.Input<typeof PasswordSchema>;
 export default component$(() => {
 
     const popUpVisible = useSignal(false)
-    const [, { Form, Field }] = useForm<PasswordForm>({
+    const [passwordForm, { Form, Field }] = useForm<PasswordForm>({
         loader: { value: { newPasswordAgain: '', password: '', newPassword: "" } },
-        validate: valiForm$(PasswordSchema),
+        validate: $(async(values) => {
+            const response = await valiForm$(PasswordSchema)(values);
+
+            if(values.newPassword !== values.newPasswordAgain){
+                response.newPasswordAgain = "Hesla se neshodují."
+            }
+            return response;
+        }),
         action: useFormAction(),
     });
+
+    useTask$(({track}) => {
+        track(() => passwordForm.response)
+        if (passwordForm.response.status === "success") {
+  
+        }
+    })
 
     return (
         <>
@@ -33,15 +51,18 @@ export default component$(() => {
                 <h1 class={"text-5xl sm:text-5xl font-display mb-4 sm:mb-10"}>Změnit heslo</h1>
                 <Form>
                     <Field name="password">
-                        {(field, props) => <PasswordInput error={field.error} label={"Aktualní heslo"} placeholder={"Aktualní heslo"}/>
+                        {(field, props) => <PasswordInput {...props} error={field.error} label={"Aktualní heslo"} placeholder={"Aktualní heslo"}/>
                             }
                     </Field>
                     <Field name="newPassword">
-                        {(field, props) => <PasswordInput error={field.error} placeholder={"Nové heslo"}/>}
+                        {(field, props) => <PasswordInput {...props} error={field.error} placeholder={"Nové heslo"}/>}
                     </Field>
                     <Field name="newPasswordAgain">
-                        {(field, props) => <PasswordInput error={field.error} placeholder={"Nové heslo znovu"}/>}
+                        {(field, props) => <PasswordInput {...props} error={field.error} placeholder={"Nové heslo znovu"}/>}
                     </Field>
+
+                    {passwordForm.response.status === "error" && <p class={"text-sm text-red-600"}>{passwordForm.response.message}</p>}
+                    {passwordForm.response.status === "success" && <p class={"text-sm text-green-600"}>{passwordForm.response.message}</p>}
                     <PrimaryButton type={"submit"} onClick$={() => {
                         popUpVisible.value = true
                     }}>
@@ -90,6 +111,34 @@ export default component$(() => {
     )
 })
 
-export const useFormAction = formAction$<PasswordForm>((values) => {
-    // Runs on server
+export const useFormAction = formAction$<PasswordForm>(async (values, event) => {
+    const ctx = new Context(event)
+    const newPassword = values.newPassword
+    const password = values.password
+    const newHashedPassword = await encryptPassword(newPassword)
+    const s = event.sharedMap.get("session") as Session | undefined
+    if(s === undefined) return {status: "error", message: "Musíte být přihlášeni."}
+    const response = await getLecturerIndex(ctx.meili).search("", {
+        filter: [`username = ${s.user.username}`]
+    })
+    const user = response.hits[0]
+    const isMatch = (user.password && password) ? await comparePassword(String(password), user.password) : false
+
+    if(!isMatch){
+        return {status: "error", message: "Špatné heslo."}
+    }else{
+        await updateLecturer(ctx, user.uuid, {password: newPassword})
+        const session = await postSession({
+            user: {...user, password: newHashedPassword}
+        })
+
+        event.cookie.set("session", session.id, {
+            expires: addOneDay(),
+            secure: false, // when https -> true
+            path: "/"
+        })
+
+        return {status: "success", message: "Heslo změněno."}
+    }
+
 }, valiForm$(PasswordSchema));

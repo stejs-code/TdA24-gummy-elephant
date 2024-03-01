@@ -1,7 +1,7 @@
 import type {InputHTMLAttributes, SelectHTMLAttributes} from "@builder.io/qwik";
 import {component$, Slot, useSignal} from "@builder.io/qwik";
 import {cn} from "~/app/utils";
-import {LuArrowBigLeft, LuEye, LuEyeOff, LuX} from "@qwikest/icons/lucide";
+import {LuEye, LuEyeOff} from "@qwikest/icons/lucide";
 
 export const SearchInput = component$(({class: className, ...props}: InputHTMLAttributes<any>) => {
     return (
@@ -94,7 +94,9 @@ export const PasswordInput = component$<InputHTMLAttributes<any> & {
                     name={"password"}
                     placeholder={placeholder}
                     autocomplete={"current-password"}
-                    class={"bg-transparent focus:outline-none w-full"}/>
+                    class={cn("bg-transparent focus:outline-none w-full", className)}
+                    {...other}
+                />
                 {showPassword.value
                     ? <button type={"button"} onClick$={() => {showPassword.value = !showPassword.value}}><LuEye/></button>
                     : <button type={"button"} onClick$={() => {showPassword.value = !showPassword.value}}><LuEyeOff/></button>
