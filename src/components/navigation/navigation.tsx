@@ -19,7 +19,6 @@ import {cn} from "~/app/utils";
 import {useOutsideAlerter} from "~/components/hooks/outsideClick";
 import {Modal} from "@qwik-ui/headless";
 import {getLecturerName} from "~/app/lecturer";
-import {PrimaryButton} from "~/components/ui/button";
 
 interface NavigationProps {
     user?: LecturerType,
@@ -53,7 +52,7 @@ export const Navigation = component$<NavigationProps>((props) => {
                     <ul class={"items-center ml-8 hidden sm:flex"}>
                         {store.user && <li>
                             <LuCalendar class={"-translate-x-2 text-xl mb-1 inline"}/>
-                            <Link href={"/hub/reservations/month-view"} class={"text-md font-semibold underline decoration-primary-300 underline-offset-[3px] decoration-2"}>
+                            <Link href={"/hub/reservations/month-view/today"} class={"text-md font-semibold underline decoration-primary-300 underline-offset-[3px] decoration-2"}>
                                 Rezervace
                             </Link>
                         </li>}

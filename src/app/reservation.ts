@@ -13,7 +13,7 @@ export function getReservationIndex(meili: MeiliSearch) {
     return meili.index<ReservationType>('reservations')
 }
 
-export function getUnix(date: Date){
+export function getUnix(date: Date) {
     return Math.floor(date.getTime() / 1000)
 }
 
@@ -39,7 +39,7 @@ export async function createReservation(ctx: Context, rawData: z.input<typeof cr
             tags: [],
             uuid: crypto.randomUUID(),
         }
-    
+
         if (data.note) reservation.note = sanitizeHtml(data.note)
 
         if (data.tags) reservation.tags = await removeUnknownTag(ctx, data.tags)
@@ -53,7 +53,7 @@ export async function createReservation(ctx: Context, rawData: z.input<typeof cr
             read: false,
             data: {
                 type: "new_lecture",
-                message: `${reservation.dateAt.getDate()}. ${reservation.dateAt.getMonth()+1}. ${reservation.dateAt.getFullYear()} ${reservation.hourStart}:00-${reservation.hourEnd}:00`
+                message: `${reservation.dateAt.getDate()}. ${reservation.dateAt.getMonth() + 1}. ${reservation.dateAt.getFullYear()} ${reservation.hourStart}:00-${reservation.hourEnd}:00`
             }
         }
         await createNotification(ctx, notification);
@@ -163,8 +163,12 @@ export async function updateBulkReservations(ctx: Context, reservations: Reserva
 export async function getLecturerReservations(ctx: Context, lecturer: string, date: Date | undefined = undefined): Promise<ApiError | ReservationType[]> {
     try {
         const index = getReservationIndex(ctx.meili)
-        if(date === undefined) return (await index.getDocuments({filter: `lecturer = ${lecturer}`})).results
-        else return (await index.getDocuments({filter: `lecturer = ${lecturer} AND dateAt = "${date.toISOString()}"`})).results
+        if (date === undefined) {
+            return (await index.getDocuments({filter: `lecturer = ${lecturer}`})).results
+        } else {
+            const iso = date.toISOString().slice(0 , 10) + "T00:00:00.000Z"
+            return (await index.getDocuments({filter: `lecturer = ${lecturer} AND dateAt = "${iso}"`})).results
+        }
 
     } catch (e) {
         console.error("Error while get lecturer reservations.", e)

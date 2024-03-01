@@ -59,7 +59,7 @@ const client = new MeiliSearch({
 
     await client.index("reservations").updateSettings({
         sortableAttributes: ["created_unix"],
-        filterableAttributes: ["lecturer", "dateAt"]
+        filterableAttributes: ["lecturer", "dateAt", "dateUnix"]
     })
 })()
 
