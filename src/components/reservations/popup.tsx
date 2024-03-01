@@ -12,7 +12,7 @@ interface Props {
     first_name: string,
     last_name: string,
     email: string,
-    phone: number,
+    phone: string,
     date: Date,
     time: number[],
     note: string,
@@ -84,7 +84,7 @@ export const Popup = component$((props: Props) => {
         <>
             <button onClick$={() => {modalVisible.value = true}}>Open</button>
             <Modal bind:show={modalVisible}
-                   class={"overflow-y-scroll sheet shadow-dark-medium max-h-[100vh] fixed right-0 inset-y-0 my-0 mr-0 h-[100vh] max-w-full md:w-[40vw] rounded-l-md border-0 bg-white p-0 sm:p-6 text-slate-950 backdrop:backdrop-blur backdrop:backdrop-brightness-100"}>
+                   class={"overflow-y-scroll sheet shadow-dark-medium max-h-[100vh] fixed right-0 inset-y-0 my-0 mr-0 h-[100vh] max-w-full lg:w-[600px] rounded-l-md border-0 bg-white p-0 sm:p-6 text-slate-950 backdrop:backdrop-blur backdrop:backdrop-brightness-100"}>
 
                 <div class={"px-3 pt-3 sm:px-6 sm:py-2.5"}>
                     <div class={"flex items-center justify-between mb-6"}>
@@ -143,7 +143,7 @@ export const Popup = component$((props: Props) => {
                                 )}
                                 
                             </Field>
-                            <div class={"w-1/2"}>
+                            <div class={"w-1/2 translate-y-8"}>
                                 <MultiRangeSlider
                                     id={"timeRange"}
                                     min={8}

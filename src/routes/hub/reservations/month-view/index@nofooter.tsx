@@ -9,7 +9,7 @@ export default component$(() => {
 
     return (
         <div class={"px-4 "}>
-            <Popup name={""} surname={""} mail={""} phone={2} date={3} time={1} comment={""} modalVisible={popupState}/>
+            <Popup first_name={"HAna"} last_name={"Lacinova"} email={"lacinka@susysus.ui"} phone={"+420 737 573 200"} tagName={"BSM"} meetingType={"u me doma v garazi"} date={3} time={1} note={"qicqeibciquebcviyqgbviqbveiqbvibqcibvcqibvciqbcvqbvcqwvcqv"} modalVisible={popupState}/>
             <div class="lg:flex lg:h-full lg:flex-col">
                 <ReservationsHeader type={"Měsíční"}/>
                 <div class="shadow ring-1 ring-black ring-opacity-5 lg:flex lg:flex-auto lg:flex-col">
