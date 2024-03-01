@@ -1,6 +1,6 @@
-import type { QRL} from "@builder.io/qwik";
+import type {QRL} from "@builder.io/qwik";
 import {$, component$, useContextProvider, useSignal, useStore, useTask$} from "@builder.io/qwik";
-import {CalendarContext, getDateTimeFromDate, getMonthView} from "~/components/calendar/calendar";
+import {CalendarContext, dayKey, getDateTimeFromDate, getMonthView} from "~/components/calendar/calendar";
 import {capitalizeFirstLetter, cn} from "~/app/utils";
 import {Link, routeAction$, routeLoader$, useNavigate} from "@builder.io/qwik-city";
 import {Context} from "~/app/context";
@@ -13,7 +13,6 @@ import {Popup} from "~/components/reservations/popup";
 export default component$(() => {
     const data = useMonthView()
     const action = useGetMonthView()
-    const navigate = useNavigate()
 
     const modalVisible = useSignal(false)
 
@@ -44,11 +43,15 @@ export default component$(() => {
         <div class={"px-4 flex-grow flex flex-col"}>
             {store.currentModal && <>
                 <Popup
-                    onClose$={$(async (reload: boolean) =>{
+                    onClose$={$(async (reload: boolean) => {
                         setTimeout(() => {
                             store.currentModal = undefined
                         }, 100)
-                        if (reload) await navigate("")
+                        if (reload) {
+                            await action.submit({
+                                date: store.date
+                            })
+                        }
                     })}
                     data={store.currentModal}
                     modalVisible={modalVisible}/>
@@ -166,7 +169,7 @@ export default component$(() => {
                             {store.days.map((day) => (
                                 <LgDayCell
                                     openReservation$={openReservation}
-                                    key={day.dateTime + day.index}
+                                    key={dayKey(day)}
                                     dateTime={day.dateTime}
                                     dayN={day.dayIndex}
                                     reservations={day.reservations}
@@ -179,7 +182,7 @@ export default component$(() => {
                         <div class="isolate grid w-full grid-cols-7 grid-rows-6 gap-px lg:hidden">
                             {store.days.map((day) => (
                                 <SmDayCell
-                                    key={day.dateTime + day.index}
+                                    key={dayKey(day)}
                                     dateTime={day.dateTime}
                                     reservations={day.reservations}
                                     dayN={day.dayIndex}
@@ -217,7 +220,7 @@ export const LgDayCell = component$<{
                   class={today && "bg-primary-300 text-white flex h-8 w-8 justify-center items-center rounded-full"}>{dayN}</time>
             <ol class="mt-2">
                 {reservations.map(i => (
-                    <li key={i.uuid}>
+                    <li key={`${i.uuid}-${i.hourStart}-${i.hourEnd}`}>
                         <button onClick$={() => openReservation$(i)} class="group flex w-full">
                             <p class="truncate font-medium text-gray-900 group-hover:text-primary-300">{i.student.first_name} {i.student.last_name}</p>
                             <time dateTime={`${dateTime}T${i.hourStart}:00`}
@@ -248,7 +251,7 @@ export const SmDayCell = component$<{
             <span class="sr-only">0 events</span>
             <span class="-mx-0.5 mt-auto flex flex-wrap-reverse">
                 {reservations.map(i => (
-                    <span key={i.uuid} class="mx-0.5 mb-1 h-1.5 w-1.5 rounded-full bg-gray-400"></span>
+                    <span key={`${i.uuid}-${i.hourStart}-${i.hourEnd}`} class="mx-0.5 mb-1 h-1.5 w-1.5 rounded-full bg-gray-400"></span>
                 ))}
           </span>
         </Link>
