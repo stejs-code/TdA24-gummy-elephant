@@ -1,4 +1,4 @@
-import type { QRL} from "@builder.io/qwik";
+import type {QRL} from "@builder.io/qwik";
 import {$, component$, useContext, useSignal} from "@builder.io/qwik";
 import type {NotificationType} from "~/app/zod";
 import {LuBell} from "@qwikest/icons/lucide";
@@ -41,7 +41,8 @@ export const Notifications = component$(() => {
                 onClick$={() => popupVisible.value = !popupVisible.value}>
                 <span class={"relative"}>
                     {store.notification.unread
-                        ? <span class={"block absolute -top-1 translate-x-4 bg-red-500 aspect-square rounded-full w-2 h-2"}/>
+                        ? <span
+                            class={"block absolute -top-1 translate-x-4 bg-red-500 aspect-square rounded-full w-2 h-2"}/>
                         : ""
                     }
                     <LuBell class={"text-2xl"}/>
@@ -56,9 +57,9 @@ export const Notifications = component$(() => {
             </h3>
             <div class={"h-80 overflow-y-scroll no-scrollbar"}>
                 {store.notification.notifications.map(i => (
-                    <Notification onClick$={$(async() => {
+                    <Notification onClick$={$(async () => {
                         const res = await handleNot(i.reservation, i.uuid);
-                        if(!(res instanceof ApiError)) {
+                        if (!(res instanceof ApiError)) {
                             navigate(`/hub/reservations/day-view/${getDateTimeFromDate(new Date(res.dateAt))}`)
                         }
                     })} key={i.uuid} data={i}/>
@@ -87,7 +88,7 @@ export const Notifications = component$(() => {
 })
 
 
-export const Notification = component$<{ data: NotificationType, onClick$: QRL<()=>void> }>(({data, onClick$}) => {
+export const Notification = component$<{ data: NotificationType, onClick$: QRL<() => void> }>(({data, onClick$}) => {
     return <button onClick$={() => {
         return onClick$()
         // const res = await handleNot(data.uuid);

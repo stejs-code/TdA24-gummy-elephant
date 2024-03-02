@@ -43,8 +43,8 @@ const delReservation = server$(async function(id) {
 
 export const Popup = component$((props: Props) => {
     const popUpVisible = useSignal(false)
-    const currentStart = useSignal(8)
-    const currentEnd = useSignal(20)
+    const currentStart = useSignal(props.data.hourStart)
+    const currentEnd = useSignal(props.data.hourEnd)
     const ranges = useSignal<[number, number][]>([])
 
 

@@ -142,6 +142,12 @@ export async function getMonthView(ctx: Context, lecturerId: string, date: Date)
     return Array
         .from(daysMap)
         .map(([, i]) => i)
+        .map(i => {
+            return  {
+                ...i,
+                reservations: i.reservations.sort((a, b) => a.hourStart - b.hourStart)
+            }
+        })
         .sort((a, b) => a.index - b.index)
 
 }
