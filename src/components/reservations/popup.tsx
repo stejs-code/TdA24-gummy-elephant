@@ -322,8 +322,8 @@ export const Popup = component$((props: Props) => {
                         class="text-red-500 bg-destructive focus:ring-destructive text-destructive-foreground focus-visible:destructive-foreground/90 rounded-base border border-none px-4 py-[10px] outline-none focus:ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
                         onClick$={async() => {
                             popUpVisible.value = false
-
                             await delReservation(props.data.uuid);
+                            props.onClose$(true);
                         }}
                     >
                         Zrušit schůzku
